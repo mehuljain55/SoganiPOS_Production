@@ -1,0 +1,67 @@
+package com.Soganis.Repository;
+
+import com.Soganis.Entity.Items;
+import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+public interface ItemsRepository extends JpaRepository<Items, Integer> {
+
+    @Query("SELECT i FROM Items i WHERE (:searchTerm IS NULL OR i.itemCode LIKE CONCAT(:searchTerm, '%')) and i.storeId=:storeId ORDER BY i.itemCode ASC, i.itemSize ASC")
+    List<Items> findAllFiltered(@Param("searchTerm") String searchTerm,@Param("storeId") String storeId);
+
+
+    @Query("SELECT i FROM Items i WHERE i.itemBarcodeID = :itemBarcodeID and i.storeId = :storeId")
+    Items getItemByItemBarcodeID(@Param("itemBarcodeID") String itemBarcodeID,@Param("storeId") String storeId);
+    
+    @Query("SELECT i FROM Items i WHERE i.group_id = :groupId")
+    List<Items> findItemsByGroupId(@Param("groupId") String groupId);
+
+    @Query("SELECT i FROM Items i WHERE i.itemCode = :itemCode")
+    Items findItemsByItemCode(@Param("itemCode") String itemCode);
+
+    @Query("SELECT DISTINCT i.itemCategory FROM Items i where i.storeId=:storeId ORDER BY i.itemCategory ASC")
+    List<String> findDistinctItemCategories(@Param("storeId")String storeId);
+
+    @Query("SELECT DISTINCT i.itemType FROM Items i where i.storeId=:storeId ORDER BY i.itemType ASC")
+    List<String> findDistinctItemTypes(@Param("storeId") String storeId);
+
+
+    @Query("SELECT DISTINCT i.itemSize FROM Items i WHERE (i.itemType = :itemType and i.storeId=:storeId) ORDER BY i.itemSize ASC")
+    List<String> findDistinctItemSizeByItemType(@Param("itemType") String itemType,@Param("storeId") String storeId);
+
+    @Query("SELECT DISTINCT i.itemTypeCode FROM Items i WHERE i.itemType = :itemType and i.storeId=:storeId")
+    String findDistinctItemTypeCode(@Param("itemType") String itemType,@Param("storeId") String storeId);
+
+    @Query("SELECT DISTINCT i.schoolCode FROM Items i WHERE i.itemType = :itemType")
+    List<String> findDistinctSchoolCodeByItemType(@Param("itemType") String itemType);
+
+    @Query("SELECT DISTINCT i.itemType FROM Items i where i.itemCategory=:itemCategory and i.storeId=:storeId")
+    List<String> findDistinctItemTypesBySchool(@Param("itemCategory") String itemCategory,@Param("storeId") String storeId);
+
+    @Query("SELECT DISTINCT i.itemCategory FROM Items i where i.itemType=:itemType and i.storeId=:storeId")
+    List<String> findDistinctSchoolByType(@Param("itemType") String itemType,@Param("storeId") String storeId);
+
+    @Query("SELECT  DISTINCT i.itemColor  FROM Items i where i.itemCategory = :itemCategory and i.itemType=:itemType")
+    List<String> findDistinctItemColor(@Param("itemCategory") String itemCategory,
+            @Param("itemType") String itemType);
+
+    @Query("SELECT i FROM Items i WHERE i.itemCategory = :itemCategory and i.storeId=:storeId ORDER BY i.itemType ASC,i.itemColor ASC, i.itemSize ASC")
+    List<Items> findItemsBySchool(@Param("itemCategory") String itemCategory,@Param("storeId") String storeId);
+
+    @Query("SELECT i FROM Items i WHERE i.itemType = :itemType and i.storeId=:storeId ORDER BY i.itemCategory ASC,i.itemColor ASC, i.itemSize ASC")
+    List<Items> findItemsByItemType(@Param("itemType") String itemType,@Param("storeId") String storeId);
+
+    @Query("SELECT DISTINCT i.schoolCode FROM Items i where i.itemCategory=:itemCategory")
+    String findDistinctSchoolCode(@Param("itemCategory") String itemCategory);
+
+    @Query("SELECT i FROM Items i WHERE i.itemCategory = :itemCategory and i.itemType=:itemType and i.storeId=:storeId")
+    List<Items> findItemsBySchoolAndType(@Param("itemCategory") String itemCategory,
+                                         @Param("itemType") String itemType,
+                                         @Param("storeId")String storeId);
+
+    @Query("SELECT i FROM Items i WHERE i.itemCode = :itemCode and i.storeId=:storeId")
+    List<Items> checkItemCodeForNewItem(@Param("itemCode") String itemCode,@Param("storeId") String storeId);
+
+}
