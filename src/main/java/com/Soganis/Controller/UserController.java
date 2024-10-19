@@ -392,9 +392,9 @@ public class UserController {
 
 
     @PostMapping("/customer_order_details")
-    public ResponseEntity<String> customer_order_detail(@RequestBody CustomerOrderModel order) {
+    public ResponseEntity<String> customer_order_detail(@RequestBody CustomerOrderBook order) {
         try {
-            String status = service.updateCustomerOrder(order.getCustomerOrderBook(),order.getStoreId());
+            String status = service.updateCustomerOrder(order,order.getStoreId());
             return ResponseEntity.ok(status);
         } catch (Exception e) {
             e.printStackTrace();
@@ -403,9 +403,9 @@ public class UserController {
     }
 
     @PostMapping("/view/customer_order_details")
-    public ResponseEntity<List<CustomerOrderBook>> customer_order_detail(@RequestParam("status") String status) {
+    public ResponseEntity<List<CustomerOrderBook>> customer_order_detail(@RequestParam("status") String status,@RequestParam("storeId") String storeId) {
         try {
-            List<CustomerOrderBook> lst = service.customerOrderDetails(status);
+            List<CustomerOrderBook> lst = service.customerOrderDetails(status,storeId);
             return ResponseEntity.ok(lst);
         } catch (Exception e) {
             e.printStackTrace();
@@ -447,9 +447,9 @@ public class UserController {
     }
 
     @GetMapping("/view-order")
-    public ResponseEntity<List<PurchaseOrderBook>> viewOrder() {
+    public ResponseEntity<List<PurchaseOrderBook>> viewOrder(@RequestParam("storeId") String storeId) {
         try {
-            List<PurchaseOrderBook> order = inventoryService.view_order();
+            List<PurchaseOrderBook> order = inventoryService.view_order(storeId);
             return ResponseEntity.ok(order);
         } catch (Exception e) {
             e.printStackTrace();
@@ -458,10 +458,10 @@ public class UserController {
     }
 
     @GetMapping("/generate_barcodes")
-    public ResponseEntity<byte[]> generateBarcodeId(@RequestParam("itemCode") String itemCode) {
+    public ResponseEntity<byte[]> generateBarcodeId(@RequestParam("itemCode") String itemCode,@RequestParam("storeId") String storeId) {
         try {
             // Get the generated barcode image from the service
-            BufferedImage barcodeImage = itemService.generateBarcodeImage(itemCode);
+            BufferedImage barcodeImage = itemService.generateBarcodeImage(itemCode,storeId);
 
             // Convert the BufferedImage to a byte array
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -521,11 +521,11 @@ public class UserController {
     }
 
     @GetMapping("/search/item_code")
-    public ResponseEntity<Items> item_list_code(@RequestParam("barcode") String barcode) {
+    public ResponseEntity<Items> item_list_code(@RequestParam("barcode") String barcode,@RequestParam("storeId") String storeId) {
 
         try {
 
-            Items item = itemService.getItemListCode(barcode);
+            Items item = itemService.getItemListCode(barcode,storeId);
             return ResponseEntity.ok(item);
 
         } catch (Exception e) {

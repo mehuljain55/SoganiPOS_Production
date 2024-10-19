@@ -266,8 +266,8 @@ public class ItemService {
         return cash_collection;
     }
 
-    public Items getItemListCode(String itemCode) {
-        Items item = itemRepo.findItemsByItemCode(itemCode);
+    public Items getItemListCode(String itemCode,String storeId) {
+        Items item = itemRepo.findItemsByItemCode(itemCode,storeId);
         return item;
     }
 
@@ -451,8 +451,8 @@ public class ItemService {
         }
     }
 
-    public BufferedImage generateBarcodeImage(String itemCode) {
-        Items item = itemRepo.findItemsByItemCode(itemCode);
+    public BufferedImage generateBarcodeImage(String itemCode,String storeId) {
+        Items item = itemRepo.findItemsByItemCode(itemCode,storeId);
         return generateCode(item.getItemCategory(), item.getItemCode(), item.getDescription());
     }
 

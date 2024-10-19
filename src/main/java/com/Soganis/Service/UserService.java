@@ -97,8 +97,8 @@ public class UserService {
         }
     }
 
-    public List<CustomerOrderBook> customerOrderDetails(String status) {
-        List<CustomerOrderBook> lst = customerOrderRepo.findByStatus(status);
+    public List<CustomerOrderBook> customerOrderDetails(String status,String storeId) {
+        List<CustomerOrderBook> lst = customerOrderRepo.findByStatus(status,storeId);
         return lst;
     }
 

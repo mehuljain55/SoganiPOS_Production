@@ -104,6 +104,7 @@ public class InventoryService {
             order.setDate(new Date());
             order.setSize(item.getItemSize());
             order.setColor(item.getItemColor());
+            order.setStoreId(storeId);
             order.setStatus("NOT GENERATED");
             order.setCurrentStock(currentStock);
             purchaseOrderRepo.save(order);
@@ -117,9 +118,9 @@ public class InventoryService {
     
    
     
-    public List<PurchaseOrderBook>  view_order()
+    public List<PurchaseOrderBook>  view_order(String storeId)
     {
-      List<PurchaseOrderBook> lst=purchaseOrderRepo.findItemsWithStatusNotGenerated();
+      List<PurchaseOrderBook> lst=purchaseOrderRepo.findItemsWithStatusNotGenerated(storeId);
       return lst;
     }
     

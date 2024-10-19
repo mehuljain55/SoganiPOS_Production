@@ -18,8 +18,8 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
     @Query("SELECT i FROM Items i WHERE i.group_id = :groupId")
     List<Items> findItemsByGroupId(@Param("groupId") String groupId);
 
-    @Query("SELECT i FROM Items i WHERE i.itemCode = :itemCode")
-    Items findItemsByItemCode(@Param("itemCode") String itemCode);
+    @Query("SELECT i FROM Items i WHERE i.itemCode = :itemCode and i.storeId=:storeId")
+    Items findItemsByItemCode(@Param("itemCode") String itemCode,@Param("storeId") String storeId);
 
     @Query("SELECT DISTINCT i.itemCategory FROM Items i where i.storeId=:storeId ORDER BY i.itemCategory ASC")
     List<String> findDistinctItemCategories(@Param("storeId")String storeId);

@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface CustomerOrderRepo extends JpaRepository<CustomerOrderBook,Integer> {
-      @Query("SELECT cob FROM CustomerOrderBook cob WHERE cob.status = :status")
-    List<CustomerOrderBook> findByStatus(@Param("status") String status);
+      @Query("SELECT cob FROM CustomerOrderBook cob WHERE cob.status = :status and cob.storeId=:storeId")
+    List<CustomerOrderBook> findByStatus(@Param("status") String status,@Param("storeId") String storeId);
 }
