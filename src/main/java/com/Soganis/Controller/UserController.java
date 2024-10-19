@@ -44,7 +44,7 @@ import javax.imageio.ImageIO;
 import org.springframework.http.MediaType;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 public class UserController {
 
     @Autowired

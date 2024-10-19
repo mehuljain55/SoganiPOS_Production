@@ -19,7 +19,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 
 @RestController
-@RequestMapping("/sales")
+@RequestMapping("/api/sales")
 public class SalesController {
 
     @Autowired
