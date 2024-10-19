@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.Soganis.SoganisApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.700 s -- in com.Soganis.SoganisApplicationTests

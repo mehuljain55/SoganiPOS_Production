@@ -187,36 +187,41 @@ public class UserService {
     }
 
     public String updateUserCashCollectionReport() {
-        List<User> users = userRepo.findAll();
-        List<UserCashCollection> userCashList = new ArrayList<>();
-        for (User user : users) {
-            UserCashCollection user_cash_collection = new UserCashCollection();
-            String storeId=itemService.getStoreId(user.getUserId());
-            List<Billing> bills = billRepo.findByUserIdAndBillDate(user.getUserId(), new Date(),storeId);
+        try {
+            List<User> users = userRepo.findAll();
 
-            int user_cash_collected = bills.stream()
-                    .mapToInt(Billing::getFinal_amount)
-                    .filter(amount -> amount > 0)
-                    .sum();
+            List<UserCashCollection> userCashList = new ArrayList<>();
+            for (User user : users) {
+                String storeId=itemService.getStoreId(user.getUserId());
+                UserCashCollection user_cash_collection = new UserCashCollection();
+                List<Billing> bills = billRepo.findByUserIdAndBillDate(user.getUserId(), new Date(),storeId);
 
-            int user_cash_returned = bills.stream()
-                    .mapToInt(Billing::getFinal_amount)
-                    .filter(amount -> amount < 0)
-                    .sum();
+                int user_cash_collected = bills.stream()
+                        .mapToInt(Billing::getFinal_amount)
+                        .filter(amount -> amount > 0)
+                        .sum();
 
-            user_cash_returned = user_cash_returned * -1;
-            int total = user_cash_collected - user_cash_returned;
+                int user_cash_returned = bills.stream()
+                        .mapToInt(Billing::getFinal_amount)
+                        .filter(amount -> amount < 0)
+                        .sum();
 
-            user_cash_collection.setUserId(user.getUserId());
-            user_cash_collection.setCollection_date(new Date());
-            user_cash_collection.setUserName(user.getSname());
-            user_cash_collection.setCash_collection(user_cash_collected);
-            user_cash_collection.setCash_return(user_cash_returned);
-            user_cash_collection.setFinal_cash_collection(total);
-            userCashList.add(user_cash_collection);
+                user_cash_returned = user_cash_returned * -1;
+                int total = user_cash_collected - user_cash_returned;
+                user_cash_collection.setUserId(user.getUserId());
+                user_cash_collection.setCollection_date(new Date());
+                user_cash_collection.setUserName(user.getSname());
+                user_cash_collection.setCash_collection(user_cash_collected);
+                user_cash_collection.setCash_return(user_cash_returned);
+                user_cash_collection.setFinal_cash_collection(total);
+                userCashList.add(user_cash_collection);
 
+            }
+            userCashCollectionRepo.saveAll(userCashList);
+        }catch (Exception e)
+        {
+            System.out.println("Exception at User Cash");
         }
-        userCashCollectionRepo.saveAll(userCashList);
         return "Success";
 
     }

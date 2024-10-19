@@ -89,7 +89,6 @@ public class UserController {
     public ResponseEntity<String> stockReturn(@RequestBody List<ItemReturnModel> items) {
 
         String status = itemService.stockReturn(items);
-        String storeId=itemService.getStoreId(items.get(0).getUserId());
         String updateCollectionReport=service.updateUserCashCollectionReport();
         return ResponseEntity.ok(status);
 
@@ -112,10 +111,11 @@ public class UserController {
     @PostMapping("/billRequest")
     public ResponseEntity<byte[]> generateBill(@RequestBody Billing bill) {
         try {
+            String storeId=itemService.getStoreId(bill.getUserId());
+            bill.setStoreId(storeId);
             Billing createBill = itemService.saveBilling(bill);
             createBill.setBill(bill.getBill());
             String status=service.updateUserCashCollectionReport();
-            String storeId=itemService.getStoreId(bill.getUserId());
 
             byte[] pdfBytes = print_bill(createBill.getBillNo(),storeId);
 

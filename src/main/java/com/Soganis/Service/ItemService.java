@@ -14,6 +14,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -55,18 +56,29 @@ public class ItemService {
 
     public Billing saveBilling(Billing billing) {
         try {
-            Integer maxBillNo = billRepo.findMaxBillNoByStoreId(billing.getStoreId())+1;
+            String storeId=getStoreId(billing.getUserId());
+            Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId);
             if (maxBillNo == null) {
                 maxBillNo = 1;  // Start from 0 if no previous bills
+            }
+            else{
+                maxBillNo=maxBillNo+1;
             }
 
             int final_amount = 0;
             billing.setBill_date(new Date());
             billing.setBillType("Retail");
-            Billing savedBilling = billRepo.save(billing);
-            String storeId=getStoreId(billing.getUserId());
+            billing.setStoreId(storeId);
+            billing.setBillNo(maxBillNo);
+            Billing savedBilling = new Billing();
+            savedBilling.setBillNo(maxBillNo);
+            System.out.println("Size:"+billing.getBill().size());
+            List<BillingModel> billingModelList=new ArrayList<>();
             if (billing.getBill() != null) {
+                int count=1;
                 for (BillingModel billingModel : billing.getBill()) {
+                    System.out.println("Bill Save"+count);
+                    count++;
                     billingModel.setBilling(savedBilling);
                     final_amount = final_amount + billingModel.getTotal_amount();
                     billingModel.setBill_date(new Date());
@@ -82,10 +94,21 @@ public class ItemService {
                     String status = inventoryService.updateInventory(billingModel,storeId);
                     System.out.println(status);
                     billingModel.setStoreName(storeId);
-                    billModelRepository.save(billingModel);
+                    billingModelList.add(billingModel);
+                 //   billModelRepository.save(billingModelList);
                 }
                 savedBilling.setBillNo(maxBillNo);
+                savedBilling.setBill_date(new Date());
+                savedBilling.setBillType("RETAIL");
+                savedBilling.setCustomerName(billing.getCustomerName());
+                savedBilling.setCustomerMobileNo(billing.getCustomerMobileNo());
+                savedBilling.setItem_count(billing.getItem_count());
+                savedBilling.setPaymentMode(billing.getPaymentMode());
+                savedBilling.setStoreId(billing.getStoreId());
+                savedBilling.setUserId(billing.getUserId());
+                billing.setSchoolName(billing.getSchoolName());
                 savedBilling.setFinal_amount(final_amount);
+                savedBilling.setBill(billingModelList);
                 savedBilling.setStoreId(storeId);
                 billRepo.save(savedBilling);
                 savedBilling.setBill(billing.getBill());
@@ -101,16 +124,22 @@ public class ItemService {
 
         try {
 
-            Integer maxBillNo = billRepo.findMaxBillNoByStoreId(billing.getStoreId())+1;
+            String storeId=getStoreId(billing.getUserId());
+            Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId);
             if (maxBillNo == null) {
                 maxBillNo = 1;  // Start from 0 if no previous bills
             }
+            else {
+                maxBillNo=maxBillNo+1;
+            }
             int final_amount = 0;
-            billing.setBill_date(new Date());
-            billing.setBillType("Exchange");
-            Billing savedBilling = billRepo.save(billing);
+
+            Billing savedBilling = new Billing();
+            savedBilling.setBillNo(maxBillNo);
+            savedBilling.setBillType("Exchange");
+            savedBilling.setStoreId(storeId);
             List<BillingModel> bill = billing.getBill();
-            String storeId=getStoreId(billing.getUserId());
+            List<BillingModel> billingModelList=new ArrayList<>();
             for (ItemReturnModel itemModel : itemList) {
                 Items item = itemRepo.getItemByItemBarcodeID(itemModel.getBarcodedId(),storeId);
                 int totalAmount = itemModel.getReturn_quantity() * itemModel.getPrice();
@@ -125,7 +154,9 @@ public class ItemService {
                 billingModel.setItemCategory(item.getItemCategory());
                 billingModel.setQuantity((itemModel.getReturn_quantity()) * -1);
                 billingModel.setTotal_amount(totalAmount * -1);
+                billingModel.setStoreName(storeId);
                 bill.add(billingModel);
+
 
                 Optional<BillingModel> opt = billModelRepository.findById(itemModel.getSno());
                 if (opt.isPresent()) {
@@ -152,12 +183,14 @@ public class ItemService {
 
                     String status = inventoryService.updateInventory(billingModel,storeId);
                     System.out.println(status);
+                    billingModelList.add(billingModel);
 
-                    billModelRepository.save(billingModel);
+
                 }
                 System.out.println(billing.getBalanceAmount());
-                savedBilling.setBillNo(maxBillNo);
+                savedBilling.setBill_date(new Date());
                 savedBilling.setFinal_amount(final_amount);
+                savedBilling.setBill(billingModelList);
                 billRepo.save(savedBilling);
                 savedBilling.setBill(billing.getBill());
             }
@@ -170,25 +203,40 @@ public class ItemService {
 
     public Billing saveInterCompanyBilling(Billing billing) {
         try {
-            int final_amount = 0;
-            billing.setBill_date(new Date());
-            billing.setBillType("Company");
-            Billing savedBilling = billRepo.save(billing);
             String storeId=getStoreId(billing.getUserId());
+            Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId);
+            if (maxBillNo == null) {
+                maxBillNo = 1;  // Start from 0 if no previous bills
+            }
+            else {
+                maxBillNo=maxBillNo+1;
+            }
+            int final_amount = 0;
+            Billing savedBilling = new Billing();
+            savedBilling.setBillNo(maxBillNo);
+            savedBilling.setBillType("Company");
+            List<BillingModel> billingModelList=new ArrayList<>();
             if (billing.getBill() != null) {
                 for (BillingModel billingModel : billing.getBill()) {
                     billingModel.setBilling(savedBilling);
                     final_amount = final_amount + billingModel.getTotal_amount();
                     billingModel.setBill_date(new Date());
+                    billingModel.setStoreName(storeId);
                     String status = inventoryService.updateInventory(billingModel,storeId);
                     System.out.println(status);
                     billingModel.setStoreName(storeId);
-                    billModelRepository.save(billingModel);
+                    billingModelList.add(billingModel);
                 }
                 savedBilling.setFinal_amount(final_amount);
+                savedBilling.setBill_date(new Date());
+                savedBilling.setBill(billingModelList);
+                savedBilling.setUserId(billing.getUserId());
+                savedBilling.setItem_count(billing.getItem_count());
+                savedBilling.setPaymentMode(billing.getPaymentMode());
+                savedBilling.setSchoolName(billing.getSchoolName());
                 savedBilling.setStoreId(storeId);
                 billRepo.save(savedBilling);
-                savedBilling.setBill(billing.getBill());
+
             }
             return savedBilling;
         } catch (Exception e) {
@@ -225,26 +273,33 @@ public class ItemService {
 
     public String stockReturn(List<ItemReturnModel> items) {
         try {
-
+            String storeId=getStoreId(items.get(0).getUserId());
+            Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId);
+            if (maxBillNo == null) {
+                maxBillNo = 1;  // Start from 0 if no previous bills
+            }
+            else {
+                maxBillNo=maxBillNo+1;
+            }
             if (items != null) {
                 int bill_no = 0;
                 int finalAmount = 0;
                 String customerName = "";
                 String customerMobileNo = "";
                 String school = "";
-                String userId = "";
-                String storeId="";
+                String userId = items.get(0).getUserId();
                 System.out.println(items);
-                Billing billingRequest = new Billing();
-                Billing billing = billRepo.save(billingRequest);
-
+                Billing billing = new Billing();
+                billing.setBillNo(maxBillNo);
+                billing.setStoreId(storeId);
+                billRepo.save(billing);
 
 
                 for (ItemReturnModel itemModel : items) {
                     Optional<BillingModel> opt = billModelRepository.findById(itemModel.getSno());
                     if (opt.isPresent()) {
                         BillingModel billModel = opt.get();
-                        Billing bill = billRepo.getBillByNo(billModel.getBilling().getBillNo());
+                        Billing bill = billRepo.getBillByNo(billModel.getBilling().getBillNo(),storeId);
                         bill_no = bill.getBillNo();
                         userId = itemModel.getUserId();
                         customerName = bill.getCustomerName();
@@ -293,13 +348,6 @@ public class ItemService {
                 billing.setSchoolName(school);
                 billing.setFinal_amount((finalAmount) * -1);
 
-                billing.setStoreId(storeId);
-
-                Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId)+1;
-                if (maxBillNo == null) {
-                    maxBillNo = 0;  // Start from 0 if no previous bills
-                }
-                billing.setBillNo(maxBillNo);
 
 
                 billRepo.save(billing);
@@ -332,9 +380,12 @@ public class ItemService {
         try {
 
             String storeId=getStoreId(itemModel.getUserId());
-            Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId)+1;
+            Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId);
             if (maxBillNo == null) {
                 maxBillNo = 0;  // Start from 0 if no previous bills
+            }
+            else {
+                maxBillNo=maxBillNo+1;
             }
             int bill_no = 0;
             int finalAmount = 0;
@@ -345,7 +396,7 @@ public class ItemService {
             Optional<BillingModel> opt = billModelRepository.findById(itemModel.getSno());
             if (opt.isPresent()) {
                 BillingModel billModel = opt.get();
-                Billing bill = billRepo.getBillByNo(billModel.getBilling().getBillNo());
+                Billing bill = billRepo.getBillByNo(billModel.getBilling().getBillNo(),storeId);
                 bill_no = bill.getBillNo();
                 userId = itemModel.getUserId();
                 customerName = bill.getCustomerName();
@@ -375,6 +426,7 @@ public class ItemService {
                 billingModel.setBill_date(new Date());
                 billingModel.setTotal_amount((totalAmount) * -1);
                 billingModel.setQuantity(quantity);
+                billingModel.setStoreName(storeId);
                 billModelRepository.save(billingModel);
                 System.out.println(finalAmount);
                 Billing billing = new Billing();
@@ -386,6 +438,7 @@ public class ItemService {
                 billing.setCustomerMobileNo(customerMobileNo);
                 billing.setSchoolName(school);
                 billing.setFinal_amount((finalAmount) * -1);
+                billing.setStoreId(storeId);
                 billing.setBillNo(maxBillNo);
                 billRepo.save(billing);
                 return "success";

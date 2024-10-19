@@ -161,4 +161,24 @@ public class BillingModel {
     public void setStoreName(String storeName) {
         this.storeName = storeName;
     }
+
+    @Override
+    public String toString() {
+        return "BillingModel{" +
+                "sno=" + sno +
+                ", itemBarcodeID='" + itemBarcodeID + '\'' +
+                ", itemType='" + itemType + '\'' +
+                ", itemColor='" + itemColor + '\'' +
+                ", description='" + description + '\'' +
+                ", bill_date=" + bill_date +
+                ", itemSize='" + itemSize + '\'' +
+                ", itemCategory='" + itemCategory + '\'' +
+                ", billing=" + billing +
+                ", sellPrice=" + sellPrice +
+                ", quantity=" + quantity +
+                ", total_amount=" + total_amount +
+                ", status='" + status + '\'' +
+                ", storeName='" + storeName + '\'' +
+                '}';
+    }
 }
