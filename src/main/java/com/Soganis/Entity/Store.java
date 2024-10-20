@@ -12,10 +12,13 @@ public class Store {
     @Id
     private String storeId;
     private String storeName;
+    private  String address;
 
-    public Store(String storeId, String storeName) {
+
+    public Store(String storeId, String storeName, String address) {
         this.storeId = storeId;
         this.storeName = storeName;
+        this.address = address;
     }
 
     public Store() {
@@ -35,5 +38,13 @@ public class Store {
 
     public void setStoreName(String storeName) {
         this.storeName = storeName;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

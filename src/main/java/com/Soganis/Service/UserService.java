@@ -1,22 +1,10 @@
 package com.Soganis.Service;
 
-import com.Soganis.Entity.Billing;
-import com.Soganis.Entity.CustomerOrderBook;
-import com.Soganis.Entity.Items;
-import com.Soganis.Entity.Order;
-import com.Soganis.Entity.User;
-import com.Soganis.Entity.UserCashCollection;
-import com.Soganis.Entity.UserMonthlySalary;
-import com.Soganis.Entity.UserMonthlySalaryId;
-import com.Soganis.Entity.User_Salary;
-import com.Soganis.Repository.BillingRepository;
-import com.Soganis.Repository.CustomerOrderRepo;
-import com.Soganis.Repository.ItemsRepository;
-import com.Soganis.Repository.UserCashCollectionRepository;
-import com.Soganis.Repository.UserMonthlySalaryRepository;
+import com.Soganis.Entity.*;
+import com.Soganis.Repository.*;
+import org.apache.poi.sl.draw.geom.GuideIf;
 import org.springframework.stereotype.Service;
-import com.Soganis.Repository.UserRepository;
-import com.Soganis.Repository.UserSalaryRepository;
+
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.Date;
@@ -50,6 +38,9 @@ public class UserService {
 
     @Autowired
     private  ItemService itemService;
+
+    @Autowired
+    private StoreRepository storeRepo;
 
 
 
@@ -101,6 +92,35 @@ public class UserService {
         List<CustomerOrderBook> lst = customerOrderRepo.findByStatus(status,storeId);
         return lst;
     }
+
+    public String validateStoreId(String storeId)
+    {
+        Optional<Store> opt=storeRepo.findById(storeId);
+        if(opt.isPresent())
+        {
+            return "Exists";
+        }
+        else
+        {
+            return "New";
+        }
+    }
+
+    public String createStore(Store store)
+    {
+        try {
+            storeRepo.save(store);
+            return "Success";
+
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            return "Failed";
+        }
+    }
+
+
+
 
     public String updateOrderDetailDelivered(int orderId) {
         Optional<CustomerOrderBook> opt = customerOrderRepo.findById(orderId);
