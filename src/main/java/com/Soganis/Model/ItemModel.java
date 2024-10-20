@@ -9,6 +9,7 @@ public class ItemModel {
   private String size;
   private String itemColor;
   private int quantity;
+  private  String storeId;
 
     public ItemModel() {
     }
@@ -62,8 +63,14 @@ public class ItemModel {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
-    
-    
+
+    public String getStoreId() {
+        return storeId;
+    }
+
+    public void setStoreId(String storeId) {
+        this.storeId = storeId;
+    }
 
     @Override
     public String toString() {

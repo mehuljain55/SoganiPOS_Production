@@ -6,6 +6,7 @@ import com.Soganis.Entity.User;
 import com.Soganis.Model.*;
 import com.Soganis.Service.InventoryService;
 import com.Soganis.Service.ItemService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.InputStreamResource;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,7 +133,16 @@ public class InventoryController {
     return status;
         
     }
- 
+
+    @GetMapping("/getUser")
+    public User getUser()
+    {
+        User user=new User();
+        user.setUserId("mridul");
+        user.setPassword("abc");
+        user.setStoreId("Nx");
+        return  user;
+    }
     
     @GetMapping("/format")
     public String inventoryFormat(@RequestBody User user) throws IOException
@@ -139,18 +150,19 @@ public class InventoryController {
     String status=inventoryService.generateInventoryExcel(user);
     return status;
     }
-    
-    
-    
-      @PostMapping("/add")
-   public ResponseEntity<List<ItemModel>> uploadExcelFile(@ModelAttribute FileUploadModel fileUploadModel) {
-        if (fileUploadModel.getFile().isEmpty()) {
+
+
+
+    @PostMapping("/add")
+    public ResponseEntity<List<ItemModel>> uploadExcelFile(@RequestParam("file") MultipartFile file, @RequestParam("storeId") String storeId) {
+        if (file.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         try {
+
             // Call service to read the Excel file and return list of ItemModel
-            List<ItemModel> items = inventoryService.inventory_quantity_update(fileUploadModel.getFile(),fileUploadModel.getUser().getStoreId());
+            List<ItemModel> items = inventoryService.inventory_quantity_update(file,storeId );
 
             return new ResponseEntity<>(items, HttpStatus.OK);
         } catch (IOException e) {
@@ -158,9 +170,25 @@ public class InventoryController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    
-     @PostMapping("/stock/add")
+
+    @PostMapping("/upload")
+    public ResponseEntity<byte[]> updateInventory(@RequestBody List<ItemModel> itemModelList) {
+        String status = inventoryService.inventoryUpdate(itemModelList);
+
+        // Convert status to byte array with UTF-8 encoding
+        byte[] content = status.getBytes(StandardCharsets.UTF_8);
+
+        // Set headers to indicate it's a file download
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        headers.setContentDispositionFormData("attachment", "inventory_update_status.txt");
+
+        // Return the response entity with the content and headers
+        return new ResponseEntity<>(content, headers, HttpStatus.OK);
+    }
+
+
+    @PostMapping("/stock/add")
     public String addItemStock(@RequestBody List<ItemAddStockModel> itemModel)
     {
       String status=inventoryService.addItemStock(itemModel);

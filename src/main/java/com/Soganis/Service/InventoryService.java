@@ -263,7 +263,14 @@ public class InventoryService {
         
      List<String> itemList = itemRepo.findDistinctItemTypes(user.getStoreId());
 
+
     for (String item : itemList) {
+
+         if(item.equals("CUSTOM"))
+         {
+             continue;
+         }
+
         String item_code = itemRepo.findDistinctItemTypeCode(item,user.getStoreId());
 
         List<String> itemSizes = getSortedItemSizes(itemRepo.findDistinctItemSizeByItemType(item, user.getStoreId()));
@@ -421,7 +428,29 @@ private boolean isNumeric(String str) {
     return str != null && str.matches("\\d+");
 }
 
-
+    public String inventoryUpdate(List<ItemModel> itemModelList) {
+        String status = "";
+        for (ItemModel itemModel : itemModelList) {
+            System.out.println(itemModel);
+            Items item = itemRepo.findItemInventoryUpdate(
+                    itemModel.getSchoolCode(),
+                    itemModel.getItemCode(),
+                    itemModel.getSize(),
+                    itemModel.getItemColor(),
+                    itemModel.getStoreId()
+            );
+            if (item != null) {
+                int qty = item.getQuantity();
+                int stock = qty + itemModel.getQuantity();
+                item.setQuantity(stock);
+                itemRepo.save(item);
+            } else {
+                status=status+itemModel.getItemCode()+" "+itemModel.getSchoolCode()+" "+itemModel.getSize()+" "+itemModel.getItemColor()+" not updated"+"\n";
+            }
+        }
+        System.out.println(status);
+        return status;
+    }
 
 
     

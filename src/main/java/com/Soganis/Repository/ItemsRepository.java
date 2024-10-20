@@ -64,4 +64,15 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
     @Query("SELECT i FROM Items i WHERE i.itemCode = :itemCode and i.storeId=:storeId")
     List<Items> checkItemCodeForNewItem(@Param("itemCode") String itemCode,@Param("storeId") String storeId);
 
+    @Query("SELECT i FROM Items i WHERE i.schoolCode = :schoolCode AND " +
+            "i.itemType = :itemType AND i.itemSize = :itemSize AND " +
+            "i.itemColor = :itemColor AND i.storeId = :storeId")
+    Items findItemInventoryUpdate(
+            @Param("schoolCode") String schoolCode,
+            @Param("itemType") String itemType,
+            @Param("itemSize") String itemSize,
+            @Param("itemColor") String itemColor,
+            @Param("storeId") String storeId);
+
+
 }
