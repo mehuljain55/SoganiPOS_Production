@@ -430,23 +430,31 @@ private boolean isNumeric(String str) {
 
     public String inventoryUpdate(List<ItemModel> itemModelList) {
         String status = "";
+
         for (ItemModel itemModel : itemModelList) {
             System.out.println(itemModel);
-            Items item = itemRepo.findItemInventoryUpdate(
-                    itemModel.getSchoolCode(),
-                    itemModel.getItemCode(),
-                    itemModel.getSize(),
-                    itemModel.getItemColor(),
-                    itemModel.getStoreId()
-            );
-            if (item != null) {
-                int qty = item.getQuantity();
-                int stock = qty + itemModel.getQuantity();
-                item.setQuantity(stock);
-                itemRepo.save(item);
-            } else {
-                status=status+itemModel.getItemCode()+" "+itemModel.getSchoolCode()+" "+itemModel.getSize()+" "+itemModel.getItemColor()+" not updated"+"\n";
-            }
+                try {
+                    Items item = itemRepo.findItemInventoryUpdate(
+                            itemModel.getSchoolCode(),
+                            itemModel.getItemCode(),
+                            itemModel.getSize(),
+                            itemModel.getItemColor(),
+                            itemModel.getStoreId()
+                    );
+
+                    if (item != null) {
+                        int qty = item.getQuantity();
+                        int stock = qty + itemModel.getQuantity();
+                        item.setQuantity(stock);
+                        itemRepo.save(item);
+                    } else {
+                        status = status + itemModel.getItemCode() + " " + itemModel.getSchoolCode() + " " + itemModel.getSize() + " " + itemModel.getItemColor() + " not found" + "\n";
+                    }
+                }catch (Exception e)
+                {
+                    status=status + itemModel.getItemCode() + " " + itemModel.getSchoolCode() + " " + itemModel.getSize() + " " + itemModel.getItemColor() + "exception duplicate entry or item not present" + "\n";
+                }
+
         }
         System.out.println(status);
         return status;
