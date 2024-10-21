@@ -106,10 +106,69 @@ public class UserService {
         }
     }
 
+
+
     public String createStore(Store store)
     {
         try {
             storeRepo.save(store);
+            return "Success";
+
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            return "Failed";
+        }
+    }
+
+    public List<Store> getStore()
+    {
+        List<Store> stores=storeRepo.findAll();
+        return stores;
+    }
+
+    public List<User> getAllUser()
+    {
+        List<User> users=userRepo.findAll();
+        return users;
+    }
+
+    public User validateUser(User user)
+    {
+        Optional<User> opt=userRepo.findById(user.getUserId());
+        if(opt.isPresent())
+        {
+            User validatUser= opt.get();
+            if(validatUser.getRole().equals("Owner"))
+            {
+               return validatUser;
+            }
+            else {
+                return null;
+            }
+        }
+        else{
+            return null;
+        }
+
+    }
+
+    public String validateUserId(String userId)
+    {
+        Optional<User> opt=userRepo.findById(userId);
+        if(opt.isPresent())
+        {
+            return "Exists";
+        }
+        else{
+            return "New";
+        }
+    }
+
+    public String createUser(User user)
+    {
+        try {
+            userRepo.save(user);
             return "Success";
 
         }catch (Exception e)

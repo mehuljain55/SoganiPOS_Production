@@ -13,9 +13,11 @@ public class User {
     private String sname;
     private String mobile_no;
     private String password;
+    private  String role;
     private int monthly_salary;
     private int payable_balance;
     private  String storeId;
+
 
     public String getUserId() {
         return userId;
@@ -71,5 +73,13 @@ public class User {
 
     public void setStoreId(String storeId) {
         this.storeId = storeId;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }
