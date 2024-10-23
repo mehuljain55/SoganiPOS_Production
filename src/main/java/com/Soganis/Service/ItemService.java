@@ -104,6 +104,7 @@ public class ItemService {
                     System.out.println("Bill Save"+count);
                     count++;
                     billingModel.setBilling(savedBilling);
+                    billingModel.setStoreName(storeId);
                     final_amount = final_amount + billingModel.getTotal_amount();
                     billingModel.setBill_date(new Date());
                     if (billingModel.getItemBarcodeID().equals("SG9999999")) {
@@ -150,6 +151,8 @@ public class ItemService {
 
             String storeId=getStoreId(billing.getUserId());
             Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId);
+            String customerName="";
+            String customerMobileNo="";
             if (maxBillNo == null) {
                 maxBillNo = 1;  // Start from 0 if no previous bills
             }
@@ -162,6 +165,9 @@ public class ItemService {
             savedBilling.setBillNo(maxBillNo);
             savedBilling.setBillType("Exchange");
             savedBilling.setStoreId(storeId);
+            savedBilling.setSchoolName(billing.getSchoolName());
+            savedBilling.setUserId(billing.getUserId());
+            savedBilling.setPaymentMode(billing.getPaymentMode());
             List<BillingModel> bill = billing.getBill();
             List<BillingModel> billingModelList=new ArrayList<>();
             for (ItemReturnModel itemModel : itemList) {
@@ -185,7 +191,16 @@ public class ItemService {
                 Optional<BillingModel> opt = billModelRepository.findById(itemModel.getSno());
                 if (opt.isPresent()) {
                     BillingModel save_bill = opt.get();
-                    save_bill.setStatus("Exchanged");
+
+                    if(customerMobileNo==null||customerMobileNo=="")
+                    {
+                        Billing billing1=billRepo.getBillByNo(save_bill.getBilling().getBillNo(),storeId);
+                        customerName = billing1.getCustomerName() != null ? billing1.getCustomerName() : "";
+                        customerMobileNo = billing1.getCustomerMobileNo() != null ? billing1.getCustomerMobileNo() : "";
+
+                    }
+                     save_bill.setStatus("Exchanged");
+
                     billModelRepository.save(save_bill);
 
                 }
@@ -195,14 +210,17 @@ public class ItemService {
             if (billing.getBill() != null) {
                 for (BillingModel billingModel : bill) {
                     billingModel.setBilling(savedBilling);
+                    billingModel.setStoreName(storeId);
                     final_amount = final_amount + billingModel.getTotal_amount();
                     billingModel.setBill_date(new Date());
                     if (billingModel.getItemBarcodeID().equals("SG9999999")) {
                         String description = billingModel.getItemCategory() + " " + billingModel.getItemType() + " " + billingModel.getItemSize();
                         billingModel.setDescription(description);
+
                     } else {
                         Items item = itemRepo.getItemByItemBarcodeID(billingModel.getItemBarcodeID(),storeId);
                         billingModel.setDescription(item.getItemName());
+
                     }
 
                     String status = inventoryService.updateInventory(billingModel,storeId);
@@ -215,6 +233,9 @@ public class ItemService {
                 savedBilling.setBill_date(new Date());
                 savedBilling.setFinal_amount(final_amount);
                 savedBilling.setBill(billingModelList);
+                savedBilling.setCustomerMobileNo(customerMobileNo);
+                savedBilling.setCustomerName(customerName);
+                savedBilling.setStoreId(storeId);
                 billRepo.save(savedBilling);
                 savedBilling.setBill(billing.getBill());
             }
