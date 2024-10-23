@@ -33,7 +33,7 @@
 			<staticText>
 				<reportElement x="-17" y="0" width="187" height="86" uuid="6cdbf617-0491-4abe-9be3-966421a20162"/>
 				<textElement textAlignment="Center">
-					<font fontName="Microsoft Himalaya" size="30" isBold="true"/>
+					<font fontName="Arial" size="30" isBold="true"/>
 				</textElement>
 				<text><![CDATA[SOGANI NX]]></text>
 			</staticText>

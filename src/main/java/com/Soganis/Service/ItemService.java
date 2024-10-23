@@ -1,6 +1,7 @@
 package com.Soganis.Service;
 
 import com.Soganis.Entity.*;
+import com.Soganis.Model.BarcodeModel;
 import com.Soganis.Model.ItemReturnModel;
 import com.Soganis.Repository.BillingModelRepository;
 import com.Soganis.Repository.BillingRepository;
@@ -53,9 +54,32 @@ public class ItemService {
                 .limit(maxResults)
                 .collect(Collectors.toList());
     }
+    
+    
+     public List<BarcodeModel> getAllItemCode(String searchTerm, int maxResults,String storeId) {
+        List<Items> items = itemRepo.findAllFiltered(searchTerm,storeId).stream()
+                .limit(maxResults)
+                .collect(Collectors.toList());
+        List<BarcodeModel> barcodeModel=new ArrayList<>();
+        
+        for(Items item:items)
+        {
+          BarcodeModel barcode=new BarcodeModel();
+          String itemCode=item.getItemCode();
+          String descriprion="("+itemCode+")"+item.getItemType()+" "+item.getItemCategory()+" "+item.getItemColor();
+          barcode.setItemCode(itemCode);
+          barcode.setDescription(descriprion);
+          barcodeModel.add(barcode);
+          
+        }
+        
+        return barcodeModel;
+        
+    }
 
     public Billing saveBilling(Billing billing) {
         try {
+            System.out.println("School Name-"+billing.getSchoolName());
             String storeId=getStoreId(billing.getUserId());
             Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId);
             if (maxBillNo == null) {
@@ -69,7 +93,7 @@ public class ItemService {
             billing.setBill_date(new Date());
             billing.setBillType("Retail");
             billing.setStoreId(storeId);
-            billing.setBillNo(maxBillNo);
+            billing.setBillNo(maxBillNo);;
             Billing savedBilling = new Billing();
             savedBilling.setBillNo(maxBillNo);
             System.out.println("Size:"+billing.getBill().size());
@@ -106,7 +130,7 @@ public class ItemService {
                 savedBilling.setPaymentMode(billing.getPaymentMode());
                 savedBilling.setStoreId(billing.getStoreId());
                 savedBilling.setUserId(billing.getUserId());
-                billing.setSchoolName(billing.getSchoolName());
+                savedBilling.setSchoolName(billing.getSchoolName());
                 savedBilling.setFinal_amount(final_amount);
                 savedBilling.setBill(billingModelList);
                 savedBilling.setStoreId(storeId);
@@ -203,6 +227,7 @@ public class ItemService {
 
     public Billing saveInterCompanyBilling(Billing billing) {
         try {
+
             String storeId=getStoreId(billing.getUserId());
             Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId);
             if (maxBillNo == null) {
@@ -218,6 +243,7 @@ public class ItemService {
             List<BillingModel> billingModelList=new ArrayList<>();
             if (billing.getBill() != null) {
                 for (BillingModel billingModel : billing.getBill()) {
+                    System.out.println("BillModel:"+billingModel);
                     billingModel.setBilling(savedBilling);
                     final_amount = final_amount + billingModel.getTotal_amount();
                     billingModel.setBill_date(new Date());

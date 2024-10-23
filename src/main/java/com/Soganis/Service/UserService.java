@@ -42,6 +42,9 @@ public class UserService {
     @Autowired
     private StoreRepository storeRepo;
 
+    @Autowired
+    private  SchoolRepository schoolRepo;
+
 
 
     public User getUserInfo(String userId) {
@@ -427,6 +430,12 @@ public class UserService {
         List<String> lst = itemRepo.findDistinctItemCategories(storeId);
         return lst;
     }
+
+    public List<String> getFilteredSchoolList(String searchTerm, String storeId) {
+        List<String> lst = schoolRepo.findAllSchool(searchTerm,storeId);
+        return lst;
+    }
+
 
     public List<String> itemTypeList(String storeId) {
         List<String> lst = itemRepo.findDistinctItemTypes(storeId);

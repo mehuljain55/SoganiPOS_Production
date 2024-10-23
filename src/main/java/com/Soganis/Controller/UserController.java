@@ -317,6 +317,21 @@ public class UserController {
         }
     }
 
+    @GetMapping("/filter/get_school_search")
+    public ResponseEntity<List<String>> getSchoolName(@RequestParam("searchTerm") String searchTerm,
+                                                      @RequestParam("storeId") String storeId) {
+
+        try {
+
+            List<String> schoolList = service.getFilteredSchoolList(searchTerm,storeId);
+            return ResponseEntity.ok(schoolList);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
     @GetMapping("/filter/item_type")
     public ResponseEntity<List<String>> itemType(@RequestParam("storeId") String storeId) {
 

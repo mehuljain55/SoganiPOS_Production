@@ -49,6 +49,17 @@ public class InventoryController {
         }
     }
     
+     @GetMapping("/getAllItemCode")
+    public ResponseEntity<List<BarcodeModel>> getAllItemsCode(@RequestParam(required = false) String searchTerm,
+                                                   @RequestParam("storeId") String storeId) {
+        List<BarcodeModel> barcodeModel = itemService.getAllItemCode(searchTerm, 20, storeId);
+        if (!barcodeModel.isEmpty()) {
+            return ResponseEntity.ok(barcodeModel);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+    
       @PostMapping("/generate_order")
     public ResponseEntity<InputStreamResource> generateOrder(@RequestBody PurchaseOrderModel orders) {
         try {
