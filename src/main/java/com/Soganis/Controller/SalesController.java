@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 
+@CrossOrigin(origins = "https://www.soganiuniforms.shop")
 @RestController
 @RequestMapping("/api/sales")
 public class SalesController {

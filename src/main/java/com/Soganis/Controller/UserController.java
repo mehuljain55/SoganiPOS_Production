@@ -43,6 +43,8 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import org.springframework.http.MediaType;
 
+
+@CrossOrigin(origins = "https://www.soganiuniforms.shop")
 @RestController
 @RequestMapping("/api/user")
 public class UserController {

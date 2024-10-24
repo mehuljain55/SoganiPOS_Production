@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
 
-
+@CrossOrigin(origins = "https://www.soganiuniforms.shop")
 @RestController
 @RequestMapping("/api/inventory")
 public class InventoryController {
