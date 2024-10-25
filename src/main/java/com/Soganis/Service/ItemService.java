@@ -252,7 +252,7 @@ public class ItemService {
             String storeId=getStoreId(billing.getUserId());
             Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId);
             if (maxBillNo == null) {
-                maxBillNo = 1;  // Start from 0 if no previous bills
+                maxBillNo = 1;
             }
             else {
                 maxBillNo=maxBillNo+1;
@@ -269,7 +269,7 @@ public class ItemService {
                     final_amount = final_amount + billingModel.getTotal_amount();
                     billingModel.setBill_date(new Date());
                     billingModel.setStoreName(storeId);
-                    String status = inventoryService.updateInventory(billingModel,storeId);
+                    String status = inventoryService.updateInterCompanyInventory(billingModel,storeId);
                     System.out.println(status);
                     billingModel.setStoreName(storeId);
                     billingModelList.add(billingModel);

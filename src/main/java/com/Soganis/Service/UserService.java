@@ -463,4 +463,10 @@ public class UserService {
         return lst;
     }
 
+    public List<Billing> getBillByMobileNo(String mobileNo,String storeId)
+    {
+      List<Billing> billings=billRepo.getBillByMobileNo(mobileNo,storeId);
+      return  billings;
+    }
+
 }

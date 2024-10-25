@@ -32,6 +32,7 @@ public class Items {
     private String itemTypeCode;
     private String group_id;
     private  String storeId;
+    private  String super_group_id;
 
     public Items() {
     }
@@ -170,5 +171,13 @@ public class Items {
 
     public void setStoreId(String storeId) {
         this.storeId = storeId;
+    }
+
+    public String getSuper_group_id() {
+        return super_group_id;
+    }
+
+    public void setSuper_group_id(String super_group_id) {
+        this.super_group_id = super_group_id;
     }
 }

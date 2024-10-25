@@ -97,6 +97,54 @@ public class InventoryService {
         }
     }
 
+    public String updateInterCompanyInventory(BillingModel billing,String storeId) {
+
+        if(billing.getItemBarcodeID().equals("SG9999999"))
+        {
+            return "Success";
+        }
+
+        try {
+
+
+            Items item = itemRepo.getItemByItemBarcodeID(billing.getItemBarcodeID(),storeId);
+
+            if (item.getGroup_id().equals("NA")) {
+                int item_sold = billing.getQuantity();
+                int updatedInventoryQuantity = item.getQuantity() - item_sold;
+
+                if (updatedInventoryQuantity <= 0) {
+                    updatedInventoryQuantity = 0;
+                }
+                item.setQuantity(updatedInventoryQuantity);
+                itemRepo.save(item);
+                return "Success";
+            } else {
+
+                List<Items> groupList = itemRepo.findItemsByGroupId(item.getGroup_id());
+                for (Items sale : groupList) {
+                    int item_sold = billing.getQuantity();
+                    int updatedInventoryQuantity = item.getQuantity() - item_sold;
+
+                    if (updatedInventoryQuantity <= 0) {
+                        updatedInventoryQuantity = 0;
+                    }
+                    sale.setQuantity(updatedInventoryQuantity);
+                    itemRepo.save(sale);
+
+                }
+                return "Success";
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Failed";
+        }
+    }
+
+
+
     public String generate_order(String barcodedId,String storeId) {
         try {
             Items item = itemRepo.getItemByItemBarcodeID(barcodedId,storeId);

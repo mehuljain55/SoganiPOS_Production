@@ -9,7 +9,6 @@ import com.Soganis.Entity.User;
 import com.Soganis.Entity.UserCashCollection;
 import com.Soganis.Entity.UserMonthlySalary;
 import com.Soganis.Entity.User_Salary;
-import com.Soganis.Model.CustomerOrderModel;
 import com.Soganis.Model.ItemExchangeModel;
 import com.Soganis.Model.ItemReturnModel;
 import com.Soganis.Service.InventoryService;
