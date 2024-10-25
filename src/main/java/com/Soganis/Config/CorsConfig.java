@@ -16,8 +16,8 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOriginPatterns(List.of("*")); // This allows all origins
-
+        // Allow both HTTP and HTTPS by using wildcards or specific patterns
+        config.setAllowedOriginPatterns(List.of("http://*", "https://*")); // Wildcards for HTTP and HTTPS origins
 
         // Specify allowed methods
         config.addAllowedMethod("GET");
@@ -31,6 +31,7 @@ public class CorsConfig {
         // Enable credentials if needed
         config.setAllowCredentials(true);
 
+        // Register the configuration for all endpoints
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }
