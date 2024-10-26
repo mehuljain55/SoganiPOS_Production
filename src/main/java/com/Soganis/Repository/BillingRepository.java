@@ -24,5 +24,10 @@ public interface BillingRepository extends JpaRepository<Billing, BillingId> {
 
     @Query("SELECT MAX(b.billNo) FROM Billing b WHERE b.storeId = :storeId")
     Integer findMaxBillNoByStoreId(@Param("storeId") String storeId);
+
+    @Query("SELECT b FROM Billing b WHERE b.bill_date BETWEEN :startDate AND :endDate AND b.storeId = :storeId")
+    List<Billing> findByBillDateBetweenAndStoreId(@Param("startDate") Date startDate,
+                                                  @Param("endDate") Date endDate,
+                                                  @Param("storeId") String storeId);
     
 }

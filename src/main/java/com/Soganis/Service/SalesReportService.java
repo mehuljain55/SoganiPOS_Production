@@ -1,14 +1,18 @@
 package com.Soganis.Service;
 
+import com.Soganis.Entity.Billing;
 import com.Soganis.Entity.BillingModel;
 import com.Soganis.Entity.Items;
 import com.Soganis.Entity.User;
 import com.Soganis.Model.SalesReportModel;
+import com.Soganis.Model.SalesReportSchoolModel;
 import com.Soganis.Repository.BillingModelRepository;
+import com.Soganis.Repository.BillingRepository;
 import com.Soganis.Repository.ItemsRepository;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +22,9 @@ public class SalesReportService {
 
     @Autowired
     private BillingModelRepository billModelRepo;
+
+    @Autowired
+    private BillingRepository billRepo;
     
      @Autowired
     private ItemsRepository itemRepo;
@@ -69,6 +76,15 @@ public class SalesReportService {
         return salesReportList;
     }
 
+    public List<SalesReportSchoolModel> getSalesBySchool(Date startDate,Date endDate,String storeId)
+    {
+        List<Billing> bills=billRepo.findByBillDateBetweenAndStoreId(startDate,endDate,storeId);
+        List<SalesReportSchoolModel> salesModel=calculateTotalSalesBySchool(bills,storeId);
+        return  salesModel;
+    }
+
+
+
     public List<SalesReportModel> billingSummary(List<BillingModel> billingModels, String storeId) {
         List<SalesReportModel> salesReportListFinal=new ArrayList<>();
         List<SalesReportModel> salesReportList = billingModels.stream()
@@ -118,5 +134,36 @@ public class SalesReportService {
 
         return salesReportListFinal;
     }
+
+    public List<SalesReportSchoolModel> calculateTotalSalesBySchool(List<Billing> bills, String storeId) {
+        Map<String, Integer> salesBySchool = bills.stream()
+                .collect(Collectors.groupingBy(
+                        Billing::getSchoolName,
+                        Collectors.summingInt(Billing::getFinal_amount)
+                ));
+
+        for (Map.Entry<String, Integer> entry : salesBySchool.entrySet()) {
+            String schoolName = entry.getKey();
+            Integer totalSales = entry.getValue();
+
+            // Check or perform operations with the value (totalSales)
+
+                System.out.println("School: " + schoolName + ", Total Sales: " + totalSales);
+
+        }
+
+        List<SalesReportSchoolModel> salesReport = salesBySchool.entrySet().stream()
+                .map(entry -> {
+                    SalesReportSchoolModel report = new SalesReportSchoolModel();
+                    report.setSchoolName(entry.getKey());
+                    report.setSales(entry.getValue());
+                    report.setStoreId(storeId);
+                    return report;
+                })
+                .collect(Collectors.toList());
+
+        return salesReport;
+    }
+
 
 }

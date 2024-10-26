@@ -1,6 +1,7 @@
 package com.Soganis.Controller;
 
 import com.Soganis.Model.SalesReportModel;
+import com.Soganis.Model.SalesReportSchoolModel;
 import com.Soganis.Service.SalesReportService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -156,7 +157,26 @@ public class SalesController {
             }
         }
     }
-    
+
+
+    @GetMapping("/report/school_name")
+    public ResponseEntity<List<SalesReportSchoolModel>> saleReportBySchoolNameDate(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate,
+            @RequestParam("storeId") String storeId) {
+        {
+
+            List<SalesReportSchoolModel> billing = service.getSalesBySchool(startDate,endDate,storeId);
+
+            if (billing.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            } else {
+                return new ResponseEntity<>(billing, HttpStatus.OK);
+            }
+        }
+    }
+
+
 
 
     @PostMapping("/export")
