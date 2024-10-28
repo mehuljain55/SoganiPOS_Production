@@ -43,8 +43,8 @@ public class InvoiceController {
       }
    }
 
-   @PostMapping("/getBill")
-   public ResponseEntity<byte[]> generateBill(@RequestParam("billNo") int billNo, @RequestParam("storeId") String storeId,@RequestParam("customerName") String customerName) {
+   @GetMapping("/getBill")
+   public ResponseEntity<byte[]> generateBill(@RequestParam("billNo") int billNo, @RequestParam("storeId") String storeId) {
       try {
 
 
@@ -53,7 +53,7 @@ public class InvoiceController {
          if (pdfBytes != null) {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDispositionFormData("inline", customerName + "_" +billNo + ".pdf");
+            headers.setContentDispositionFormData("inline", "Bill" + "_" +billNo + ".pdf");
 
             return ResponseEntity.ok()
                     .headers(headers)

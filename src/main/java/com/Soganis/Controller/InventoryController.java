@@ -6,7 +6,6 @@ import com.Soganis.Entity.User;
 import com.Soganis.Model.*;
 import com.Soganis.Service.InventoryService;
 import com.Soganis.Service.ItemService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.InputStreamResource;
@@ -32,7 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class InventoryController {
     
       @Autowired
-    private InventoryService inventoryService;
+      private InventoryService inventoryService;
 
       @Autowired
       private ItemService itemService;
@@ -221,7 +220,7 @@ public class InventoryController {
       return itemList;
     }
     
-      @GetMapping("/check/item_code")
+    @GetMapping("/check/item_code")
     public String check_item_code(@RequestParam("itemCode")String itemCode,@RequestParam("storeId") String storeId)
     {
         String status=inventoryService.checkItemCode(itemCode,storeId);
