@@ -202,7 +202,7 @@ public class InventoryController {
     public String addItemStock(@RequestBody List<ItemAddStockModel> itemModel,@RequestParam("storeId") String storeId)
     {
       String status=inventoryService.addItemStock(itemModel,storeId);
-      return "Status";
+      return status;
     }
     
     
