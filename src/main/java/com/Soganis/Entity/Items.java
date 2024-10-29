@@ -180,4 +180,22 @@ public class Items {
     public void setSuper_group_id(String super_group_id) {
         this.super_group_id = super_group_id;
     }
+
+    @Override
+    public String toString() {
+        return "Items{" +
+                "sno=" + sno +
+                ", itemCode='" + itemCode + '\'' +
+                ", itemName='" + itemName + '\'' +
+                ", description='" + description + '\'' +
+                ", itemType='" + itemType + '\'' +
+                ", itemColor='" + itemColor + '\'' +
+                ", itemSize='" + itemSize + '\'' +
+                ", itemCategory='" + itemCategory + '\'' +
+                ", itemBarcodeID='" + itemBarcodeID + '\'' +
+                ", price='" + price + '\'' +
+                ", schoolCode='" + schoolCode + '\'' +
+                ", storeId='" + storeId + '\'' +
+                '}';
+    }
 }

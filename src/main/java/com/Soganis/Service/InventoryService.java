@@ -220,8 +220,9 @@ public class InventoryService {
       return "Success";
     }
     
-    public String addItemStock(List<ItemAddStockModel> itemList)
+    public String addItemStock(List<ItemAddStockModel> itemList,String storeId)
     {
+        System.out.println("Store Id:"+storeId);
         try{
          for(ItemAddStockModel itemModel:itemList)
          {
@@ -237,13 +238,12 @@ public class InventoryService {
             item.setItemType(itemModel.getItemType());
             item.setPrice(itemModel.getPrice());
             item.setWholeSalePrice(itemModel.getWholeSalePrice());
-            String schoolCode=schoolRepo.findSchoolCodeBySchoolName(item.getItemCategory());
-            String itemTypeCode=itemListRepo.findItemTypeCodeByDescription(item.getItemType());
+            String schoolCode=schoolRepo.findSchoolCodeBySchoolName(item.getItemCategory(),storeId);
+            String itemTypeCode=itemListRepo.findItemTypeCodeByDescription(item.getItemType(),storeId);
             item.setQuantity(itemModel.getQuantity());
             item.setDescription(itemModel.getDescription());
             item.setSchoolCode(schoolCode);
             item.setItemTypeCode(itemTypeCode);
-            item.setStoreId(itemModel.getStoreId());
             if(itemModel.getGroupId()==null)
             {
                 item.setGroup_id("NA");
@@ -257,9 +257,11 @@ public class InventoryService {
                 String groupId=itemModel.getGroupId()+item.getItemSize();
                 item.setGroup_id(groupId);
              }
-            itemRepo.save(item);  
+
+            item.setStoreId(storeId);
+            itemRepo.save(item);
          }
-       
+
    
          return "Success";
         }catch(Exception e)

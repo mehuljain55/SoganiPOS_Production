@@ -199,9 +199,9 @@ public class InventoryController {
 
 
     @PostMapping("/stock/add")
-    public String addItemStock(@RequestBody List<ItemAddStockModel> itemModel)
+    public String addItemStock(@RequestBody List<ItemAddStockModel> itemModel,@RequestParam("storeId") String storeId)
     {
-      String status=inventoryService.addItemStock(itemModel);
+      String status=inventoryService.addItemStock(itemModel,storeId);
       return "Status";
     }
     
