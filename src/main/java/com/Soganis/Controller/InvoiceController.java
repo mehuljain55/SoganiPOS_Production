@@ -82,7 +82,15 @@ public class InvoiceController {
       }
 
       try {
-         InputStream reportTemplate = UserController.class.getResourceAsStream("/static/Test_A5.jrxml");
+         String pdf_path="";
+         if(storeId.equalsIgnoreCase("NX"))
+         {
+              pdf_path="Bill_NX";
+         }
+         else {
+          pdf_path="Bill_VN";
+         }
+         InputStream reportTemplate = UserController.class.getResourceAsStream("/static/"+pdf_path+".jrxml");
          JasperReport jasperReport = JasperCompileManager.compileReport(reportTemplate);
          Map<String, Object> parameters = new HashMap<>();
          SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");

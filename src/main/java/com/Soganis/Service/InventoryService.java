@@ -259,6 +259,7 @@ public class InventoryService {
              }
 
             item.setStoreId(storeId);
+             System.out.println(item);
             itemRepo.save(item);
          }
 
