@@ -16,7 +16,6 @@
 	<parameter name="mobile_no" class="java.lang.String"/>
 	<parameter name="date" class="java.lang.String"/>
 	<parameter name="final_amount" class="java.lang.Integer"/>
-	<parameter name="total_qty" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[]]>
 	</queryString>
@@ -78,65 +77,65 @@
 				<text><![CDATA[Bill of Supply]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="51" width="50" height="20" uuid="a30c01f1-6385-4cb0-bdff-681970f18bfb"/>
+				<reportElement x="0" y="47" width="50" height="20" uuid="a30c01f1-6385-4cb0-bdff-681970f18bfb"/>
 				<box>
 					<pen lineColor="#FFFFFF"/>
 				</box>
 				<textElement>
-					<font fontName="Arial" size="11"/>
+					<font fontName="Arial" size="12"/>
 				</textElement>
 				<text><![CDATA[Bill no:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="38" y="51" width="90" height="20" uuid="1afa4ce0-2ea5-4196-86fc-cac5e1452610"/>
+				<reportElement x="38" y="47" width="90" height="20" uuid="1afa4ce0-2ea5-4196-86fc-cac5e1452610"/>
 				<textElement>
-					<font fontName="Arial" size="11"/>
+					<font fontName="Arial" size="12"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{bill_no}]]></textFieldExpression>
 			</textField>
 		</band>
 	</title>
 	<pageHeader>
-		<band height="25" splitType="Stretch">
+		<band height="21" splitType="Stretch">
 			<staticText>
-				<reportElement x="-1" y="5" width="50" height="19" uuid="8accb782-5df8-43a7-a9e4-4e19971ea1c3"/>
+				<reportElement x="-1" y="-1" width="50" height="19" uuid="8accb782-5df8-43a7-a9e4-4e19971ea1c3"/>
 				<textElement>
-					<font fontName="Arial" size="10"/>
+					<font fontName="Arial" size="9"/>
 				</textElement>
 				<text><![CDATA[Name:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="36" y="5" width="112" height="19" uuid="939bdc33-8d95-440f-8e0a-ea7f7808585d"/>
+				<reportElement x="36" y="-1" width="112" height="19" uuid="939bdc33-8d95-440f-8e0a-ea7f7808585d"/>
 				<textElement>
-					<font fontName="Arial" size="10"/>
+					<font fontName="Arial" size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{customer_name}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="225" y="5" width="80" height="19" uuid="2881fec0-d607-4923-877b-92065c8561ec"/>
+				<reportElement x="225" y="1" width="80" height="19" uuid="2881fec0-d607-4923-877b-92065c8561ec"/>
 				<textElement>
-					<font fontName="Arial" size="10"/>
+					<font fontName="Arial" size="9"/>
 				</textElement>
 				<text><![CDATA[Mobile no:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="281" y="5" width="94" height="19" uuid="fa84cd30-8e93-48ac-8235-bc246ae91d4e"/>
+				<reportElement x="281" y="1" width="94" height="19" uuid="fa84cd30-8e93-48ac-8235-bc246ae91d4e"/>
 				<textElement>
-					<font fontName="Arial" size="10"/>
+					<font fontName="Arial" size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{mobile_no}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="279" y="-53" width="40" height="17" uuid="9080d124-01d5-4660-9258-5f0225783c06"/>
+				<reportElement x="279" y="-57" width="40" height="24" uuid="9080d124-01d5-4660-9258-5f0225783c06"/>
 				<textElement>
-					<font fontName="Arial" size="11"/>
+					<font fontName="Arial" size="12"/>
 				</textElement>
 				<text><![CDATA[Date:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="309" y="-53" width="83" height="17" uuid="f7511503-2f63-4d8d-b9d0-acc3e450e810"/>
+				<reportElement x="309" y="-57" width="83" height="24" uuid="f7511503-2f63-4d8d-b9d0-acc3e450e810"/>
 				<textElement>
-					<font fontName="Arial" size="11"/>
+					<font fontName="Arial" size="12"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{date}]]></textFieldExpression>
 			</textField>
@@ -387,34 +386,20 @@
 		</band>
 	</pageFooter>
 	<summary>
-		<band height="57">
+		<band height="29">
 			<staticText>
-				<reportElement x="261" y="10" width="96" height="20" uuid="28c49a5d-78a0-4337-ab08-8ab87539c183"/>
-				<textElement verticalAlignment="Middle">
+				<reportElement x="253" y="0" width="96" height="20" uuid="28c49a5d-78a0-4337-ab08-8ab87539c183"/>
+				<textElement>
 					<font fontName="Arial" size="12"/>
 				</textElement>
 				<text><![CDATA[Grand Total:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="328" y="10" width="102" height="20" uuid="93fd5ed4-b493-4d80-b883-5e909a399cfb"/>
-				<textElement verticalAlignment="Middle">
+				<reportElement x="326" y="0" width="102" height="20" uuid="93fd5ed4-b493-4d80-b883-5e909a399cfb"/>
+				<textElement>
 					<font fontName="Arial" size="12"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{final_amount}]]></textFieldExpression>
-			</textField>
-			<staticText>
-				<reportElement x="275" y="32" width="67" height="22" uuid="a55d1af4-3bac-4559-a9c7-f0213d088c03"/>
-				<textElement verticalAlignment="Middle">
-					<font fontName="Arial" size="12"/>
-				</textElement>
-				<text><![CDATA[Total Qty:]]></text>
-			</staticText>
-			<textField>
-				<reportElement x="328" y="32" width="100" height="22" uuid="d758c03f-f2ce-44d4-945d-a8b938241a6e"/>
-				<textElement verticalAlignment="Middle">
-					<font fontName="Arial" size="12"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$P{total_qty}]]></textFieldExpression>
 			</textField>
 		</band>
 	</summary>

@@ -73,10 +73,12 @@ public class InvoiceController {
       List<BillingModel> bills = bill.getBill();
       List<BillingModel> newBill = new ArrayList<>();
       int count = 1;
+      int qty=0;
       for (BillingModel billModel : bills) {
          String description = billModel.getItemCategory() + " " + billModel.getItemType() + " " + billModel.getItemColor();
          billModel.setDescription(description);
          billModel.setSno(count);
+         qty=qty+billModel.getQuantity();
          newBill.add(billModel);
          count = count + 1;
       }
@@ -100,6 +102,7 @@ public class InvoiceController {
          parameters.put("mobile_no", bill.getCustomerMobileNo());
          parameters.put("date", bill_date);
          parameters.put("final_amount", bill.getFinal_amount());
+         parameters.put("total_qty", qty);
 
          JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(newBill);
          JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
