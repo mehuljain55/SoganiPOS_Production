@@ -2,6 +2,7 @@ package com.Soganis.Service;
 
 import com.Soganis.Entity.Billing;
 import com.Soganis.Entity.BillingModel;
+import com.Soganis.Entity.GraphAnalysisModel.SalesDateModel;
 import com.Soganis.Entity.Items;
 import com.Soganis.Entity.User;
 import com.Soganis.Model.SalesReportModel;
@@ -9,10 +10,10 @@ import com.Soganis.Model.SalesReportSchoolModel;
 import com.Soganis.Repository.BillingModelRepository;
 import com.Soganis.Repository.BillingRepository;
 import com.Soganis.Repository.ItemsRepository;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -84,6 +85,79 @@ public class SalesReportService {
     }
 
 
+    public List<SalesDateModel> getSalesAnalysisByDate(Date startDate, Date endDate, String storeId) {
+        List<Billing> bills = billRepo.findByBillDateBetweenAndStoreId(startDate, endDate, storeId);
+
+        Map<Date, Integer> salesByDate = bills.stream()
+                .collect(Collectors.groupingBy(Billing::getBill_date,
+                        Collectors.summingInt(Billing::getFinal_amount)));
+
+        List<SalesDateModel> salesList = salesByDate.entrySet().stream()
+                .map(entry -> new SalesDateModel(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+
+        return salesList;
+    }
+
+    public List<SalesDateModel> getSalesAnalysisByMonthFFY(String fy, String storeId) throws ParseException {
+        // Parse the fiscal year string to get start and end years
+        String[] years = fy.split("-");
+        int startYear = Integer.parseInt(years[0]);
+        int endYear = Integer.parseInt(years[1]);
+
+        // Set start date as April 1 of the start year
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date startDate = sdf.parse(startYear + "-04-01");
+
+        // Set end date as March 31 of the end year
+        Date endDate = sdf.parse(endYear + "-03-31");
+
+        // Fetch billing data within the date range and for the specified store ID
+        List<Billing> bills = billRepo.findByBillDateBetweenAndStoreId(startDate, endDate, storeId);
+
+        // Summarize sales by month and year
+        Map<String, Integer> salesByMonth = new HashMap<>();
+
+        for (Billing bill : bills) {
+            // Get the month and year from the bill date
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(bill.getBill_date());
+
+            String month = new SimpleDateFormat("MMMM").format(calendar.getTime()); // Full month name
+            String year = Integer.toString(calendar.get(Calendar.YEAR));
+
+            String monthYearKey = month + " " + year;
+
+            // Sum the sales amounts
+            salesByMonth.put(monthYearKey, salesByMonth.getOrDefault(monthYearKey, 0) + bill.getFinal_amount());
+        }
+
+        // Convert map entries to SalesDateModel list
+        List<SalesDateModel> salesList = salesByMonth.entrySet().stream()
+                .map(entry -> {
+                    String[] parts = entry.getKey().split(" ");
+                    String month = parts[0];
+                    String year = parts[1];
+
+                    // Create a dummy date for the sales date (we can use the first day of the month)
+                    Date salesDate = null;
+                    try {
+                        salesDate = new SimpleDateFormat("MMMM yyyy").parse(entry.getKey());
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                    return new SalesDateModel(salesDate, entry.getValue(), month, year);
+                })
+                .collect(Collectors.toList());
+
+        return salesList;
+    }
+
+
+
+
+
 
     public List<SalesReportModel> billingSummary(List<BillingModel> billingModels, String storeId) {
         List<SalesReportModel> salesReportListFinal=new ArrayList<>();
@@ -145,11 +219,6 @@ public class SalesReportService {
         for (Map.Entry<String, Integer> entry : salesBySchool.entrySet()) {
             String schoolName = entry.getKey();
             Integer totalSales = entry.getValue();
-
-            // Check or perform operations with the value (totalSales)
-
-                System.out.println("School: " + schoolName + ", Total Sales: " + totalSales);
-
         }
 
         List<SalesReportSchoolModel> salesReport = salesBySchool.entrySet().stream()

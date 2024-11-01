@@ -1,5 +1,6 @@
 package com.Soganis.Controller;
 
+import com.Soganis.Entity.GraphAnalysisModel.SalesDateModel;
 import com.Soganis.Model.SalesReportModel;
 import com.Soganis.Model.SalesReportSchoolModel;
 import com.Soganis.Service.SalesReportService;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -175,6 +177,43 @@ public class SalesController {
             }
         }
     }
+
+    @GetMapping("/report/salesByDate")
+    public ResponseEntity<List<SalesDateModel>> salesReportByDate(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate,
+            @RequestParam("storeId") String storeId) {
+        {
+
+            List<SalesDateModel> billing = service.getSalesAnalysisByDate(startDate,endDate,storeId);
+
+            if (billing.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            } else {
+                return new ResponseEntity<>(billing, HttpStatus.OK);
+            }
+        }
+    }
+
+    @GetMapping("/report/salesByMonth")
+    public ResponseEntity<List<SalesDateModel>> salesReportByMonth (
+            @RequestParam("fy") String fyy,
+            @RequestParam("storeId") String storeId) throws ParseException {
+        {
+
+            List<SalesDateModel> billing = service.getSalesAnalysisByMonthFFY(fyy,storeId);
+
+            if (billing.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            } else {
+                return new ResponseEntity<>(billing, HttpStatus.OK);
+            }
+        }
+    }
+
+
+
+
 
 
 
