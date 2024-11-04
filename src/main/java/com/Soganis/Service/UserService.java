@@ -469,4 +469,18 @@ public class UserService {
       return  billings;
     }
 
+    public String getStore(String storeId)
+    {
+        Optional<Store> opt=storeRepo.findById(storeId);
+        if(opt.isPresent())
+        {
+            Store store=opt.get();
+            String storeName=store.getStoreName().toUpperCase();
+            return storeName;
+        }
+        else {
+            return "Sogani NX";
+        }
+    }
+
 }

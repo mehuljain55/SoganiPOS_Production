@@ -62,6 +62,17 @@ public class StoreController {
         }
     }
 
+    @GetMapping("/getStoreName")
+    public ResponseEntity<String> getStore(@RequestParam("storeId") String storeId) {
+        String storeName=userService.getStore(storeId);
+
+        if (storeName.equals("")) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(storeName, HttpStatus.OK);
+        }
+    }
+
 
     @PostMapping("/createUser")
     public  String createUser(@RequestBody User user)
@@ -81,6 +92,8 @@ public class StoreController {
             return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
     }
+
+
 }
 
 

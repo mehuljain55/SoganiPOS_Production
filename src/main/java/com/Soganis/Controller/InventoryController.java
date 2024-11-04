@@ -59,6 +59,21 @@ public class InventoryController {
         }
     }
     
+      @PostMapping("/stock_update")
+    public ResponseEntity<String> stockUpdate(@RequestBody StockUpdateModel stockUpdateModel) {
+      
+      String status=inventoryService.updateStock(stockUpdateModel.getItemCode(), stockUpdateModel.getQty(), stockUpdateModel.getStoreId());
+        if(status.equals("Inventory Updated"))
+        {
+            return new ResponseEntity<>(status, HttpStatus.OK);
+        }
+        else{
+              return new ResponseEntity<>(status, HttpStatus.BAD_REQUEST);
+        }
+    }
+    
+    
+    
       @PostMapping("/generate_order")
     public ResponseEntity<InputStreamResource> generateOrder(@RequestBody PurchaseOrderModel orders) {
         try {
@@ -227,3 +242,4 @@ public class InventoryController {
         return status;
     }
 }
+
