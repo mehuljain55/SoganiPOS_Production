@@ -61,6 +61,9 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
                                          @Param("itemType") String itemType,
                                          @Param("storeId")String storeId);
 
+    @Query("SELECT i FROM Items i WHERE i.storeId=:storeId")
+    List<Items> getAllItemsStores(@Param("storeId")String storeId);
+
     @Query("SELECT i FROM Items i WHERE i.itemCode = :itemCode and i.storeId=:storeId")
     List<Items> checkItemCodeForNewItem(@Param("itemCode") String itemCode,@Param("storeId") String storeId);
 

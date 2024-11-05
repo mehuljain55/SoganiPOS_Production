@@ -361,6 +361,20 @@ public class UserController {
         }
     }
 
+    @GetMapping("/filter/getAllItems")
+    public ResponseEntity<List<Items>> getAllItem(@RequestParam("storeId") String storeId) {
+
+        try {
+
+            List<Items> items = service.getAllItemstore(storeId);
+            return ResponseEntity.ok(items);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
     @GetMapping("/filter/item_list_school_code")
     public ResponseEntity<List<Items>> itemListBySchoolCode(@RequestParam("schoolCode") String schoolCode,@RequestParam("storeId") String storeId) {
 

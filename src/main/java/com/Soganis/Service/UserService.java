@@ -453,6 +453,14 @@ public class UserService {
 
     }
 
+    public List<Items> getAllItemstore(String storeId) {
+        List<Items> lst = itemRepo.getAllItemsStores(storeId);
+        return lst;
+
+    }
+
+
+
     public List<Items> itemListByItemType(String itemType,String storeId) {
         List<Items> lst = itemRepo.findItemsByItemType(itemType,storeId);
         return lst;
