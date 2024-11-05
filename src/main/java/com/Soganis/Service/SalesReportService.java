@@ -160,8 +160,26 @@ public class SalesReportService {
 
 
     public List<SalesReportModel> billingSummary(List<BillingModel> billingModels, String storeId) {
-        List<SalesReportModel> salesReportListFinal=new ArrayList<>();
-        List<SalesReportModel> salesReportList = billingModels.stream()
+        List<SalesReportModel> salesReportListFinal = new ArrayList<>();
+
+        // Filter out items with the specific itemBarcodeID before grouping and summarizing
+        List<BillingModel> specialItems = billingModels.stream()
+                .filter(b -> "SG9999999".equals(b.getItemBarcodeID()))
+                .collect(Collectors.toList());
+
+        List<BillingModel> billModelRetail = billingModels.stream()
+                .filter(b -> "Retail".equals(b.getBillCategory())) // Filter for retail bill category
+                .collect(Collectors.toList());
+
+        List<BillingModel> billModelWholesale = billingModels.stream()
+                .filter(b -> "Wholesale".equals(b.getBillCategory())) // Filter for retail bill category
+                .collect(Collectors.toList());
+
+
+
+        // Summarize other items
+        List<SalesReportModel> summarizedItemsRetail = billModelRetail.stream()
+                .filter(b -> !"SG9999999".equals(b.getItemBarcodeID())) // Exclude "SG9999999"
                 .collect(Collectors.groupingBy(
                         BillingModel::getItemBarcodeID,
                         Collectors.collectingAndThen(
@@ -186,28 +204,92 @@ public class SalesReportService {
                                         b.get().getSellPrice(),
                                         b.get().getQuantity(),
                                         b.get().getTotal_amount()
-                                       
                                 )
                         )
                 ))
                 .values()
                 .stream()
                 .collect(Collectors.toList());
-        
-        for(SalesReportModel sales:salesReportList)
-        {
-         Items item=itemRepo.getItemByItemBarcodeID(sales.getItemBarcodeID(),storeId);
-        String description=item.getItemCategory()+" "+item.getItemType()+" "+item.getItemColor();
-        
-         sales.setDescription(item.getItemName());
-         sales.setItemCode(item.getItemCode());
-         sales.setItemSize(item.getItemSize());
-         salesReportListFinal.add(sales);
-            
+
+
+        List<SalesReportModel> summarizedItemsWholesale = billModelWholesale.stream()
+                .filter(b -> !"SG9999999".equals(b.getItemBarcodeID())) // Exclude "SG9999999"
+                .collect(Collectors.groupingBy(
+                        BillingModel::getItemBarcodeID,
+                        Collectors.collectingAndThen(
+                                Collectors.reducing(
+                                        (b1, b2) -> {
+                                            BillingModel combined = new BillingModel();
+                                            combined.setItemBarcodeID(b1.getItemBarcodeID());
+                                            combined.setDescription(b1.getDescription());
+                                            combined.setItemType(b1.getItemType());
+                                            combined.setItemColor(b1.getItemColor());
+                                            combined.setSellPrice(b1.getSellPrice());
+                                            combined.setQuantity(b1.getQuantity() + b2.getQuantity());
+                                            combined.setTotal_amount(b1.getTotal_amount() + b2.getTotal_amount());
+                                            return combined;
+                                        }
+                                ),
+                                b -> new SalesReportModel(
+                                        b.get().getItemBarcodeID(),
+                                        b.get().getDescription(),
+                                        b.get().getItemType(),
+                                        b.get().getItemColor(),
+                                        b.get().getSellPrice(),
+                                        b.get().getQuantity(),
+                                        b.get().getTotal_amount()
+                                )
+                        )
+                ))
+                .values()
+                .stream()
+                .collect(Collectors.toList());
+
+
+
+
+        // Convert special items to SalesReportModel and add to final list without summarizing
+        for (BillingModel specialItem : specialItems) {
+            SalesReportModel salesReport = new SalesReportModel(
+                    specialItem.getItemBarcodeID(),
+                    specialItem.getDescription(),
+                    specialItem.getItemType(),
+                    specialItem.getItemColor(),
+                    specialItem.getSellPrice(),
+                    specialItem.getQuantity(),
+                    specialItem.getTotal_amount()
+            );
+            salesReportListFinal.add(salesReport);
+        }
+
+        // Process summarized items and add them to the final list with additional data from itemRepo
+        for (SalesReportModel sales : summarizedItemsRetail) {
+            Items item = itemRepo.getItemByItemBarcodeID(sales.getItemBarcodeID(), storeId);
+            String description = item.getItemCategory() + " " + item.getItemType() + " " + item.getItemColor();
+
+            sales.setDescription(item.getItemName());
+            sales.setItemCode(item.getItemCode());
+            sales.setBillType("Retail");
+            sales.setItemSize(item.getItemSize());
+            salesReportListFinal.add(sales);
+        }
+
+        for (SalesReportModel sales : summarizedItemsWholesale) {
+            Items item = itemRepo.getItemByItemBarcodeID(sales.getItemBarcodeID(), storeId);
+            String description = item.getItemCategory() + " " + item.getItemType() + " " + item.getItemColor();
+
+            sales.setDescription(item.getItemName());
+            sales.setItemCode(item.getItemCode());
+            sales.setBillType("Wholesale");
+            sales.setItemSize(item.getItemSize());
+            salesReportListFinal.add(sales);
         }
 
         return salesReportListFinal;
     }
+
+
+
 
     public List<SalesReportSchoolModel> calculateTotalSalesBySchool(List<Billing> bills, String storeId) {
         Map<String, Integer> salesBySchool = bills.stream()

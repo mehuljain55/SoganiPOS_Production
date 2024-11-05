@@ -264,7 +264,7 @@ public class SalesController {
 
         // Create header row
         Row headerRow = sheet.createRow(1);
-        String[] headers = {"Item Barcode ID", "Description", "Item Type", "Item Color", "Size", "Sell Price", "Quantity", "Amount"};
+        String[] headers = {"Bill Type", "Description", "Item Type", "Item Color", "Size", "Sell Price", "Quantity", "Amount"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -282,7 +282,7 @@ public class SalesController {
                 // Set cell values
                 switch (i) {
                     case 0:
-                        cells[i].setCellValue(item.getItemBarcodeID());
+                        cells[i].setCellValue(item.getBillType());
                         break;
                     case 1:
                         cells[i].setCellValue(item.getDescription());

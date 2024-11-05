@@ -101,9 +101,8 @@ public class ItemService {
             if (billing.getBill() != null) {
                 int count=1;
                 for (BillingModel billingModel : billing.getBill()) {
-                    System.out.println("Bill Save"+count);
-                    count++;
                     billingModel.setBilling(savedBilling);
+                    billingModel.setBillCategory("Retail");
                     billingModel.setStoreName(storeId);
                     final_amount = final_amount + billingModel.getTotal_amount();
                     billingModel.setBill_date(new Date());
@@ -177,6 +176,7 @@ public class ItemService {
                 billingModel.setBilling(savedBilling);
                 billingModel.setItemBarcodeID(itemModel.getBarcodedId());
                 billingModel.setBill_date(new Date());
+                billingModel.setBillCategory("Retail");
                 billingModel.setSellPrice(itemModel.getPrice());
                 billingModel.setItemSize(item.getItemSize());
                 billingModel.setItemColor(item.getItemColor());
@@ -260,7 +260,7 @@ public class ItemService {
             int final_amount = 0;
             Billing savedBilling = new Billing();
             savedBilling.setBillNo(maxBillNo);
-            savedBilling.setBillType("Company");
+            savedBilling.setBillType("Wholesale");
             List<BillingModel> billingModelList=new ArrayList<>();
             if (billing.getBill() != null) {
                 for (BillingModel billingModel : billing.getBill()) {
@@ -268,6 +268,7 @@ public class ItemService {
                     billingModel.setBilling(savedBilling);
                     final_amount = final_amount + billingModel.getTotal_amount();
                     billingModel.setBill_date(new Date());
+                    billingModel.setBillCategory("Wholesale");
                     billingModel.setStoreName(storeId);
                     String status = inventoryService.updateInterCompanyInventory(billingModel,storeId);
                     System.out.println(status);
@@ -321,6 +322,7 @@ public class ItemService {
     public String stockReturn(List<ItemReturnModel> items) {
         try {
             String storeId=getStoreId(items.get(0).getUserId());
+            String billType="";
             Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId);
             if (maxBillNo == null) {
                 maxBillNo = 1;  // Start from 0 if no previous bills
@@ -347,6 +349,7 @@ public class ItemService {
                     if (opt.isPresent()) {
                         BillingModel billModel = opt.get();
                         Billing bill = billRepo.getBillByNo(billModel.getBilling().getBillNo(),storeId);
+                        billType=billModel.getBillCategory();
                         bill_no = bill.getBillNo();
                         userId = itemModel.getUserId();
                         customerName = bill.getCustomerName();
@@ -375,6 +378,7 @@ public class ItemService {
                         billingModel.setItemColor(billModel.getItemColor());
                         billingModel.setItemSize(billModel.getItemSize());
                         billingModel.setItemType(billModel.getItemType());
+                        billingModel.setBillCategory(billType);
                         billingModel.setSellPrice(sellPrice);
                         billingModel.setBill_date(new Date());
                         billingModel.setTotal_amount((totalAmount) * -1);
@@ -427,6 +431,7 @@ public class ItemService {
         try {
 
             String storeId=getStoreId(itemModel.getUserId());
+            String billType="";
             Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId);
             if (maxBillNo == null) {
                 maxBillNo = 0;  // Start from 0 if no previous bills
@@ -444,6 +449,7 @@ public class ItemService {
             if (opt.isPresent()) {
                 BillingModel billModel = opt.get();
                 Billing bill = billRepo.getBillByNo(billModel.getBilling().getBillNo(),storeId);
+                billType=billModel.getBillCategory();
                 bill_no = bill.getBillNo();
                 userId = itemModel.getUserId();
                 customerName = bill.getCustomerName();
@@ -466,6 +472,7 @@ public class ItemService {
                 billingModel.setItemBarcodeID(billModel.getItemBarcodeID());
                 billingModel.setItemCategory(billModel.getItemCategory());
                 billingModel.setDescription(description);
+                billingModel.setBillCategory(billType);
                 billingModel.setItemColor(billModel.getItemColor());
                 billingModel.setItemSize(billModel.getItemSize());
                 billingModel.setItemType(billModel.getItemType());

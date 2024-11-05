@@ -165,7 +165,7 @@ public class UserController {
     }
 
     @PostMapping("/intercompany/billRequest")
-    public ResponseEntity<byte[]> generateInterCompanyBill(@RequestBody Billing bill, @RequestParam("bill_to") String bill_to) {
+    public ResponseEntity<byte[]> generateInterCompanyBill(@RequestBody Billing bill) {
         try {
             Billing createBill = itemService.saveInterCompanyBilling(bill);
             createBill.setBill(bill.getBill());

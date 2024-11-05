@@ -22,6 +22,7 @@ public class BillingModel {
     private Date bill_date;
     private String itemSize;
     private String itemCategory;
+    private String billCategory;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns({
             @JoinColumn(name = "bill_no", referencedColumnName = "billNo"),
@@ -154,6 +155,14 @@ public class BillingModel {
         this.status = status;
     }
 
+    public String getBillCategory() {
+        return billCategory;
+    }
+
+    public void setBillCategory(String billCategory) {
+        this.billCategory = billCategory;
+    }
+
     public String getStoreName() {
         return storeName;
     }
@@ -161,6 +170,7 @@ public class BillingModel {
     public void setStoreName(String storeName) {
         this.storeName = storeName;
     }
+
 
     @Override
     public String toString() {
