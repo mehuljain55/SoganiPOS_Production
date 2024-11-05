@@ -92,11 +92,4 @@ public class StoreController {
             return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
     }
-
-
 }
-
-
-
-
-
