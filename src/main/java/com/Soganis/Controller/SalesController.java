@@ -211,13 +211,6 @@ public class SalesController {
         }
     }
 
-
-
-
-
-
-
-
     @PostMapping("/export")
     public ResponseEntity<byte[]> exportSalesReport(@RequestBody List<SalesReportModel> salesData) throws IOException {
 

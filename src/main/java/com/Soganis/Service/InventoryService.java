@@ -447,6 +447,7 @@ public class InventoryService {
     public String inventoryUpdate(List<ItemModel> itemModelList) {
         String status = "";
 
+
         for (ItemModel itemModel : itemModelList) {
             System.out.println(itemModel);
             try {
