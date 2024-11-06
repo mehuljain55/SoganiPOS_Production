@@ -211,6 +211,7 @@ public class ItemService {
                 for (BillingModel billingModel : bill) {
                     billingModel.setBilling(savedBilling);
                     billingModel.setStoreName(storeId);
+                    billingModel.setBillCategory("Retail");
                     final_amount = final_amount + billingModel.getTotal_amount();
                     billingModel.setBill_date(new Date());
                     if (billingModel.getItemBarcodeID().equals("SG9999999")) {
@@ -245,6 +246,112 @@ public class ItemService {
             return null;
         }
     }
+
+
+    public Billing saveIntercompanyillExchange(Billing billing, List<ItemReturnModel> itemList) {
+
+        try {
+
+            String storeId=getStoreId(billing.getUserId());
+            Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId);
+            String customerName="";
+            String customerMobileNo="";
+            if (maxBillNo == null) {
+                maxBillNo = 1;  // Start from 0 if no previous bills
+            }
+            else {
+                maxBillNo=maxBillNo+1;
+            }
+            int final_amount = 0;
+
+            Billing savedBilling = new Billing();
+            savedBilling.setBillNo(maxBillNo);
+            savedBilling.setBillType("Exchange");
+            savedBilling.setStoreId(storeId);
+            savedBilling.setSchoolName(billing.getSchoolName());
+            savedBilling.setUserId(billing.getUserId());
+            savedBilling.setPaymentMode(billing.getPaymentMode());
+            List<BillingModel> bill = billing.getBill();
+            List<BillingModel> billingModelList=new ArrayList<>();
+            for (ItemReturnModel itemModel : itemList) {
+                Items item = itemRepo.getItemByItemBarcodeID(itemModel.getBarcodedId(),storeId);
+                int totalAmount = itemModel.getReturn_quantity() * itemModel.getPrice();
+                BillingModel billingModel = new BillingModel();
+                billingModel.setBilling(savedBilling);
+                billingModel.setItemBarcodeID(itemModel.getBarcodedId());
+
+                billingModel.setBill_date(new Date());
+                billingModel.setBillCategory("Wholesale");
+                billingModel.setSellPrice(itemModel.getPrice());
+                billingModel.setItemSize(item.getItemSize());
+                billingModel.setItemColor(item.getItemColor());
+                billingModel.setItemType(item.getItemType());
+                billingModel.setItemCategory(item.getItemCategory());
+                billingModel.setQuantity((itemModel.getReturn_quantity()) * -1);
+                billingModel.setTotal_amount(totalAmount * -1);
+                billingModel.setStoreName(storeId);
+                bill.add(billingModel);
+
+
+                Optional<BillingModel> opt = billModelRepository.findById(itemModel.getSno());
+                if (opt.isPresent()) {
+                    BillingModel save_bill = opt.get();
+
+                    if(customerMobileNo==null||customerMobileNo=="")
+                    {
+                        Billing billing1=billRepo.getBillByNo(save_bill.getBilling().getBillNo(),storeId);
+                        customerName = billing1.getCustomerName() != null ? billing1.getCustomerName() : "";
+                        customerMobileNo = billing1.getCustomerMobileNo() != null ? billing1.getCustomerMobileNo() : "";
+
+                    }
+                    save_bill.setStatus("Exchanged");
+
+                    billModelRepository.save(save_bill);
+
+                }
+
+            }
+
+            if (billing.getBill() != null) {
+                for (BillingModel billingModel : bill) {
+                    billingModel.setBilling(savedBilling);
+                    billingModel.setBillCategory("Wholesale");
+                    billingModel.setStoreName(storeId);
+                    final_amount = final_amount + billingModel.getTotal_amount();
+                    billingModel.setBill_date(new Date());
+                    if (billingModel.getItemBarcodeID().equals("SG9999999")) {
+                        String description = billingModel.getItemCategory() + " " + billingModel.getItemType() + " " + billingModel.getItemSize();
+                        billingModel.setDescription(description);
+
+                    } else {
+                        Items item = itemRepo.getItemByItemBarcodeID(billingModel.getItemBarcodeID(),storeId);
+                        billingModel.setDescription(item.getItemName());
+
+                    }
+
+                    String status = inventoryService.updateInventory(billingModel,storeId);
+                    System.out.println(status);
+                    billingModelList.add(billingModel);
+
+
+                }
+                System.out.println(billing.getBalanceAmount());
+                savedBilling.setBill_date(new Date());
+                savedBilling.setFinal_amount(final_amount);
+                savedBilling.setBill(billingModelList);
+                savedBilling.setCustomerMobileNo(customerMobileNo);
+                savedBilling.setCustomerName(customerName);
+                savedBilling.setStoreId(storeId);
+                billRepo.save(savedBilling);
+                savedBilling.setBill(billing.getBill());
+            }
+            return savedBilling;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     public Billing saveInterCompanyBilling(Billing billing) {
         try {

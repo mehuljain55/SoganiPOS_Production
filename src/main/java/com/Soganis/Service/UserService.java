@@ -2,13 +2,10 @@ package com.Soganis.Service;
 
 import com.Soganis.Entity.*;
 import com.Soganis.Repository.*;
-import org.apache.poi.sl.draw.geom.GuideIf;
 import org.springframework.stereotype.Service;
-
 import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
@@ -108,8 +105,6 @@ public class UserService {
         }
     }
 
-
-
     public String createStore(Store store)
     {
         try {
@@ -179,8 +174,6 @@ public class UserService {
             return "Failed";
         }
     }
-
-
 
 
     public String updateOrderDetailDelivered(int orderId) {

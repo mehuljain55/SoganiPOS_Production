@@ -7,6 +7,7 @@ import com.Soganis.Model.*;
 import com.Soganis.Service.InventoryService;
 import com.Soganis.Service.ItemService;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -174,6 +175,39 @@ public class InventoryController {
     {
     String status=inventoryService.generateInventoryExcel(user);
     return status;
+    }
+
+    @GetMapping("/download/stock_add_list")
+    public ResponseEntity<byte[]> inventoryFormat() throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Add New Item");
+
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"Item Code", "Item Name", "Item Type", "Item Size", "Item Color", "Item Category", "Price", "Wholesale Price", "Quantity", "Barcode Description", "Group Id"};
+
+        // Create header cells and set the header names
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        // Auto-size the columns based on the header content
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        workbook.write(bos);
+        workbook.close();
+
+        // Create HTTP response
+        HttpHeaders headersDownload = new HttpHeaders();
+        headersDownload.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headersDownload.setContentDispositionFormData("attachment", "New Item List.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(headersDownload)
+                .body(bos.toByteArray());
     }
 
 

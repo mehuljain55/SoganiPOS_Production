@@ -165,6 +165,35 @@ public class UserController {
         }
     }
 
+    @PostMapping("/intercompany/exchange/billRequest")
+    public ResponseEntity<byte[]> generate_intercompany_bill_exchange(@RequestBody ItemExchangeModel itemModel) {
+        try {
+            Billing bill = itemModel.getBill();
+            Billing createBill = itemService.saveIntercompanyillExchange(bill, itemModel.getItemModel());
+            String storeId=itemService.getStoreId(itemModel.getUser().getUserId());
+            createBill.setBill(bill.getBill());
+            String status=service.updateUserCashCollectionReport();
+            byte[] pdfBytes = print_bill(createBill.getBillNo(),storeId);
+
+            if (pdfBytes != null) {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_PDF);
+                headers.setContentDispositionFormData("inline", createBill.getCustomerName() + "_" + createBill.getBillNo() + ".pdf");
+
+                return ResponseEntity.ok()
+                        .headers(headers)
+                        .body(pdfBytes);
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
+
+
     @PostMapping("/intercompany/billRequest")
     public ResponseEntity<byte[]> generateInterCompanyBill(@RequestBody Billing bill) {
         try {
