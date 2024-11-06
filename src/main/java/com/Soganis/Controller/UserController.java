@@ -476,6 +476,19 @@ public class UserController {
         }
     }
 
+    @PostMapping("/purchase-order")
+    public ResponseEntity<String> purchase_order(@RequestBody PurchaseOrderBook purchaseOrderBook,@RequestParam("storeId") String storeId) {
+        try {
+            String status = inventoryService.purchase_order(purchaseOrderBook,storeId);
+            return ResponseEntity.ok(status);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+
+
     @GetMapping("/view-order")
     public ResponseEntity<List<PurchaseOrderBook>> viewOrder(@RequestParam("storeId") String storeId) {
         try {

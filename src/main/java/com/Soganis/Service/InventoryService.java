@@ -178,6 +178,24 @@ public class InventoryService {
         }
     }
 
+    public String purchase_order(PurchaseOrderBook purchaseOrderBook, String storeId) {
+        try {
+            int currentStock = 0;
+            purchaseOrderBook.setCurrentStock(currentStock);
+            purchaseOrderBook.setStatus("NOT GENERATED");
+            purchaseOrderBook.setDate(new Date());
+            purchaseOrderBook.setStoreId(storeId);
+            purchaseOrderRepo.save(purchaseOrderBook);
+            return "Success";
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Failed";
+        }
+    }
+
+
+
     public List<PurchaseOrderBook> view_order(String storeId) {
         List<PurchaseOrderBook> lst = purchaseOrderRepo.findItemsWithStatusNotGenerated(storeId);
         return lst;

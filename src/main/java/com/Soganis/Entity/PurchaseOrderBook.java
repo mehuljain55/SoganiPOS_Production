@@ -47,6 +47,15 @@ public class PurchaseOrderBook {
         this.storeId=storeId;
     }
 
+    public PurchaseOrderBook(String description, String size, String color, int quantity, String itemType, String school) {
+        this.description = description;
+        this.size = size;
+        this.color = color;
+        this.quantity = quantity;
+        this.itemType = itemType;
+        this.school = school;
+    }
+
     public int getOrderId() {
         return orderId;
     }
