@@ -31,6 +31,7 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.JasperReport;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -246,11 +247,14 @@ public class UserController {
     }
 
     @GetMapping("/getUserCashCollection")
-    public ResponseEntity<List<UserCashCollection>> getUserCashCollection(@RequestParam("storeId") String storeId) {
+    public ResponseEntity<List<UserCashCollection>> getUserCashCollection(@RequestParam("storeId") String storeId,
+                                                                          @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+                                                                          @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
 
         try {
 
-            List<UserCashCollection> userCashList = service.userCashCollectionReport(storeId);
+            List<UserCashCollection> userCashList = service.userCashCollectionReportByDate(storeId,startDate,endDate);
+
             return ResponseEntity.ok(userCashList);
 
         } catch (Exception e) {

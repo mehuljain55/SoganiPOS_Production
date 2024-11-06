@@ -6,10 +6,9 @@ import org.apache.poi.sl.draw.geom.GuideIf;
 import org.springframework.stereotype.Service;
 
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
@@ -235,37 +234,70 @@ public class UserService {
         return amount;
     }
 
-    public List<UserCashCollection> userCashCollectionReport(String storeId) {
+    public List<UserCashCollection> userCashCollectionReportByDate(String storeId,Date startDate,Date endDate) {
         List<User> users = userRepo.getUserByStoreId(storeId);
         List<UserCashCollection> userCashList = new ArrayList<>();
-        for (User user : users) {
-            UserCashCollection user_cash_collection = new UserCashCollection();
-            List<Billing> bills = billRepo.findByUserIdAndBillDate(user.getUserId(), new Date(),storeId);
+        List<Date> dates=getAllDatesBetweenDates(startDate,endDate);
 
-            int user_cash_collected = bills.stream()
-                    .mapToInt(Billing::getFinal_amount)
-                    .filter(amount -> amount > 0)
-                    .sum();
 
-            int user_cash_returned = bills.stream()
-                    .mapToInt(Billing::getFinal_amount)
-                    .filter(amount -> amount < 0)
-                    .sum();
 
-            user_cash_returned = user_cash_returned * -1;
-            int total = user_cash_collected - user_cash_returned;
-            user_cash_collection.setUserId(user.getUserId());
-            user_cash_collection.setCollection_date(new Date());
-            user_cash_collection.setUserName(user.getSname());
-            user_cash_collection.setCash_collection(user_cash_collected);
-            user_cash_collection.setCash_return(user_cash_returned);
-            user_cash_collection.setFinal_cash_collection(total);
-            userCashList.add(user_cash_collection);
+        for(Date date:dates) {
+            for (User user : users) {
+                UserCashCollection user_cash_collection = new UserCashCollection();
+                List<Billing> bills = billRepo.findByUserIdAndBillDate(user.getUserId(), date, storeId);
 
+                int user_cash_collected = bills.stream()
+                        .mapToInt(Billing::getFinal_amount)
+                        .filter(amount -> amount > 0)
+                        .sum();
+
+                int user_cash_returned = bills.stream()
+                        .mapToInt(Billing::getFinal_amount)
+                        .filter(amount -> amount < 0)
+                        .sum();
+
+                user_cash_returned = user_cash_returned * -1;
+                int total = user_cash_collected - user_cash_returned;
+                user_cash_collection.setUserId(user.getUserId());
+                user_cash_collection.setCollection_date(date);
+                user_cash_collection.setUserName(user.getSname());
+                user_cash_collection.setCash_collection(user_cash_collected);
+                user_cash_collection.setCash_return(user_cash_returned);
+                user_cash_collection.setFinal_cash_collection(total);
+                user_cash_collection.setStoreId(storeId);
+                if(user_cash_collected==0&& user_cash_returned==0 && total==0 )
+                {
+                    continue;
+                }
+                userCashList.add(user_cash_collection);
+
+            }
+            userCashCollectionRepo.saveAll(userCashList);
         }
-        userCashCollectionRepo.saveAll(userCashList);
-        return userCashList;
 
+       List<UserCashCollection> userCashCollections=userCashCollectionRepo.findByDateRangeAndStoreId(startDate,endDate,storeId);
+        List<UserCashCollection> userCashCollectionFinalList = userCashCollections.stream()
+                .filter(entry -> entry.getFinal_cash_collection() != 0)
+                .collect(Collectors.toList());
+
+        return userCashCollectionFinalList;
+
+    }
+
+    public static List<Date> getAllDatesBetweenDates(Date startDate, Date endDate) {
+        List<Date> dates = new ArrayList<>();
+
+        // Set up a calendar instance starting from startDate
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startDate);
+
+        // Iterate until we reach the end date
+        while (!calendar.getTime().after(endDate)) {
+            dates.add(calendar.getTime()); // Add current date to the list
+            calendar.add(Calendar.DATE, 1); // Move to the next day
+        }
+
+        return dates;
     }
 
     public String updateUserCashCollectionReport() {
@@ -295,7 +327,13 @@ public class UserService {
                 user_cash_collection.setUserName(user.getSname());
                 user_cash_collection.setCash_collection(user_cash_collected);
                 user_cash_collection.setCash_return(user_cash_returned);
+                user_cash_collection.setStoreId(storeId);
                 user_cash_collection.setFinal_cash_collection(total);
+
+                if(user_cash_collected==0&& user_cash_returned==0 && total==0 )
+                {
+                    continue;
+                }
                 userCashList.add(user_cash_collection);
 
             }
