@@ -209,6 +209,72 @@ public class InventoryController {
                 .headers(headersDownload)
                 .body(bos.toByteArray());
     }
+    @PostMapping("/export")
+    public ResponseEntity<byte[]> inventoryExportList(@RequestBody List<Items> items) throws IOException {
+        // Create a workbook and a spreadsheet
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Inventory");
+
+        // Header row with bold style
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"Barcode Id", "Item Code", "Item Name", "Description", "Item Type", "Item Type ID", "Item Color",
+                "Item Size", "Item Category",  "Price", "Wholesale Price", "Quantity",
+                "School Code", "Item Type Code", "Group ID", "Store ID", "Super Group ID"};
+
+        CellStyle headerCellStyle = workbook.createCellStyle();
+        Font boldFont = workbook.createFont();
+        boldFont.setBold(true);
+        headerCellStyle.setFont(boldFont);
+
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerCellStyle);  // Apply bold style only to header
+        }
+
+        // Populate data rows without specific style
+        int rowIndex = 1;
+        for (Items item : items) {
+            Row row = sheet.createRow(rowIndex++);
+
+            row.createCell(0).setCellValue(item.getItemBarcodeID());
+            row.createCell(1).setCellValue(item.getItemCode());
+            row.createCell(2).setCellValue(item.getItemName());
+            row.createCell(3).setCellValue(item.getDescription());
+            row.createCell(4).setCellValue(item.getItemType());
+            row.createCell(5).setCellValue(item.getItemTypeID());
+            row.createCell(6).setCellValue(item.getItemColor());
+            row.createCell(7).setCellValue(item.getItemSize());
+            row.createCell(8).setCellValue(item.getItemCategory());
+            row.createCell(9).setCellValue(item.getPrice());
+            row.createCell(10).setCellValue(item.getWholeSalePrice());
+            row.createCell(11).setCellValue(item.getQuantity());
+            row.createCell(12).setCellValue(item.getSchoolCode());
+            row.createCell(13).setCellValue(item.getItemTypeCode());
+            row.createCell(14).setCellValue(item.getGroup_id());
+            row.createCell(15).setCellValue(item.getStoreId());
+            row.createCell(16).setCellValue(item.getSuper_group_id());
+        }
+
+        // Resize columns to fit content
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Write workbook to byte array
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+
+        // Set HTTP response headers
+        HttpHeaders headersResponse = new HttpHeaders();
+        headersResponse.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headersResponse.setContentDispositionFormData("attachment", "inventory.xlsx");
+
+        return new ResponseEntity<>(outputStream.toByteArray(), headersResponse, HttpStatus.OK);
+    }
+
+
 
 
 
