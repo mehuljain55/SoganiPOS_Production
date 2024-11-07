@@ -9,6 +9,7 @@ import com.Soganis.Entity.User;
 import com.Soganis.Entity.UserCashCollection;
 import com.Soganis.Entity.UserMonthlySalary;
 import com.Soganis.Entity.User_Salary;
+import com.Soganis.Model.BillViewModel;
 import com.Soganis.Model.ItemExchangeModel;
 import com.Soganis.Model.ItemReturnModel;
 import com.Soganis.Service.InventoryService;
@@ -76,10 +77,17 @@ public class UserController {
 
 
     @GetMapping("/getBill/{bill_no}/{storeId}")
-    public ResponseEntity<Billing> getBill(@PathVariable int bill_no, @PathVariable String storeId) {
-        Billing bill = itemService.getBill(bill_no, storeId);
-        if (bill != null) {
-            return ResponseEntity.ok(bill);  // Return the bill if found
+    public ResponseEntity<BillViewModel> getBill(@PathVariable String bill_no, @PathVariable String storeId) {
+        if(bill_no.length()==10)
+        {
+
+            BillViewModel billViewModel=itemService.getBillList(bill_no,storeId);
+            return ResponseEntity.ok(billViewModel);
+        }
+
+        BillViewModel billViewModel = itemService.getBillByMobileNo(bill_no, storeId);
+        if (billViewModel != null) {
+            return ResponseEntity.ok(billViewModel);  // Return the bill if found
         } else {
             System.out.println("Data Not Found");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();  // Return 404 if not found

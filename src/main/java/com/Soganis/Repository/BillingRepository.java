@@ -18,8 +18,8 @@ public interface BillingRepository extends JpaRepository<Billing, BillingId> {
     @Query("SELECT b FROM Billing b WHERE b.billNo = :billNo and b.storeId=:storeId")
     Billing getBillByNo(@Param("billNo") int billNo,@Param("storeId") String storeId);
 
-    @Query("SELECT b FROM Billing b WHERE b.customerMobileNo = :customerMobileNo and b.storeId=:storeId")
-    List<Billing> getBillByMobileNo(@Param("customerMobileNo") String customerMobileNo,@Param("storeId") String storeId);
+    @Query("SELECT b FROM Billing b WHERE b.customerMobileNo = :customerMobileNo and b.storeId = :storeId and (b.billType != 'Return' and b.billType != 'Defected Item')")
+    List<Billing> getBillByMobileNo(@Param("customerMobileNo") String customerMobileNo, @Param("storeId") String storeId);
 
 
     @Query("SELECT MAX(b.billNo) FROM Billing b WHERE b.storeId = :storeId")

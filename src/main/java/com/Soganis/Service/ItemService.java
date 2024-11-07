@@ -2,6 +2,7 @@ package com.Soganis.Service;
 
 import com.Soganis.Entity.*;
 import com.Soganis.Model.BarcodeModel;
+import com.Soganis.Model.BillViewModel;
 import com.Soganis.Model.ItemReturnModel;
 import com.Soganis.Repository.BillingModelRepository;
 import com.Soganis.Repository.BillingRepository;
@@ -400,15 +401,49 @@ public class ItemService {
         }
     }
 
-    public Billing getBill(int billNo,String storeId) {
+    public  Billing getBill(int billNo,String storeId)
+    {
         BillingId billingId = new BillingId(billNo, storeId);
         Optional<Billing> opt = billRepo.findById(billingId);
         if (opt.isPresent()) {
             Billing bill = opt.get();
-            return bill;
+            return  bill;
         } else {
-            return null;
+           return  null;
         }
+    }
+
+    public BillViewModel getBillByMobileNo(String billId,String storeId) {
+        int billNo=Integer.parseInt(billId);
+        BillingId billingId = new BillingId(billNo, storeId);
+        BillViewModel billViewModel=new BillViewModel();
+        Optional<Billing> opt = billRepo.findById(billingId);
+        if (opt.isPresent()) {
+            Billing bill = opt.get();
+            billViewModel.setType("single");
+            billViewModel.setBill(bill);
+            return billViewModel;
+        } else {
+            billViewModel.setType("Not Found");
+            return billViewModel;
+        }
+    }
+
+
+
+    public BillViewModel getBillList(String mobileNo, String storeId) {
+
+       List<Billing> bills=billRepo.getBillByMobileNo(mobileNo,storeId);
+        BillViewModel billViewModel = new BillViewModel();
+       if(bills.size()>0) {
+
+           billViewModel.setType("list");
+           billViewModel.setBillList(bills);
+       }else{
+           billViewModel.setType("Not Found");
+       }
+       return billViewModel;
+
     }
 
     public int getTodaysCollectionByUser(String userId, Date date,String storeId) {
@@ -575,7 +610,6 @@ public class ItemService {
                 int quantity = (itemModel.getReturn_quantity() * -1);
 
                 BillingModel billingModel = new BillingModel();
-                billingModel.setBilling(bill);
                 billingModel.setItemBarcodeID(billModel.getItemBarcodeID());
                 billingModel.setItemCategory(billModel.getItemCategory());
                 billingModel.setDescription(description);
@@ -588,7 +622,7 @@ public class ItemService {
                 billingModel.setTotal_amount((totalAmount) * -1);
                 billingModel.setQuantity(quantity);
                 billingModel.setStoreName(storeId);
-                billModelRepository.save(billingModel);
+
                 System.out.println(finalAmount);
                 Billing billing = new Billing();
                 billing.setBill_date(new Date());
@@ -602,6 +636,8 @@ public class ItemService {
                 billing.setStoreId(storeId);
                 billing.setBillNo(maxBillNo);
                 billRepo.save(billing);
+                billingModel.setBilling(billing);
+                billModelRepository.save(billingModel);
                 return "success";
             }
             return "Failed";
