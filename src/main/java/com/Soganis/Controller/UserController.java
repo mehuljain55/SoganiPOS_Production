@@ -268,12 +268,12 @@ public class UserController {
     }
 
     @PostMapping("/salary/update")
-    public ResponseEntity<String> generateBill(@RequestBody List<User_Salary> salaries) {
+    public ResponseEntity<String> generateBill(@RequestBody List<User_Salary> salaries,@RequestParam("storeId") String storeId) {
 
         String status = "";
         try {
             System.out.println(salaries.size());
-            status = service.userSalaryUpdate(salaries);
+            status = service.userSalaryUpdate(salaries,storeId);
 
             return ResponseEntity.ok(status);
         } catch (Exception e) {
@@ -305,7 +305,7 @@ public class UserController {
 
         try {
 
-            List<UserMonthlySalary> userMonthlySalary = service.generateUserMonthlySalaries(month_fy);
+            List<UserMonthlySalary> userMonthlySalary = service.generateUserMonthlySalaries(month_fy,storeId);
             return ResponseEntity.ok(userMonthlySalary);
 
         } catch (Exception e) {

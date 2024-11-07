@@ -23,6 +23,7 @@ public class User_Salary {
     @Temporal(TemporalType.DATE)
     Date date;
     int amount;
+    String storeId;
 
     public int getSno() {
         return sno;
@@ -72,7 +73,11 @@ public class User_Salary {
         this.amount = amount;
     }
 
-   
-    
-    
+    public String getStoreId() {
+        return storeId;
+    }
+
+    public void setStoreId(String storeId) {
+        this.storeId = storeId;
+    }
 }

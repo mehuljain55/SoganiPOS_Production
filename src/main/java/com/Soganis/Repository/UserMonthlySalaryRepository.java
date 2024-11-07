@@ -7,5 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 
 public interface UserMonthlySalaryRepository extends JpaRepository<UserMonthlySalary,UserMonthlySalaryId> {
-    
+
+
 }

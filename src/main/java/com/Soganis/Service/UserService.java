@@ -58,9 +58,15 @@ public class UserService {
 
     }
 
-    public String userSalaryUpdate(List<User_Salary> salary) {
+    public String userSalaryUpdate(List<User_Salary> salary,String storeId) {
         try {
-            userSalaryRepo.saveAll(salary);
+            List<User_Salary> salaryList=new ArrayList<>();
+            for(User_Salary userSalary:salary)
+            {
+                userSalary.setStoreId(storeId);
+                salaryList.add(userSalary);
+            }
+            userSalaryRepo.saveAll(salaryList);
             return "Success";
         } catch (Exception e) {
             e.printStackTrace();
@@ -339,10 +345,10 @@ public class UserService {
 
     }
 
-    public List<UserMonthlySalary> generateUserMonthlySalaries(String month_fy) {
+    public List<UserMonthlySalary> generateUserMonthlySalaries(String month_fy,String storeId) {
         List<UserMonthlySalary> salaries = new ArrayList<>();
         List<User_Salary> salary_statement;
-        List<User> users = userRepo.findAll();
+        List<User> users = userRepo.getUserByStoreId(storeId);
 
         String[] parts = month_fy.split("_");
         int month = Integer.parseInt(parts[0]);
@@ -367,6 +373,7 @@ public class UserService {
             salary.setAdvanceSalary(advanceSalary);
             salary.setFinalAmount(totalAmount);
             salary.setMonthlySalary(user.getMonthly_salary());
+            salary.setStoreId(storeId);
 
             UserMonthlySalaryId id = new UserMonthlySalaryId(user.getUserId(), month_fy);
             System.out.println("Id: " + id);
@@ -381,6 +388,7 @@ public class UserService {
             salaries.add(salary);
         }
         userMonthlySalaryRepository.saveAll(salaries);
+
         return salaries;
     }
 
