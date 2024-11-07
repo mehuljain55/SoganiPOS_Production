@@ -160,15 +160,6 @@ public class InventoryController {
         
     }
 
-    @GetMapping("/getUser")
-    public User getUser()
-    {
-        User user=new User();
-        user.setUserId("mridul");
-        user.setPassword("abc");
-        user.setStoreId("Nx");
-        return  user;
-    }
     
     @GetMapping("/format")
     public String inventoryFormat(@RequestBody User user) throws IOException
