@@ -114,6 +114,7 @@ public class UserController {
     @PostMapping("/billRequest")
     public ResponseEntity<byte[]> generateBill(@RequestBody Billing bill) {
         try {
+
             String storeId=itemService.getStoreId(bill.getUserId());
             bill.setStoreId(storeId);
             Billing createBill = itemService.saveBilling(bill);

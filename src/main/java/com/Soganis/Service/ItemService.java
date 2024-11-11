@@ -464,6 +464,15 @@ public class ItemService {
         }
     }
 
+    public  List<Billing> getBillByDate(Date startDate, Date endDate,String storeId)
+    {
+
+        List<Billing> billingList = billRepo.findByBillDateBetweenAndStoreId(startDate,endDate,storeId);
+        return  billingList;
+    }
+
+
+
     public BillViewModel getBillByMobileNo(String billId,String storeId) {
         int billNo=Integer.parseInt(billId);
         BillingId billingId = new BillingId(billNo, storeId);

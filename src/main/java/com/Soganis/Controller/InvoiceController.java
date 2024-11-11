@@ -7,6 +7,7 @@ import com.Soganis.Service.UserService;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,10 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/invoice")
@@ -66,6 +64,21 @@ public class InvoiceController {
          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
       }
    }
+
+   @GetMapping("/getBillByDate")
+   public ResponseEntity<List<Billing>> getBillByDate(
+           @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+           @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
+           @RequestParam("storeId") String storeId) {
+
+      List<Billing> bills = itemService.getBillByDate(startDate, endDate, storeId);
+      if (bills != null && !bills.isEmpty()) {
+         return ResponseEntity.ok().body(bills);
+      } else {
+         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+      }
+   }
+
 
    public byte[] print_bill(int bill_no,String storeId) {
       Billing bill = itemService.getBill(bill_no,storeId);
