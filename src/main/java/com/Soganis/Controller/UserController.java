@@ -582,6 +582,7 @@ public class UserController {
         int qty=0;
         for (BillingModel billModel : bills) {
             String description = billModel.getItemCategory() + " " + billModel.getItemType() + " " + billModel.getItemColor();
+            billModel.setSellPrice(billModel.getPrice());
             billModel.setDescription(description);
             billModel.setSno(count);
             qty=qty+billModel.getQuantity();
@@ -603,13 +604,26 @@ public class UserController {
             Map<String, Object> parameters = new HashMap<>();
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
             String bill_date = dateFormat.format(bill.getBill_date());
+             String total_qty=qty+""; 
+            String summary="";
+            if(bill.getDiscount()>0)
+            {
+            int total=bill.getFinal_amount()+bill.getDiscountAmount();
+             summary="Total Amount:"+total+"\n"+"Discount:"+bill.getDiscountAmount()+"\n"+"Grand Total:"+bill.getFinal_amount()+"\n"+"Total Qty:"+total_qty;
+      
+            }
+            else{
+               summary="Grand Total:"+bill.getFinal_amount()+"\n"+"Total Qty:"+total_qty;
+      
+            }
             parameters.put("bill_no", bill.getBillNo());
             parameters.put("customer_name", bill.getCustomerName());
             parameters.put("mobile_no", bill.getCustomerMobileNo());
             parameters.put("date", bill_date);
             parameters.put("final_amount", bill.getFinal_amount());
-            String total_qty=qty+""; 
+           
             parameters.put("total_qty", total_qty);
+            parameters.put("item_summary", summary);
 
             JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(newBill);
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);

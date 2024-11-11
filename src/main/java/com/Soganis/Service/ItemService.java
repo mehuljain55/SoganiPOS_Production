@@ -105,6 +105,18 @@ public class ItemService {
                     billingModel.setBilling(savedBilling);
                     billingModel.setBillCategory("Retail");
                     billingModel.setDiscount(billing.getDiscount());
+                    int sellPrice=billingModel.getSellPrice();
+                    billingModel.setPrice(sellPrice);
+                   
+                    
+                    if(billing.getDiscount()>0)
+                    {
+                        int discount=billing.getDiscount();
+                      int discount_price=(sellPrice*discount)/100;
+                      sellPrice=sellPrice-discount_price;
+                      billingModel.setSellPrice(sellPrice);
+                      
+                    }
 
                     billingModel.setStoreName(storeId);
                     final_amount = final_amount + billingModel.getTotal_amount();
@@ -124,6 +136,43 @@ public class ItemService {
                     billingModelList.add(billingModel);
                  //   billModelRepository.save(billingModelList);
                 }
+                
+                    if (billing.getDiscount() > 0) {
+
+                    int discount = billing.getDiscount();
+                   
+                    int discountAmount = (final_amount * discount) / 100;
+                   
+
+                    int remainder = discountAmount % 10;
+                    if (remainder < 5) {
+                        discountAmount = discountAmount - remainder + (remainder >= 3 ? 5 : 0);
+                    } else {
+                        discountAmount = discountAmount - remainder + (remainder >= 8 ? 10 : 5);
+                    }
+                    
+                    savedBilling.setDiscountAmount(discountAmount);
+
+                }
+                   
+                
+                if (billing.getDiscount() > 0) {
+
+                    int discount = billing.getDiscount();
+                    savedBilling.setDiscount(discount);
+                    int discountAmount = (final_amount * discount) / 100;
+                    final_amount = final_amount - discountAmount;
+
+                    int remainder = final_amount % 10;
+                    if (remainder < 5) {
+                        final_amount = final_amount - remainder + (remainder >= 3 ? 5 : 0);
+                    } else {
+                        final_amount = final_amount - remainder + (remainder >= 8 ? 10 : 5);
+                    }
+
+                }
+
+        
                 savedBilling.setBillNo(maxBillNo);
                 savedBilling.setBill_date(new Date());
                 savedBilling.setBillType("RETAIL");

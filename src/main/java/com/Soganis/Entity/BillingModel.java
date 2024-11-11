@@ -31,6 +31,9 @@ public class BillingModel {
     @JsonIgnore
     private Billing billing;
     private int sellPrice;
+    private int price;
+
+    
     private int quantity;
     private int total_amount;
     private String status;
@@ -181,6 +184,16 @@ public class BillingModel {
     public void setStoreName(String storeName) {
         this.storeName = storeName;
     }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+    
+    
 
 
     @Override

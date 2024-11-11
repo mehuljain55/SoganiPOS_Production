@@ -32,6 +32,8 @@ public class Billing {
     String schoolName;
     String billType;
     int discount;
+    int discountAmount;
+    
     int balanceAmount;
     int item_count;
 
@@ -158,4 +160,13 @@ public class Billing {
     public void setDiscount(int discount) {
         this.discount = discount;
     }
+
+    public int getDiscountAmount() {
+        return discountAmount;
+    }
+
+    public void setDiscountAmount(int discountAmount) {
+        this.discountAmount = discountAmount;
+    }
+    
 }
