@@ -31,6 +31,7 @@ public class Billing {
     String description;
     String schoolName;
     String billType;
+    int discount;
     int balanceAmount;
     int item_count;
 
@@ -148,5 +149,13 @@ public class Billing {
 
     public void setFinal_amount(int final_amount) {
         this.final_amount = final_amount;
+    }
+
+    public int getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(int discount) {
+        this.discount = discount;
     }
 }

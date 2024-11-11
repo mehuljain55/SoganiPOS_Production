@@ -470,6 +470,14 @@ public class UserService {
         return lst;
     }
 
+    public List<SchoolList> getSchoolNameCode(String storeId) {
+        List<SchoolList> lst = schoolRepo.findSchoolNameCode(storeId);
+        return lst;
+    }
+
+
+
+
     public List<String> getFilteredSchoolList(String searchTerm, String storeId) {
         List<String> lst = schoolRepo.findAllSchool(searchTerm,storeId);
         return lst;

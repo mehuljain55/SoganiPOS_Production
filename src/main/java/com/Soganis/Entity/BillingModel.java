@@ -34,6 +34,7 @@ public class BillingModel {
     private int quantity;
     private int total_amount;
     private String status;
+    private int discount;
     private String storeName;
 
     public BillingModel() {
@@ -139,6 +140,11 @@ public class BillingModel {
         this.quantity = quantity;
     }
 
+    public int getDiscount() {
+        return discount;
+    }
+
+
     public int getTotal_amount() {
         return total_amount;
     }
@@ -153,6 +159,11 @@ public class BillingModel {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+
+    public void setDiscount(int discount) {
+        this.discount = discount;
     }
 
     public String getBillCategory() {

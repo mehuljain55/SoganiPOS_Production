@@ -33,6 +33,7 @@ public class Items {
     private String group_id;
     private  String storeId;
     private  String super_group_id;
+    private  String discount;
 
     public Items() {
     }
@@ -179,6 +180,14 @@ public class Items {
 
     public void setSuper_group_id(String super_group_id) {
         this.super_group_id = super_group_id;
+    }
+
+    public String getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(String discount) {
+        this.discount = discount;
     }
 
     @Override

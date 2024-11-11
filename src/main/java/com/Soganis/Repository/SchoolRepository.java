@@ -15,6 +15,10 @@ public interface SchoolRepository extends JpaRepository<SchoolList, Integer> {
     List<String> findSchoolList(@Param("storeId") String storeId);
 
 
+    @Query("SELECT s FROM SchoolList s where s.storeId=:storeId")
+    List<SchoolList> findSchoolNameCode(@Param("storeId") String storeId);
+
+
     @Query("SELECT  s.schoolName  FROM SchoolList s WHERE (:searchTerm IS NULL OR s.schoolName LIKE CONCAT(:searchTerm, '%') OR s.schoolCode LIKE CONCAT(:searchTerm, '%')) AND s.storeId = :storeId ORDER BY s.schoolName ASC")
     List<String> findAllSchool(@Param("searchTerm") String searchTerm, @Param("storeId") String storeId);
 

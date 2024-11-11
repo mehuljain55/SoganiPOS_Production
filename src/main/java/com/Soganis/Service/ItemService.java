@@ -104,6 +104,8 @@ public class ItemService {
                 for (BillingModel billingModel : billing.getBill()) {
                     billingModel.setBilling(savedBilling);
                     billingModel.setBillCategory("Retail");
+                    billingModel.setDiscount(billing.getDiscount());
+
                     billingModel.setStoreName(storeId);
                     final_amount = final_amount + billingModel.getTotal_amount();
                     billingModel.setBill_date(new Date());

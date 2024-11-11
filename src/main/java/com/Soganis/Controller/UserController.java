@@ -1,14 +1,7 @@
 package com.Soganis.Controller;
 
-import com.Soganis.Entity.Billing;
-import com.Soganis.Entity.BillingModel;
-import com.Soganis.Entity.CustomerOrderBook;
-import com.Soganis.Entity.Items;
-import com.Soganis.Entity.PurchaseOrderBook;
-import com.Soganis.Entity.User;
-import com.Soganis.Entity.UserCashCollection;
-import com.Soganis.Entity.UserMonthlySalary;
-import com.Soganis.Entity.User_Salary;
+import com.Soganis.Entity.*;
+import com.Soganis.Model.BillTransactionModel;
 import com.Soganis.Model.BillViewModel;
 import com.Soganis.Model.ItemExchangeModel;
 import com.Soganis.Model.ItemReturnModel;
@@ -351,6 +344,20 @@ public class UserController {
         try {
 
             List<String> schoolList = service.getSchoolList(storeId);
+            return ResponseEntity.ok(schoolList);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @GetMapping("/filter/getSchoolNameandCode")
+    public ResponseEntity<List<SchoolList>> getSchoolNameandCode(@RequestParam("storeId") String storeId) {
+
+        try {
+
+            List<SchoolList> schoolList = service.getSchoolNameCode(storeId);
             return ResponseEntity.ok(schoolList);
 
         } catch (Exception e) {
