@@ -78,10 +78,17 @@ public class ItemService {
         
     }
 
+    public String getDiscountStatus(String barcodeId,String storeId)
+    {
+        String status=itemRepo.getDiscountStatus(barcodeId,storeId);
+        return status;
+    }
+
     public Billing saveBilling(Billing billing) {
         try {
             System.out.println("School Name-"+billing.getSchoolName());
             String storeId=getStoreId(billing.getUserId());
+            int globalDiscount=billing.getDiscount();
             Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId);
             if (maxBillNo == null) {
                 maxBillNo = 1;  // Start from 0 if no previous bills
@@ -110,13 +117,39 @@ public class ItemService {
                    
                     
                     if(billing.getDiscount()>0)
-                    {
+                    {    Items item;
+                        if(billingModel.getItemBarcodeID().equals("SG9999999"))
+                        {
+                            item=new Items();
+                            String price=billingModel.getSellPrice()+"";
+                            item.setPrice(price);
+                        }
+                        else{
+                         item=itemRepo.getItemByItemBarcodeID(billingModel.getItemBarcodeID(),storeId);
+                         }
+                        int price=Integer.parseInt(item.getPrice());
+
                         int discount=billing.getDiscount();
                       int discount_price=(sellPrice*discount)/100;
                       sellPrice=sellPrice-discount_price;
                       billingModel.setSellPrice(sellPrice);
+                      billingModel.setPrice(price);
                       
                     }
+
+                    String discountType=itemRepo.getDiscountStatus(billingModel.getItemBarcodeID(),storeId);
+                    if(discountType!=null && discountType.equals("Yes")&& globalDiscount==0)
+                    {
+                        Items item=itemRepo.getItemByItemBarcodeID(billingModel.getItemBarcodeID(),storeId);
+                        int price=Integer.parseInt(item.getPrice());
+                        int discountRate=(price-sellPrice)*100;
+                        int discount=discountRate/price;
+                        billingModel.setDiscount(discount);
+                        billingModel.setPrice(price);
+                        billingModel.setSellPrice(sellPrice);
+
+                    }
+
 
                     billingModel.setStoreName(storeId);
                     final_amount = final_amount + billingModel.getTotal_amount();
@@ -169,6 +202,19 @@ public class ItemService {
                     } else {
                         final_amount = final_amount - remainder + (remainder >= 8 ? 10 : 5);
                     }
+
+                }
+
+                if (billing.getDiscount() ==0) {
+
+
+                    int remainder = final_amount % 10;
+                    if (remainder < 5) {
+                        final_amount = final_amount - remainder + (remainder >= 3 ? 5 : 0);
+                    } else {
+                        final_amount = final_amount - remainder + (remainder >= 8 ? 10 : 5);
+                    }
+
 
                 }
 

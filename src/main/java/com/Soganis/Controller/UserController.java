@@ -583,8 +583,17 @@ public class UserController {
         int qty=0;
         for (BillingModel billModel : bills) {
             String description = billModel.getItemCategory() + " " + billModel.getItemType() + " " + billModel.getItemColor();
-            billModel.setSellPrice(billModel.getPrice());
-            billModel.setDescription(description);
+              int globalDiscount=bill.getDiscount();
+            String discountType=itemService.getDiscountStatus(billModel.getItemBarcodeID(),storeId);
+            if(discountType!=null && discountType.equals("Yes")&& globalDiscount==0 )
+            {
+                billModel.setSellPrice(billModel.getSellPrice());
+            }
+            else{
+                billModel.setSellPrice(billModel.getPrice());
+            }
+
+                billModel.setDescription(description);
             billModel.setSno(count);
             qty=qty+billModel.getQuantity();
             newBill.add(billModel);
