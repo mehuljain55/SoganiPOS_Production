@@ -164,8 +164,11 @@ public class ItemService {
 
 
                     String status = inventoryService.updateInventory(billingModel,storeId);
-                    System.out.println(status);
+                    int finalAmount=billingModel.getSellPrice()*billingModel.getQuantity();
+                    billingModel.setFinal_amount(finalAmount);
                     billingModel.setStoreName(storeId);
+
+
                     billingModelList.add(billingModel);
                  //   billModelRepository.save(billingModelList);
                 }
@@ -478,6 +481,20 @@ public class ItemService {
                     String status = inventoryService.updateInterCompanyInventory(billingModel,storeId);
                     System.out.println(status);
                     billingModel.setStoreName(storeId);
+                    billingModel.setFinal_amount(final_amount);
+
+                    if (billingModel.getItemBarcodeID().equals("SG9999999")) {
+                        String description = billingModel.getItemCategory() + " " + billingModel.getItemType() + " " + billingModel.getItemSize();
+                        billingModel.setDescription(description);
+                        billingModel.setPrice(billingModel.getSellPrice());
+
+                    } else {
+                        Items item = itemRepo.getItemByItemBarcodeID(billingModel.getItemBarcodeID(),storeId);
+                        billingModel.setDescription(item.getItemName());
+                        int price=Integer.parseInt(item.getWholeSalePrice());
+                        billingModel.setPrice(price);
+
+                    }
                     billingModelList.add(billingModel);
                 }
                 savedBilling.setFinal_amount(final_amount);

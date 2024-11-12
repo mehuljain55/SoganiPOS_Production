@@ -192,7 +192,7 @@ public class SalesReportService {
                                             combined.setItemColor(b1.getItemColor());
                                             combined.setSellPrice(b1.getSellPrice());
                                             combined.setQuantity(b1.getQuantity() + b2.getQuantity());
-                                            combined.setTotal_amount(b1.getTotal_amount() + b2.getTotal_amount());
+                                            combined.setFinal_amount(b1.getFinal_amount() + b2.getFinal_amount());
                                             return combined;
                                         }
                                 ),
@@ -203,7 +203,7 @@ public class SalesReportService {
                                         b.get().getItemColor(),
                                         b.get().getSellPrice(),
                                         b.get().getQuantity(),
-                                        b.get().getTotal_amount()
+                                        b.get().getFinal_amount()
                                 )
                         )
                 ))
@@ -226,7 +226,7 @@ public class SalesReportService {
                                             combined.setItemColor(b1.getItemColor());
                                             combined.setSellPrice(b1.getSellPrice());
                                             combined.setQuantity(b1.getQuantity() + b2.getQuantity());
-                                            combined.setTotal_amount(b1.getTotal_amount() + b2.getTotal_amount());
+                                            combined.setFinal_amount(b1.getFinal_amount() + b2.getFinal_amount());
                                             return combined;
                                         }
                                 ),
@@ -237,7 +237,7 @@ public class SalesReportService {
                                         b.get().getItemColor(),
                                         b.get().getSellPrice(),
                                         b.get().getQuantity(),
-                                        b.get().getTotal_amount()
+                                        b.get().getFinal_amount()
                                 )
                         )
                 ))
@@ -257,7 +257,7 @@ public class SalesReportService {
                     specialItem.getItemColor(),
                     specialItem.getSellPrice(),
                     specialItem.getQuantity(),
-                    specialItem.getTotal_amount()
+                    specialItem.getFinal_amount()
             );
             salesReportListFinal.add(salesReport);
         }
@@ -266,7 +266,12 @@ public class SalesReportService {
         for (SalesReportModel sales : summarizedItemsRetail) {
             Items item = itemRepo.getItemByItemBarcodeID(sales.getItemBarcodeID(), storeId);
             String description = item.getItemCategory() + " " + item.getItemType() + " " + item.getItemColor();
-
+            int quantity=sales.getTotalQuantity();
+            int totalAmount=sales.getTotalAmount();
+            int avg_sell_price=totalAmount/quantity;
+            int price=Integer.parseInt(item.getPrice());
+            sales.setPrice(price);
+            sales.setSellPrice(avg_sell_price);
             sales.setDescription(item.getItemName());
             sales.setItemCode(item.getItemCode());
             sales.setBillType("Retail");
@@ -277,7 +282,12 @@ public class SalesReportService {
         for (SalesReportModel sales : summarizedItemsWholesale) {
             Items item = itemRepo.getItemByItemBarcodeID(sales.getItemBarcodeID(), storeId);
             String description = item.getItemCategory() + " " + item.getItemType() + " " + item.getItemColor();
-
+            int quantity=sales.getTotalQuantity();
+            int totalAmount=sales.getTotalAmount();
+            int avg_sell_price=totalAmount/quantity;
+            int price=Integer.parseInt(item.getWholeSalePrice());
+            sales.setPrice(price);
+            sales.setSellPrice(avg_sell_price);
             sales.setDescription(item.getItemName());
             sales.setItemCode(item.getItemCode());
             sales.setBillType("Wholesale");

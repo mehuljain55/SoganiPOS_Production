@@ -9,7 +9,7 @@ public class SalesReportModel {
     private String itemType;
     private String itemColor;
     private String itemSize;
-    
+    private  int price;
     private int sellPrice;    
     private int totalQuantity;
     private int totalAmount;
@@ -119,5 +119,13 @@ public class SalesReportModel {
 
     public void setBillType(String billType) {
         this.billType = billType;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
 }

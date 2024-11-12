@@ -260,11 +260,11 @@ public class SalesController {
         titleCell.setCellStyle(titleStyle);
 
         // Merge all columns for the title
-        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 6)); // Adjust the end column based on the number of columns
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 8)); // Adjust the end column based on the number of columns
 
         // Create header row
         Row headerRow = sheet.createRow(1);
-        String[] headers = {"Bill Type", "Description", "Item Type", "Item Color", "Size", "Sell Price", "Quantity", "Amount"};
+        String[] headers = {"Bill Type", "Description", "Item Type", "Item Color", "Size","Price" ,"Avg Sell Price", "Quantity", "Amount"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -296,13 +296,18 @@ public class SalesController {
                     case 4:
                         cells[i].setCellValue(item.getItemSize());
                         break;
+
                     case 5:
+                        cells[i].setCellValue(item.getPrice());
+                        break;
+
+                    case 6:
                         cells[i].setCellValue(item.getSellPrice());
                         break;
-                    case 6:
+                    case 7:
                         cells[i].setCellValue(item.getTotalQuantity());
                         break;
-                    case 7:
+                    case 8:
                         cells[i].setCellValue(item.getTotalAmount());
                         break;
                 }

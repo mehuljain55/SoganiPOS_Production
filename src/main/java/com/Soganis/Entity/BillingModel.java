@@ -36,6 +36,7 @@ public class BillingModel {
     
     private int quantity;
     private int total_amount;
+    private int final_amount;
     private String status;
     private int discount;
     private String storeName;
@@ -192,7 +193,18 @@ public class BillingModel {
     public void setPrice(int price) {
         this.price = price;
     }
+
+    public int getFinal_amount() {
+        return final_amount;
+    }
+
+    public void setFinal_amount(int final_amount) {
+        this.final_amount = final_amount;
+    }
     
+    
+    
+
     
 
 
