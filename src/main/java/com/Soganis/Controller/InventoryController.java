@@ -208,9 +208,8 @@ public class InventoryController {
 
         // Header row with bold style
         Row headerRow = sheet.createRow(0);
-        String[] headers = {"Barcode Id", "Item Code", "Item Name", "Description", "Item Type", "Item Type ID", "Item Color",
-                "Item Size", "Item Category",  "Price", "Wholesale Price", "Quantity",
-                "School Code", "Item Type Code", "Group ID", "Store ID", "Super Group ID"};
+        String[] headers = {"Barcode Id", "Item Code", "Item Name", "Description", "Item Type", "Item Color",
+                "Item Size", "Item Category",  "Price", "Wholesale Price", "Quantity", "Store ID", };
 
         CellStyle headerCellStyle = workbook.createCellStyle();
         Font boldFont = workbook.createFont();
@@ -233,18 +232,14 @@ public class InventoryController {
             row.createCell(2).setCellValue(item.getItemName());
             row.createCell(3).setCellValue(item.getDescription());
             row.createCell(4).setCellValue(item.getItemType());
-            row.createCell(5).setCellValue(item.getItemTypeID());
-            row.createCell(6).setCellValue(item.getItemColor());
-            row.createCell(7).setCellValue(item.getItemSize());
-            row.createCell(8).setCellValue(item.getItemCategory());
-            row.createCell(9).setCellValue(item.getPrice());
-            row.createCell(10).setCellValue(item.getWholeSalePrice());
-            row.createCell(11).setCellValue(item.getQuantity());
-            row.createCell(12).setCellValue(item.getSchoolCode());
-            row.createCell(13).setCellValue(item.getItemTypeCode());
-            row.createCell(14).setCellValue(item.getGroup_id());
-            row.createCell(15).setCellValue(item.getStoreId());
-            row.createCell(16).setCellValue(item.getSuper_group_id());
+            row.createCell(5).setCellValue(item.getItemColor());
+            row.createCell(6).setCellValue(item.getItemSize());
+            row.createCell(7).setCellValue(item.getItemCategory());
+            row.createCell(8).setCellValue(item.getPrice());
+            row.createCell(9).setCellValue(item.getWholeSalePrice());
+            row.createCell(10).setCellValue(item.getQuantity());
+            row.createCell(11).setCellValue(item.getStoreId());
+
         }
 
         // Resize columns to fit content
@@ -301,6 +296,25 @@ public class InventoryController {
 
         // Return the response entity with the content and headers
         return new ResponseEntity<>(content, headers, HttpStatus.OK);
+    }
+
+    @PostMapping("/edit/upload")
+    public ResponseEntity<byte[]> inventoryEditExcel(@RequestParam("file") MultipartFile file, @RequestParam("storeId") String storeId) {
+
+        List<ItemEditModel> itemEditModelList=inventoryService.updateInventory(file,storeId);
+        String status=inventoryService.inventoryEditModel(itemEditModelList,storeId);
+
+        // Convert status to byte array with UTF-8 encoding
+        byte[] content = status.getBytes(StandardCharsets.UTF_8);
+
+        // Set headers to indicate it's a file download
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        headers.setContentDispositionFormData("attachment", "inventory_edit_status.txt");
+
+        // Return the response entity with the content and headers
+        return new ResponseEntity<>(content, headers, HttpStatus.OK);
+
     }
 
 

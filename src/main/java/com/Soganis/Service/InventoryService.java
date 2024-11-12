@@ -1,14 +1,7 @@
 package com.Soganis.Service;
 
-import com.Soganis.Entity.BillingModel;
-import com.Soganis.Entity.Items;
-import com.Soganis.Entity.PurchaseOrderBook;
-import com.Soganis.Entity.User;
-import com.Soganis.Model.ItemAddInventoryModel;
-import com.Soganis.Model.ItemAddModel;
-import com.Soganis.Model.ItemAddStockModel;
-import com.Soganis.Model.ItemModel;
-import com.Soganis.Model.StockUpdateModel;
+import com.Soganis.Entity.*;
+import com.Soganis.Model.*;
 import com.Soganis.Repository.ItemListRepository;
 import com.Soganis.Repository.ItemsRepository;
 import com.Soganis.Repository.PurchaseOrderBookRepo;
@@ -19,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -175,6 +169,151 @@ public class InventoryService {
         } catch (Exception e) {
             e.printStackTrace();
             return "Failed";
+        }
+    }
+
+    public String inventoryEditModel(List<ItemEditModel> itemEditModelList,String storeId)
+    {
+        String status="";
+        List<SchoolList> schoolList=schoolRepo.findSchoolNameCode(storeId);
+        List<ItemList> itemList=itemListRepo.findItemListByStoreId(storeId);
+
+        try{
+            for(ItemEditModel itemEditModel:itemEditModelList) {
+                try {
+                    Items item = itemRepo.getItemByItemBarcodeID(itemEditModel.getItemBarcodeID(), storeId);
+                    if (item == null) {
+                        status = status + "Item not found " + itemEditModel.getItemCode() + "\n";
+                        continue;
+                    }
+                    item.setItemCode(itemEditModel.getItemCode());
+                    item.setItemName(itemEditModel.getItemName());
+                    item.setDescription(itemEditModel.getDescription());
+                    item.setItemType(item.getItemType());
+                    item.setItemColor(item.getItemColor());
+                    item.setItemSize(itemEditModel.getItemSize());
+                    item.setItemCategory(itemEditModel.getItemCategory());
+                    String price = item.getPrice() + "";
+                    String wholeSalePrice = itemEditModel.getWholeSalePrice() + "";
+                    item.setPrice(price);
+                    item.setWholeSalePrice(wholeSalePrice);
+                    item.setQuantity(itemEditModel.getQuantity());
+                    item.setStoreId(storeId);
+                    String schoolCode = findMatchingSchoolCode(schoolList, itemEditModel.getItemCategory());
+                    item.setSchoolCode(schoolCode);
+                    String itemTypeCode = findMatchingItemTypeCode(itemList, itemEditModel.getItemType());
+                    item.setItemTypeCode(itemTypeCode);
+                    itemRepo.save(item);
+                }catch (Exception e)
+                {
+                    e.printStackTrace();
+                    status=status+"Unable to update item(dupliate entry or invalid price format):"+itemEditModel.getItemCode()+ "\n";
+                }
+            }
+            status=status+"All item successfully updates"+"\n";
+            return  status;
+
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            return status=status+" Exception "+"\n";
+        }
+
+    }
+
+    public String findMatchingSchoolCode(List<SchoolList> schoolList, String search) {
+        search = search.toLowerCase();
+
+        // First check for exact match
+        for (SchoolList school : schoolList) {
+            if (school.getSchoolName().equalsIgnoreCase(search)) {
+                return school.getSchoolCode();
+            }
+        }
+
+        // Check for partial matches
+        SchoolList bestMatch = null;
+        int bestMatchPosition = Integer.MAX_VALUE;
+
+        for (SchoolList school : schoolList) {
+            String schoolName = school.getSchoolName().toLowerCase();
+            int index = schoolName.indexOf(search);
+
+            // If the search string is part of schoolName, prioritize by position of match
+            if (index != -1 && index < bestMatchPosition) {
+                bestMatch = school;
+                bestMatchPosition = index;
+            }
+        }
+
+        // Return the schoolCode of the best partial match
+        return (bestMatch != null) ? bestMatch.getSchoolCode() : null;
+    }
+
+    public List<ItemEditModel> updateInventory(MultipartFile file, String storeId) {
+        List<ItemEditModel> items = new ArrayList<>();
+
+        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+
+            for (Row row : sheet) {
+                // Skip the header row
+                if (row.getRowNum() == 0) {
+                    continue;
+                }
+
+                String barcodeId = getCellValue(row, 0);
+                String itemCode = getCellValue(row, 1);
+
+                // Skip rows with missing barcodeId or itemCode
+                if (barcodeId == null || itemCode == null) {
+                    continue;
+                }
+
+                ItemEditModel item = new ItemEditModel();
+                item.setItemBarcodeID(barcodeId);
+                item.setItemCode(itemCode);
+                item.setItemName(getCellValue(row, 2));
+                item.setDescription(getCellValue(row, 3));
+                item.setItemType(getCellValue(row, 4));
+                item.setItemColor(getCellValue(row, 5));
+                item.setItemSize(getCellValue(row, 6));
+                item.setItemCategory(getCellValue(row, 7));
+
+                // Handle potential number parsing exceptions
+                try {
+                    item.setPrice(Integer.parseInt(getCellValue(row, 8)));
+                    item.setWholeSalePrice(Integer.parseInt(getCellValue(row, 9)));
+                    item.setQuantity(Integer.parseInt(getCellValue(row, 10)));
+                } catch (NumberFormatException e) {
+                    System.out.println("Error parsing numeric values on row " + row.getRowNum() + ": " + e.getMessage());
+                    continue; // Skip this row if there's a parsing error
+                }
+
+                item.setStoreId(storeId);
+                items.add(item);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return items;
+    }
+
+    private String getCellValue(Row row, int cellIndex) {
+        Cell cell = row.getCell(cellIndex);
+        if (cell == null) return null;
+
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                return String.valueOf((int) cell.getNumericCellValue());
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            default:
+                return null;
         }
     }
 
@@ -442,6 +581,36 @@ public class InventoryService {
 
         return itemList;
     }
+
+    public String findMatchingItemTypeCode(List<ItemList> itemList, String descriptionSearch) {
+        descriptionSearch = descriptionSearch.toLowerCase();
+
+        // First check for exact match
+        for (ItemList item : itemList) {
+            if (item.getDescription().equalsIgnoreCase(descriptionSearch)) {
+                return item.getItemTypeCode();
+            }
+        }
+
+        // Check for partial matches
+        ItemList bestMatch = null;
+        int bestMatchPosition = Integer.MAX_VALUE;
+
+        for (ItemList item : itemList) {
+            String description = item.getDescription().toLowerCase();
+            int index = description.indexOf(descriptionSearch);
+
+            // If description contains search string, prioritize by position of match
+            if (index != -1 && index < bestMatchPosition) {
+                bestMatch = item;
+                bestMatchPosition = index;
+            }
+        }
+
+        // Return the itemTypeCode of the best partial match
+        return (bestMatch != null) ? bestMatch.getItemTypeCode() : null;
+    }
+
 
     public List<String> getSortedItemSizes(List<String> itemSizes) {
         return itemSizes.stream()

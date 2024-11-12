@@ -12,4 +12,11 @@ public interface ItemListRepository extends JpaRepository<ItemList, Integer> {
     
     @Query("SELECT i.description FROM ItemList i where i.storeId=:storeId")
     List<String> findItemType(@Param("storeId") String storeId);
+
+    @Query("SELECT i FROM ItemList i where i.storeId=:storeId")
+    List<ItemList> findItemListByStoreId(@Param("storeId") String storeId);
+
+
 }
+
+
