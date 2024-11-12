@@ -285,7 +285,16 @@ public class ItemService {
                 billingModel.setItemCategory(item.getItemCategory());
                 billingModel.setQuantity((itemModel.getReturn_quantity()) * -1);
                 billingModel.setTotal_amount(totalAmount * -1);
+                billingModel.setFinal_amount(totalAmount * -1);
+                if(billingModel.getItemBarcodeID().equals("SG9999999"))
+                {
+                    billingModel.setPrice(billingModel.getSellPrice());
+                } else {
+                    int price = Integer.parseInt(item.getPrice());
+                    billingModel.setPrice(price);
+                }
                 billingModel.setStoreName(storeId);
+
                 bill.add(billingModel);
 
 
@@ -318,13 +327,16 @@ public class ItemService {
                     if (billingModel.getItemBarcodeID().equals("SG9999999")) {
                         String description = billingModel.getItemCategory() + " " + billingModel.getItemType() + " " + billingModel.getItemSize();
                         billingModel.setDescription(description);
+                        billingModel.setPrice(billingModel.getSellPrice());
 
                     } else {
                         Items item = itemRepo.getItemByItemBarcodeID(billingModel.getItemBarcodeID(),storeId);
                         billingModel.setDescription(item.getItemName());
+                        billingModel.setPrice(Integer.parseInt(item.getPrice()));
+
 
                     }
-
+                    billingModel.setFinal_amount(billingModel.getTotal_amount());
                     String status = inventoryService.updateInventory(billingModel,storeId);
                     System.out.println(status);
                     billingModelList.add(billingModel);
@@ -390,6 +402,14 @@ public class ItemService {
                 billingModel.setItemCategory(item.getItemCategory());
                 billingModel.setQuantity((itemModel.getReturn_quantity()) * -1);
                 billingModel.setTotal_amount(totalAmount * -1);
+                billingModel.setFinal_amount(totalAmount * -1);
+                if(billingModel.getItemBarcodeID().equals("SG9999999"))
+                {
+                    billingModel.setPrice(billingModel.getSellPrice());
+                } else {
+                    int price = Integer.parseInt(item.getPrice());
+                    billingModel.setPrice(price);
+                }
                 billingModel.setStoreName(storeId);
                 bill.add(billingModel);
 
@@ -423,10 +443,12 @@ public class ItemService {
                     if (billingModel.getItemBarcodeID().equals("SG9999999")) {
                         String description = billingModel.getItemCategory() + " " + billingModel.getItemType() + " " + billingModel.getItemSize();
                         billingModel.setDescription(description);
+                        billingModel.setPrice(billingModel.getSellPrice());
 
                     } else {
                         Items item = itemRepo.getItemByItemBarcodeID(billingModel.getItemBarcodeID(),storeId);
                         billingModel.setDescription(item.getItemName());
+                        billingModel.setPrice(Integer.parseInt(item.getPrice()));
 
                     }
 
@@ -645,9 +667,33 @@ public class ItemService {
                         billingModel.setItemType(billModel.getItemType());
                         billingModel.setBillCategory(billType);
                         billingModel.setSellPrice(sellPrice);
+
+                        if(billingModel.getItemBarcodeID().equals("SG9999999"))
+                        {
+                            billingModel.setPrice(billingModel.getSellPrice());
+                        }
+
+                        else if(billType.equals("Retail"))
+                        {
+                            int price=Integer.parseInt(item.getPrice());
+                            billingModel.setPrice(price);
+
+                        }
+
+                      else  if(billType.equals("Wholesale"))
+                        {
+                            int price=Integer.parseInt(item.getWholeSalePrice());
+                            billingModel.setPrice(price);
+                        }
+
                         billingModel.setBill_date(new Date());
                         billingModel.setTotal_amount((totalAmount) * -1);
+                        billingModel.setFinal_amount((totalAmount) * -1);
+
                         billingModel.setQuantity(quantity);
+
+
+
                         billingModel.setStoreName(storeId);
                         billModelRepository.save(billingModel);
                         itemRepo.save(item);
@@ -663,9 +709,6 @@ public class ItemService {
                 billing.setCustomerMobileNo(customerMobileNo);
                 billing.setSchoolName(school);
                 billing.setFinal_amount((finalAmount) * -1);
-
-
-
                 billRepo.save(billing);
 
                 return "success";
@@ -743,9 +786,26 @@ public class ItemService {
                 billingModel.setSellPrice(sellPrice);
                 billingModel.setBill_date(new Date());
                 billingModel.setTotal_amount((totalAmount) * -1);
+                billingModel.setFinal_amount((totalAmount) * -1);
                 billingModel.setQuantity(quantity);
                 billingModel.setStoreName(storeId);
+                if(billingModel.getItemBarcodeID().equals("SG9999999"))
+                {
+                    billingModel.setPrice(billingModel.getSellPrice());
+                }
 
+                else if(billType.equals("Retail"))
+                {
+                    int price=Integer.parseInt(item.getPrice());
+                    billingModel.setPrice(price);
+
+                }
+
+                else  if(billType.equals("Wholesale"))
+                {
+                    int price=Integer.parseInt(item.getWholeSalePrice());
+                    billingModel.setPrice(price);
+                }
                 System.out.println(finalAmount);
                 Billing billing = new Billing();
                 billing.setBill_date(new Date());
