@@ -4,6 +4,7 @@ package com.Soganis.Model;
 public class ItemAddModel {
    private String barcodedId;    
    private int price;
+   private int wholeSalePrice;
    private int quantity;
 
     public String getBarcodedId() {
@@ -29,6 +30,12 @@ public class ItemAddModel {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
-   
-   
+
+    public int getWholeSalePrice() {
+        return wholeSalePrice;
+    }
+
+    public void setWholeSalePrice(int wholeSalePrice) {
+        this.wholeSalePrice = wholeSalePrice;
+    }
 }

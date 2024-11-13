@@ -250,6 +250,30 @@ public class InventoryService {
         return (bestMatch != null) ? bestMatch.getSchoolCode() : null;
     }
 
+    public String editInventoryItems(List<Items> itemsList )
+    {
+        String status="";
+        try{
+          for(Items item:itemsList)
+          {
+              try{
+                  itemRepo.save(item);
+              }catch (Exception e)
+              {
+                  e.printStackTrace();
+                  status=status+ "Item not updated: "+item.getItemCode()+"\n";
+              }
+          }
+
+            status=status+" item updated"+"\n";
+          return status;
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            return status=status+" Exception"+"\n";
+        }
+    }
+
     public List<ItemEditModel> updateInventory(MultipartFile file, String storeId) {
         List<ItemEditModel> items = new ArrayList<>();
 
@@ -340,6 +364,8 @@ public class InventoryService {
         return lst;
     }
 
+
+
     public String deletePurchaseOrder(int orderId) {
         try {
             Optional<PurchaseOrderBook> opt = purchaseOrderRepo.findById(orderId);
@@ -370,6 +396,10 @@ public class InventoryService {
             Items item = itemRepo.getItemByItemBarcodeID(itemAddModel.getBarcodedId(), storeId);
             int total_quantity = item.getQuantity() + itemAddModel.getQuantity();
             item.setQuantity(total_quantity);
+            String price=itemAddModel.getPrice()+"";
+            String wholeSalePrice=itemAddModel.getWholeSalePrice()+"";
+            item.setPrice(price);
+            item.setWholeSalePrice(wholeSalePrice);
             itemRepo.save(item);
         }
         return "Success";

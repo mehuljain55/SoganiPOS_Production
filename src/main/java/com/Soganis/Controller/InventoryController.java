@@ -160,7 +160,25 @@ public class InventoryController {
         
     }
 
-    
+    @PostMapping("/edit")
+    public ResponseEntity<byte[]>  updateInventoryList(@RequestBody List<Items> itemsList )
+    {
+        String status=inventoryService.editInventoryItems(itemsList);
+
+        byte[] content = status.getBytes(StandardCharsets.UTF_8);
+
+        // Set headers to indicate it's a file download
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_PLAIN);
+        headers.setContentDispositionFormData("attachment", "inventory_edit_status.txt");
+
+        // Return the response entity with the content and headers
+        return new ResponseEntity<>(content, headers, HttpStatus.OK);
+
+    }
+
+
+
     @GetMapping("/format")
     public String inventoryFormat(@RequestBody User user) throws IOException
     {
