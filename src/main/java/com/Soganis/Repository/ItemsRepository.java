@@ -21,6 +21,12 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
     @Query("SELECT i FROM Items i WHERE i.itemCode = :itemCode and i.storeId=:storeId")
     Items findItemsByItemCode(@Param("itemCode") String itemCode,@Param("storeId") String storeId);
 
+    @Query("SELECT i.itemCode FROM Items i WHERE i.itemCategory = :itemCategory and i.itemType=:itemType and i.itemColor=:itemColor and i.storeId=:storeId")
+    List<String> findItemBySchoolType(@Param("itemCategory") String itemCategory,
+                                      @Param("itemType") String itemType,
+                                      @Param("itemColor") String itemColor,
+                                      @Param("storeId") String storeId);
+
     @Query("SELECT DISTINCT i.itemCategory FROM Items i where i.storeId=:storeId ORDER BY i.itemCategory ASC")
     List<String> findDistinctItemCategories(@Param("storeId")String storeId);
 
@@ -66,6 +72,12 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
 
     @Query("SELECT i FROM Items i WHERE i.itemCode = :itemCode and i.storeId=:storeId")
     List<Items> checkItemCodeForNewItem(@Param("itemCode") String itemCode,@Param("storeId") String storeId);
+
+    @Query("SELECT distinct i.itemColor FROM Items i WHERE i.itemCategory = :itemCategory and i.itemType = :itemType and i.storeId=:storeId  ORDER BY i.itemColor ASC")
+    List<String> itemColorBySchoolType(@Param("itemCategory") String itemCategory,
+                                      @Param("itemType") String itemType,
+                                      @Param("storeId") String storeId);
+
 
     @Query("SELECT  i.discount FROM Items i where i.itemBarcodeID=:itemBarcodeID and i.storeId=:storeId")
     String getDiscountStatus(@Param("itemBarcodeID") String itemBarcodeID,@Param("storeId") String storeId);

@@ -494,6 +494,18 @@ public class UserService {
         return lst;
     }
 
+    public List<String> itemColor(String itemCategory,String itemType,String storeId) {
+        List<String> lst = itemRepo.itemColorBySchoolType(itemCategory,itemType,storeId);
+        return lst;
+    }
+
+    public List<String> itemCodeBySchoolType(String itemCategory,String itemType,String itemColor,String storeId) {
+        List<String> lst = itemRepo.findItemBySchoolType(itemCategory,itemType,itemColor,storeId);
+        return lst;
+    }
+
+
+
     public List<Items> itemListBySchool(String schoolCode,String storeId) {
         List<Items> lst = itemRepo.findItemsBySchool(schoolCode,storeId);
         return lst;

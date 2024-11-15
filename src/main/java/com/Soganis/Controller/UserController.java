@@ -410,6 +410,40 @@ public class UserController {
         }
     }
 
+    @GetMapping("/filter/school/item_color")
+    public ResponseEntity<List<String>> itemColorByCategoryScholl(@RequestParam("schoolCode") String schoolCode,
+                                                                  @RequestParam("itemType") String itemType,
+                                                                  @RequestParam("storeId") String storeId) {
+
+        try {
+
+            List<String> items = service.itemColor(schoolCode,itemType,storeId);
+            return ResponseEntity.ok(items);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @GetMapping("/filter/school/item_code")
+    public ResponseEntity<List<String>> itemCodeBySchoolType(@RequestParam("schoolCode") String schoolCode,
+                                                                  @RequestParam("itemType") String itemType,
+                                                                  @RequestParam("itemColor") String itemColor,
+
+                                                             @RequestParam("storeId") String storeId) {
+
+        try {
+
+            List<String> items = service.itemCodeBySchoolType(schoolCode,itemType,itemColor,storeId);
+            return ResponseEntity.ok(items);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
     @GetMapping("/filter/getAllItems")
     public ResponseEntity<List<Items>> getAllItem(@RequestParam("storeId") String storeId) {
 
