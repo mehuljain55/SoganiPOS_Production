@@ -55,6 +55,7 @@ public class TransactionService {
         transaction.setType(billType);
         transaction.setStatus(status);
         transaction.setAmount(amount);
+        transaction.setUserId(bill.getUserId());
         transaction.setStoreId(bill.getStoreId());
         transactionRepo.save(transaction);
     }

@@ -23,6 +23,7 @@ public class Transactions {
     private int amount;
     private  String type;
     private String status;
+    private  String userId;
 
 
     public int getTransactionId() {
@@ -95,5 +96,13 @@ public class Transactions {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }
