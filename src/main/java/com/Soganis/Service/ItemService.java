@@ -174,11 +174,8 @@ public class ItemService {
                 }
                 
                     if (billing.getDiscount() > 0) {
-
                     int discount = billing.getDiscount();
-                   
                     int discountAmount = (final_amount * discount) / 100;
-                   
 
                     int remainder = discountAmount % 10;
                     if (remainder < 5) {
@@ -186,19 +183,15 @@ public class ItemService {
                     } else {
                         discountAmount = discountAmount - remainder + (remainder >= 8 ? 10 : 5);
                     }
-                    
                     savedBilling.setDiscountAmount(discountAmount);
-
                 }
                    
                 
                 if (billing.getDiscount() > 0) {
-
                     int discount = billing.getDiscount();
                     savedBilling.setDiscount(discount);
                     int discountAmount = (final_amount * discount) / 100;
                     final_amount = final_amount - discountAmount;
-
                     int remainder = final_amount % 10;
                     if (remainder < 5) {
                         final_amount = final_amount - remainder + (remainder >= 3 ? 5 : 0);
@@ -209,8 +202,6 @@ public class ItemService {
                 }
 
                 if (billing.getDiscount() ==0) {
-
-
                     int remainder = final_amount % 10;
                     if (remainder < 5) {
                         final_amount = final_amount - remainder + (remainder >= 3 ? 5 : 0);
@@ -220,8 +211,6 @@ public class ItemService {
 
 
                 }
-
-        
                 savedBilling.setBillNo(maxBillNo);
                 savedBilling.setBill_date(new Date());
                 savedBilling.setBillType("RETAIL");

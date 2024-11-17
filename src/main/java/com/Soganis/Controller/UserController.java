@@ -1,12 +1,10 @@
 package com.Soganis.Controller;
 
 import com.Soganis.Entity.*;
-import com.Soganis.Model.BillTransactionModel;
-import com.Soganis.Model.BillViewModel;
-import com.Soganis.Model.ItemExchangeModel;
-import com.Soganis.Model.ItemReturnModel;
+import com.Soganis.Model.*;
 import com.Soganis.Service.InventoryService;
 import com.Soganis.Service.ItemService;
+import com.Soganis.Service.TransactionService;
 import com.Soganis.Service.UserService;
 import java.awt.image.BufferedImage;
 import java.awt.print.PrinterJob;
@@ -51,6 +49,10 @@ public class UserController {
 
     @Autowired
     private InventoryService inventoryService;
+
+    @Autowired
+    private TransactionService transactionService;
+
 
     @PostMapping("/login")
     public ResponseEntity<User> getUserInfo(@RequestBody User userRequest) {
@@ -112,13 +114,17 @@ public class UserController {
     }
 
     @PostMapping("/billRequest")
-    public ResponseEntity<byte[]> generateBill(@RequestBody Billing bill) {
+    public ResponseEntity<byte[]> generateBill(@RequestBody BillTransactionModel billTransactionModel) {
         try {
-
+            System.out.println(billTransactionModel.getTransactionModel());
+            Billing bill=billTransactionModel.getBilling();
+            TransactionModel transactionModel=billTransactionModel.getTransactionModel();
+            System.out.println(transactionModel);
             String storeId=itemService.getStoreId(bill.getUserId());
             bill.setStoreId(storeId);
             Billing createBill = itemService.saveBilling(bill);
             createBill.setBill(bill.getBill());
+            String transaction_status=transactionService.createTransactionRetail(createBill,billTransactionModel.getTransactionModel(),storeId);
             String status=service.updateUserCashCollectionReport();
 
             byte[] pdfBytes = print_bill(createBill.getBillNo(),storeId);
@@ -145,6 +151,7 @@ public class UserController {
         try {
             Billing bill = itemModel.getBill();
             Billing createBill = itemService.saveBillExchange(bill, itemModel.getItemModel());
+
             String storeId=itemService.getStoreId(itemModel.getUser().getUserId());
             createBill.setBill(bill.getBill());
             String status=service.updateUserCashCollectionReport();
@@ -199,6 +206,7 @@ public class UserController {
     @PostMapping("/intercompany/billRequest")
     public ResponseEntity<byte[]> generateInterCompanyBill(@RequestBody Billing bill) {
         try {
+
             Billing createBill = itemService.saveInterCompanyBilling(bill);
             createBill.setBill(bill.getBill());
             String storeId=itemService.getStoreId(bill.getUserId());

@@ -136,6 +136,26 @@ public class UserService {
         return users;
     }
 
+    public List<Store> getInterCompanyStoreList(String storeId)
+    {
+        List<Store> storeList=storeRepo.findAll();
+        List<Store> stores=new ArrayList<>();
+        for(Store store:storeList)
+        {
+            if(store.getStoreId().equals(storeId))
+            {
+                continue;
+            }
+            stores.add(store);
+
+        }
+
+        return stores;
+    }
+
+
+
+
     public User validateUser(User user)
     {
         Optional<User> opt=userRepo.findById(user.getUserId());

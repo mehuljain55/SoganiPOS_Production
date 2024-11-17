@@ -37,4 +37,13 @@ public class TransactionModel {
     public void setUpi(int upi) {
         this.upi = upi;
     }
+
+    @Override
+    public String toString() {
+        return "TransactionModel{" +
+                "card=" + card +
+                ", cash=" + cash +
+                ", upi=" + upi +
+                '}';
+    }
 }

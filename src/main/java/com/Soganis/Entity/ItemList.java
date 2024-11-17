@@ -11,9 +11,7 @@ public class ItemList {
     
    @Id
    private int sno;
-   @Column(unique = true)
    private String description;
-   @Column(unique = true)
    private String itemTypeCode;
    private  String storeId;
 

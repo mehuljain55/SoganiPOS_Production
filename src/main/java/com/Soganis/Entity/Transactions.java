@@ -1,9 +1,8 @@
 package com.Soganis.Entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.util.Date;
 
 @Entity
 @Table(name = "Transactions")
@@ -16,11 +15,16 @@ public class Transactions {
     private String storeId;
 
     private String description;
-    private int amount;
-    private String mode;
-    private String billNo;
+    private int billNo;
 
-    // Getters and setters
+    private String mode;
+    @Temporal(TemporalType.DATE)
+    private Date date;
+    private int amount;
+    private  String type;
+    private String status;
+
+
     public int getTransactionId() {
         return transactionId;
     }
@@ -45,12 +49,12 @@ public class Transactions {
         this.description = description;
     }
 
-    public int getAmount() {
-        return amount;
+    public int getBillNo() {
+        return billNo;
     }
 
-    public void setAmount(int amount) {
-        this.amount = amount;
+    public void setBillNo(int billNo) {
+        this.billNo = billNo;
     }
 
     public String getMode() {
@@ -61,11 +65,35 @@ public class Transactions {
         this.mode = mode;
     }
 
-    public String getBillNo() {
-        return billNo;
+    public Date getDate() {
+        return date;
     }
 
-    public void setBillNo(String billNo) {
-        this.billNo = billNo;
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

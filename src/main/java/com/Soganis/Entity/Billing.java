@@ -168,5 +168,25 @@ public class Billing {
     public void setDiscountAmount(int discountAmount) {
         this.discountAmount = discountAmount;
     }
-    
+
+    @Override
+    public String toString() {
+        return "Billing{" +
+                "billNo=" + billNo +
+                ", storeId='" + storeId + '\'' +
+                ", userId='" + userId + '\'' +
+                ", bill_date=" + bill_date +
+                ", customerName='" + customerName + '\'' +
+                ", customerMobileNo='" + customerMobileNo + '\'' +
+                ", paymentMode='" + paymentMode + '\'' +
+                ", description='" + description + '\'' +
+                ", schoolName='" + schoolName + '\'' +
+                ", billType='" + billType + '\'' +
+                ", discount=" + discount +
+                ", discountAmount=" + discountAmount +
+                ", balanceAmount=" + balanceAmount +
+                ", item_count=" + item_count +
+                ", final_amount=" + final_amount +
+                '}';
+    }
 }

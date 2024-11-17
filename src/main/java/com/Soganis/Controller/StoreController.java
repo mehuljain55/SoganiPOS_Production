@@ -43,6 +43,17 @@ public class StoreController {
         }
     }
 
+    @PostMapping("/getStoreList")
+    public ResponseEntity<List<Store>> getStores(@RequestParam("storeId") String storeId) {
+        List<Store> stores = userService.getInterCompanyStoreList(storeId);
+
+        if (stores.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(stores, HttpStatus.OK);
+        }
+    }
+
     @GetMapping("/validate/userId")
     public String validateUserId(@RequestParam("userId") String userId)
     {
