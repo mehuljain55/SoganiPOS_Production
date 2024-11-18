@@ -41,6 +41,9 @@ public class UserService {
     @Autowired
     private  SchoolRepository schoolRepo;
 
+    @Autowired
+    private  TransactionsRepository transactionRepo;
+
 
 
     public User getUserInfo(String userId) {
@@ -263,27 +266,49 @@ public class UserService {
         for(Date date:dates) {
             for (User user : users) {
                 UserCashCollection user_cash_collection = new UserCashCollection();
-                List<Billing> bills = billRepo.findByUserIdAndBillDate(user.getUserId(), date, storeId);
+                List<Transactions> transactionsList=transactionRepo.findByUserIdAndBillDate(user.getUserId(),new Date(),storeId);
 
-                int user_cash_collected = bills.stream()
-                        .mapToInt(Billing::getFinal_amount)
-                        .filter(amount -> amount > 0)
+
+
+                int user_cash_collected = transactionsList.stream()
+                        .filter(transaction -> "Cash".equalsIgnoreCase(transaction.getMode()) && transaction.getAmount() > 0)
+                        .mapToInt(Transactions::getAmount)
                         .sum();
 
-                int user_cash_returned = bills.stream()
-                        .mapToInt(Billing::getFinal_amount)
-                        .filter(amount -> amount < 0)
+// Calculate user UPI collection
+                int user_upi_collection = transactionsList.stream()
+                        .filter(transaction -> "Upi".equalsIgnoreCase(transaction.getMode()) && transaction.getAmount() > 0)
+                        .mapToInt(Transactions::getAmount)
                         .sum();
+
+// Calculate user card collection
+                int user_card_collection = transactionsList.stream()
+                        .filter(transaction -> "Card".equalsIgnoreCase(transaction.getMode()) && transaction.getAmount() > 0)
+                        .mapToInt(Transactions::getAmount)
+                        .sum();
+
+                int user_cash_returned = transactionsList.stream()
+                        .filter(transaction -> transaction.getAmount() < 0) // Include all modes with negative amounts
+                        .mapToInt(Transactions::getAmount)
+                        .sum();
+
+
+
+
+
 
                 user_cash_returned = user_cash_returned * -1;
-                int total = user_cash_collected - user_cash_returned;
+                int total = user_cash_collected+user_upi_collection+user_card_collection - user_cash_returned;
                 user_cash_collection.setUserId(user.getUserId());
-                user_cash_collection.setCollection_date(date);
+                user_cash_collection.setCollection_date(new Date());
                 user_cash_collection.setUserName(user.getSname());
                 user_cash_collection.setCash_collection(user_cash_collected);
+                user_cash_collection.setUpi_collection(user_upi_collection);
+                user_cash_collection.setCard_collection(user_card_collection);
+
                 user_cash_collection.setCash_return(user_cash_returned);
-                user_cash_collection.setFinal_cash_collection(total);
                 user_cash_collection.setStoreId(storeId);
+                user_cash_collection.setFinal_cash_collection(total);
                 if(user_cash_collected==0&& user_cash_returned==0 && total==0 )
                 {
                     continue;
@@ -329,22 +354,44 @@ public class UserService {
                 UserCashCollection user_cash_collection = new UserCashCollection();
                 List<Billing> bills = billRepo.findByUserIdAndBillDate(user.getUserId(), new Date(),storeId);
 
-                int user_cash_collected = bills.stream()
-                        .mapToInt(Billing::getFinal_amount)
-                        .filter(amount -> amount > 0)
+                List<Transactions> transactionsList=transactionRepo.findByUserIdAndBillDate(user.getUserId(),new Date(),storeId);
+
+
+
+                int user_cash_collected = transactionsList.stream()
+                        .filter(transaction -> "Cash".equalsIgnoreCase(transaction.getMode()) && transaction.getAmount() > 0)
+                        .mapToInt(Transactions::getAmount)
                         .sum();
 
-                int user_cash_returned = bills.stream()
-                        .mapToInt(Billing::getFinal_amount)
-                        .filter(amount -> amount < 0)
+// Calculate user UPI collection
+                int user_upi_collection = transactionsList.stream()
+                        .filter(transaction -> "Upi".equalsIgnoreCase(transaction.getMode()) && transaction.getAmount() > 0)
+                        .mapToInt(Transactions::getAmount)
                         .sum();
+
+// Calculate user card collection
+                int user_card_collection = transactionsList.stream()
+                        .filter(transaction -> "Card".equalsIgnoreCase(transaction.getMode()) && transaction.getAmount() > 0)
+                        .mapToInt(Transactions::getAmount)
+                        .sum();
+
+                int user_cash_returned = transactionsList.stream()
+                        .filter(transaction -> transaction.getAmount() < 0) // Include all modes with negative amounts
+                        .mapToInt(Transactions::getAmount)
+                        .sum();
+
+
+
 
                 user_cash_returned = user_cash_returned * -1;
-                int total = user_cash_collected - user_cash_returned;
+                int total = user_cash_collected+user_upi_collection+user_card_collection - user_cash_returned;
                 user_cash_collection.setUserId(user.getUserId());
                 user_cash_collection.setCollection_date(new Date());
                 user_cash_collection.setUserName(user.getSname());
                 user_cash_collection.setCash_collection(user_cash_collected);
+                user_cash_collection.setUpi_collection(user_upi_collection);
+                user_cash_collection.setCard_collection(user_card_collection);
+
                 user_cash_collection.setCash_return(user_cash_returned);
                 user_cash_collection.setStoreId(storeId);
                 user_cash_collection.setFinal_cash_collection(total);

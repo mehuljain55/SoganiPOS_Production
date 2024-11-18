@@ -202,7 +202,9 @@ public class InventoryService {
                     String schoolCode = findMatchingSchoolCode(schoolList, itemEditModel.getItemCategory());
                     item.setSchoolCode(schoolCode);
                     String itemTypeCode = findMatchingItemTypeCode(itemList, itemEditModel.getItemType());
+                    String itemType=findMatchingItemType(itemList, itemEditModel.getItemType());
                     item.setItemTypeCode(itemTypeCode);
+                    item.setItemType(itemType);
                     itemRepo.save(item);
                 }catch (Exception e)
                 {
@@ -639,6 +641,35 @@ public class InventoryService {
 
         // Return the itemTypeCode of the best partial match
         return (bestMatch != null) ? bestMatch.getItemTypeCode() : null;
+    }
+
+    public String findMatchingItemType(List<ItemList> itemList, String descriptionSearch) {
+        descriptionSearch = descriptionSearch.toLowerCase();
+
+        // First check for exact match
+        for (ItemList item : itemList) {
+            if (item.getDescription().equalsIgnoreCase(descriptionSearch)) {
+                return item.getDescription();
+            }
+        }
+
+        // Check for partial matches
+        ItemList bestMatch = null;
+        int bestMatchPosition = Integer.MAX_VALUE;
+
+        for (ItemList item : itemList) {
+            String description = item.getDescription().toLowerCase();
+            int index = description.indexOf(descriptionSearch);
+
+            // If description contains search string, prioritize by position of match
+            if (index != -1 && index < bestMatchPosition) {
+                bestMatch = item;
+                bestMatchPosition = index;
+            }
+        }
+
+        // Return the itemTypeCode of the best partial match
+        return (bestMatch != null) ? bestMatch.getDescription() : null;
     }
 
 

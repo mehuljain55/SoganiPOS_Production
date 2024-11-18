@@ -23,23 +23,28 @@ public class UserCashCollection {
 
     private String userName;
     private int cash_collection;
+    private  int upi_collection;
+    private  int card_collection;
+
     private int cash_return;
     private int final_cash_collection;
     private String storeId;
-    
 
-    // Default constructor
-    public UserCashCollection() {}
 
-    // Parameterized constructor
-    public UserCashCollection(String userId, Date collection_date, String userName, int cash_collection) {
+    public UserCashCollection(String userId, Date collection_date, String userName, int cash_collection, int upi_collection, int card_collection, int cash_return, int final_cash_collection, String storeId) {
         this.userId = userId;
         this.collection_date = collection_date;
         this.userName = userName;
         this.cash_collection = cash_collection;
+        this.upi_collection = upi_collection;
+        this.card_collection = card_collection;
+        this.cash_return = cash_return;
+        this.final_cash_collection = final_cash_collection;
+        this.storeId = storeId;
     }
 
-    // Getters and setters
+    public UserCashCollection() {
+    }
 
     public String getUserId() {
         return userId;
@@ -73,6 +78,22 @@ public class UserCashCollection {
         this.cash_collection = cash_collection;
     }
 
+    public int getUpi_collection() {
+        return upi_collection;
+    }
+
+    public void setUpi_collection(int upi_collection) {
+        this.upi_collection = upi_collection;
+    }
+
+    public int getCard_collection() {
+        return card_collection;
+    }
+
+    public void setCard_collection(int card_collection) {
+        this.card_collection = card_collection;
+    }
+
     public int getCash_return() {
         return cash_return;
     }
@@ -97,16 +118,4 @@ public class UserCashCollection {
         this.storeId = storeId;
     }
 
-    @Override
-    public String toString() {
-        return "UserCashCollection{" +
-                "userId='" + userId + '\'' +
-                ", collection_date=" + collection_date +
-                ", userName='" + userName + '\'' +
-                ", cash_collection=" + cash_collection +
-                ", cash_return=" + cash_return +
-                ", final_cash_collection=" + final_cash_collection +
-                ", storeId='" + storeId + '\'' +
-                '}';
-    }
 }

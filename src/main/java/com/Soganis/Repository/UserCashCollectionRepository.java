@@ -11,6 +11,7 @@ import java.util.List;
 
 
 public interface UserCashCollectionRepository extends JpaRepository<UserCashCollection,String> {
+
     @Query("SELECT u FROM UserCashCollection u WHERE u.collection_date BETWEEN :startDate AND :endDate AND u.storeId = :storeId")
     List<UserCashCollection> findByDateRangeAndStoreId(
             @Param("startDate") Date startDate,
