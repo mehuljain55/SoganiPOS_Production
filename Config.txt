@@ -1,0 +1,33 @@
+COnfiguration
+
+host password: #Ow4g@mjE^cs45;$x[8J
+
+srv644943.hstgr.cloud
+
+
+ssh-keygen -t ed25519 -C "your_email@example.com"
+
+
+ssh-keygen -t ed25519 -C "jaintechsolutions1@gmail.com"
+
+MySQL
+Username: cloud@123
+Password: Cloud@12345
+
+sudo nano /etc/nginx/sites-available/default
+
+React Update Configuration
+
+cd /root/Soganis_Pos_FrontEnd
+
+sudo rm -rf /var/www/sogani-frontend
+
+
+sudo mkdir -p /var/www/sogani-frontend
+
+sudo cp -r /root/Soganis_Pos_FrontEnd/build/* /var/www/sogani-frontend/
+
+sudo nginx -t
+
+sudo systemctl restart nginx
+
