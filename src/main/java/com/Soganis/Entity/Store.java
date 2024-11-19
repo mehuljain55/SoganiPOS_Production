@@ -12,7 +12,9 @@ public class Store {
     @Id
     private String storeId;
     private String storeName;
+    private  String mobileNo;
     private  String address;
+
 
 
     public Store(String storeId, String storeName, String address) {
@@ -46,5 +48,13 @@ public class Store {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getMobileNo() {
+        return mobileNo;
+    }
+
+    public void setMobileNo(String mobileNo) {
+        this.mobileNo = mobileNo;
     }
 }

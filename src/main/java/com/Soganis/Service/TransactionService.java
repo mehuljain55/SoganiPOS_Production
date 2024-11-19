@@ -2,10 +2,11 @@ package com.Soganis.Service;
 
 import com.Soganis.Entity.Billing;
 import com.Soganis.Entity.Transactions;
+import com.Soganis.Entity.InterCompanyPayments;
 import com.Soganis.Model.TransactionModel;
+import com.Soganis.Repository.InterompanyPaymentRepository;
 import com.Soganis.Repository.TransactionsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.annotation.AccessType;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -16,14 +17,16 @@ public class TransactionService {
     @Autowired
     private TransactionsRepository transactionRepo;
 
-    public String createTransactionRetail(Billing bill, TransactionModel transactionModel, String storeId) {
+    @Autowired
+    private InterompanyPaymentRepository interCompanyPaymentRepo;
+
+    public String createTransactionRetail(Billing bill,String billType, TransactionModel transactionModel, String storeId) {
         Integer lastTransactionId = transactionRepo.findMaxransactionIdByStoreId(storeId);
 
         // Start new transaction ID
         int newTransactionId = (lastTransactionId == null) ? 1 : lastTransactionId + 1;
 
         String paymentMode = bill.getPaymentMode();
-        String billType="Retail";
         int finalAmount = bill.getFinal_amount();
 
         if (paymentMode.equals("Cash") || paymentMode.equals("Card") || paymentMode.equals("Upi")) {
@@ -45,6 +48,40 @@ public class TransactionService {
             return "Success";
         }
     }
+
+
+    public String createTransactionWholesale(Billing bill,String billType, String storeId) {
+        Integer lastTransactionId = transactionRepo.findMaxransactionIdByStoreId(storeId);
+
+        // Start new transaction ID
+        int newTransactionId = (lastTransactionId == null) ? 1 : lastTransactionId + 1;
+
+        String paymentMode = bill.getPaymentMode();
+        int finalAmount = bill.getFinal_amount();
+
+        if (paymentMode.equals("Cash") || paymentMode.equals("Card") || paymentMode.equals("Upi")) {
+            createAndSaveTransaction(newTransactionId, bill,billType, paymentMode, "Paid", finalAmount);
+            return "Success";
+        }
+        else if(paymentMode.equals("Due")) {
+            InterCompanyPayments interCompanyPayments=new InterCompanyPayments();
+            interCompanyPayments.setDescription("Payment  of bill no: "+bill.getBillNo());
+            interCompanyPayments.setDate(new Date());
+            interCompanyPayments.setStatus("Due");
+            interCompanyPayments.setAmount(bill.getFinal_amount());
+            interCompanyPayments.setBillBy(storeId);
+            interCompanyPayments.setType("Bill");
+            interCompanyPayments.setBillTo(bill.getCustomerName());
+            interCompanyPayments.setStore_id(storeId);
+            interCompanyPaymentRepo.save(interCompanyPayments);
+            return "Success";
+        }
+        else {
+            return "Invalid Payment mode";
+        }
+    }
+
+
 
     private void createAndSaveTransaction(int transactionId, Billing bill,String billType, String mode, String status, int amount) {
         Transactions transaction = new Transactions();

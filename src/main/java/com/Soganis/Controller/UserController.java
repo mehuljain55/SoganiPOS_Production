@@ -121,10 +121,11 @@ public class UserController {
             TransactionModel transactionModel=billTransactionModel.getTransactionModel();
             System.out.println(transactionModel);
             String storeId=itemService.getStoreId(bill.getUserId());
+            String billType="Retail";
             bill.setStoreId(storeId);
             Billing createBill = itemService.saveBilling(bill);
             createBill.setBill(bill.getBill());
-            String transaction_status=transactionService.createTransactionRetail(createBill,billTransactionModel.getTransactionModel(),storeId);
+            String transaction_status=transactionService.createTransactionRetail(createBill,billType,billTransactionModel.getTransactionModel(),storeId);
             String status=service.updateUserCashCollectionReport();
 
             byte[] pdfBytes = print_bill(createBill.getBillNo(),storeId);
@@ -181,7 +182,7 @@ public class UserController {
             Billing createBill = itemService.saveIntercompanyillExchange(bill, itemModel.getItemModel());
             String storeId=itemService.getStoreId(itemModel.getUser().getUserId());
             createBill.setBill(bill.getBill());
-            String status=service.updateUserCashCollectionReport();
+           String status=service.updateUserCashCollectionReport();
             byte[] pdfBytes = print_bill(createBill.getBillNo(),storeId);
 
             if (pdfBytes != null) {
@@ -209,7 +210,14 @@ public class UserController {
 
             Billing createBill = itemService.saveInterCompanyBilling(bill);
             createBill.setBill(bill.getBill());
+
             String storeId=itemService.getStoreId(bill.getUserId());
+            String billType="Wholesale";
+            TransactionModel transactionModel=new TransactionModel();
+
+            String transaction_status=transactionService.createTransactionWholesale(createBill,billType,storeId);
+
+
             byte[] pdfBytes = print_bill(createBill.getBillNo(),storeId);
             String status=service.updateUserCashCollectionReport();
 

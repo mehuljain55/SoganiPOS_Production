@@ -4,10 +4,7 @@ import com.Soganis.Entity.*;
 import com.Soganis.Model.BarcodeModel;
 import com.Soganis.Model.BillViewModel;
 import com.Soganis.Model.ItemReturnModel;
-import com.Soganis.Repository.BillingModelRepository;
-import com.Soganis.Repository.BillingRepository;
-import com.Soganis.Repository.ItemsRepository;
-import com.Soganis.Repository.UserRepository;
+import com.Soganis.Repository.*;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
@@ -43,6 +40,9 @@ public class ItemService {
 
     @Autowired
     private UserRepository userRepo;
+
+    @Autowired
+    private StoreRepository storeRepo;
 
     public List<Items> getAllItems() {
         List<Items> items = itemRepo.findAll();
@@ -469,6 +469,7 @@ public class ItemService {
         try {
 
             String storeId=getStoreId(billing.getUserId());
+
             Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId);
             if (maxBillNo == null) {
                 maxBillNo = 1;
@@ -478,8 +479,11 @@ public class ItemService {
             }
             int final_amount = 0;
             Billing savedBilling = new Billing();
+            String storeContactNumber=storeRepo.getStoreContact(billing.getCustomerName());
             savedBilling.setBillNo(maxBillNo);
             savedBilling.setBillType("Wholesale");
+            savedBilling.setCustomerName(billing.getCustomerName());
+            savedBilling.setCustomerMobileNo(storeContactNumber);
             List<BillingModel> billingModelList=new ArrayList<>();
             if (billing.getBill() != null) {
                 for (BillingModel billingModel : billing.getBill()) {
