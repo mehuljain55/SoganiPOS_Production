@@ -44,6 +44,11 @@ public class ItemService {
     @Autowired
     private StoreRepository storeRepo;
 
+    @Autowired
+    private TransactionService transactionService;
+
+
+
     public List<Items> getAllItems() {
         List<Items> items = itemRepo.findAll();
         return items;
@@ -213,7 +218,7 @@ public class ItemService {
                 }
                 savedBilling.setBillNo(maxBillNo);
                 savedBilling.setBill_date(new Date());
-                savedBilling.setBillType("RETAIL");
+                savedBilling.setBillType("Retail");
                 savedBilling.setCustomerName(billing.getCustomerName());
                 savedBilling.setCustomerMobileNo(billing.getCustomerMobileNo());
                 savedBilling.setItem_count(billing.getItem_count());
@@ -603,6 +608,7 @@ public class ItemService {
         try {
             String storeId=getStoreId(items.get(0).getUserId());
             String billType="";
+            String userId=items.get(0).getUserId();
             Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId);
             if (maxBillNo == null) {
                 maxBillNo = 1;  // Start from 0 if no previous bills
@@ -616,7 +622,6 @@ public class ItemService {
                 String customerName = "";
                 String customerMobileNo = "";
                 String school = "";
-                String userId = items.get(0).getUserId();
                 System.out.println(items);
                 Billing billing = new Billing();
                 billing.setBillNo(maxBillNo);
@@ -703,6 +708,18 @@ public class ItemService {
                 billing.setSchoolName(school);
                 billing.setFinal_amount((finalAmount) * -1);
                 billRepo.save(billing);
+                Transactions transactions=new Transactions();
+                transactions.setBillNo(bill_no);
+                transactions.setDescription("Refund for item return");
+                transactions.setDate(new Date());
+                transactions.setAmount(billing.getFinal_amount());
+                transactions.setType(billType);
+                transactions.setStatus("Paid");
+                transactions.setMode("Cash");
+                transactions.setUserId(userId);
+                transactions.setStoreId(storeId);
+                transactionService.createTreansaction(transactions,storeId);
+
 
                 return "success";
             }
@@ -814,6 +831,20 @@ public class ItemService {
                 billRepo.save(billing);
                 billingModel.setBilling(billing);
                 billModelRepository.save(billingModel);
+                Transactions transactions=new Transactions();
+                transactions.setBillNo(bill_no);
+                transactions.setDescription("Refund for defected item");
+                transactions.setDate(new Date());
+                transactions.setAmount(billing.getFinal_amount());
+                transactions.setType(billType);
+                transactions.setStatus("Paid");
+                transactions.setMode("Cash");
+                transactions.setUserId(itemModel.getUserId());
+                transactions.setStoreId(storeId);
+                transactionService.createTreansaction(transactions,storeId);
+
+
+
                 return "success";
             }
             return "Failed";

@@ -172,9 +172,9 @@ public class InventoryService {
         }
     }
 
-    public String inventoryEditModel(List<ItemEditModel> itemEditModelList,String storeId)
+    public String inventoryEditModel(List<ItemEditModel> itemEditModelList,String status,String storeId)
     {
-        String status="";
+       status=status+"\n";  
         List<SchoolList> schoolList=schoolRepo.findSchoolNameCode(storeId);
         List<ItemList> itemList=itemListRepo.findItemListByStoreId(storeId);
 
@@ -189,11 +189,11 @@ public class InventoryService {
                     item.setItemCode(itemEditModel.getItemCode());
                     item.setItemName(itemEditModel.getItemName());
                     item.setDescription(itemEditModel.getDescription());
-                    item.setItemType(item.getItemType());
-                    item.setItemColor(item.getItemColor());
+                    item.setItemType(itemEditModel.getItemType());
+                    item.setItemColor(itemEditModel.getItemColor());
                     item.setItemSize(itemEditModel.getItemSize());
                     item.setItemCategory(itemEditModel.getItemCategory());
-                    String price = item.getPrice() + "";
+                    String price = itemEditModel.getPrice() + "";
                     String wholeSalePrice = itemEditModel.getWholeSalePrice() + "";
                     item.setPrice(price);
                     item.setWholeSalePrice(wholeSalePrice);
@@ -206,6 +206,7 @@ public class InventoryService {
                     item.setItemTypeCode(itemTypeCode);
                     item.setItemType(itemType);
                     itemRepo.save(item);
+                    status=status+" item updates success itemcode:"+item.getItemCode()+"\n";
                 }catch (Exception e)
                 {
                     e.printStackTrace();
@@ -276,9 +277,10 @@ public class InventoryService {
         }
     }
 
-    public List<ItemEditModel> updateInventory(MultipartFile file, String storeId) {
+    public ItemEditModelStatus updateInventory(MultipartFile file, String storeId) {
         List<ItemEditModel> items = new ArrayList<>();
-
+        ItemEditModelStatus itemEditModelStatus=new ItemEditModelStatus();
+         String status="";
         try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0);
 
@@ -312,7 +314,8 @@ public class InventoryService {
                     item.setWholeSalePrice(Integer.parseInt(getCellValue(row, 9)));
                     item.setQuantity(Integer.parseInt(getCellValue(row, 10)));
                 } catch (NumberFormatException e) {
-                    System.out.println("Error parsing numeric values on row " + row.getRowNum() + ": " + e.getMessage());
+                    System.out.println("Invalid numeric values on item code " + item.getItemCode() + ": " + e.getMessage());
+                    status=status+"unable to update item "+item.getItemCode()+" wrong or missing price"+"\n";
                     continue; // Skip this row if there's a parsing error
                 }
 
@@ -323,8 +326,9 @@ public class InventoryService {
             e.printStackTrace();
             return null;
         }
-
-        return items;
+        itemEditModelStatus.setItemEditModelList(items);
+        itemEditModelStatus.setStatus(status);
+        return itemEditModelStatus;
     }
 
     private String getCellValue(Row row, int cellIndex) {
@@ -425,7 +429,13 @@ public class InventoryService {
                 item.setWholeSalePrice(itemModel.getWholeSalePrice());
                 String schoolCode = schoolRepo.findSchoolCodeBySchoolName(item.getItemCategory(), storeId);
                 String itemTypeCode = itemListRepo.findItemTypeCodeByDescription(item.getItemType(), storeId);
-                item.setQuantity(itemModel.getQuantity());
+                if(itemModel.getQuantity()==0)
+                {
+                    item.setQuantity(0);
+                }
+               else{
+                    item.setQuantity(itemModel.getQuantity());
+                }
                 item.setDescription(itemModel.getDescription());
                 item.setSchoolCode(schoolCode);
                 item.setItemTypeCode(itemTypeCode);

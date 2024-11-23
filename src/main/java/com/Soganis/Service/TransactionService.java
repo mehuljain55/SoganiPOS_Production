@@ -26,6 +26,7 @@ public class TransactionService {
         // Start new transaction ID
         int newTransactionId = (lastTransactionId == null) ? 1 : lastTransactionId + 1;
 
+
         String paymentMode = bill.getPaymentMode();
         int finalAmount = bill.getFinal_amount();
 
@@ -82,6 +83,73 @@ public class TransactionService {
     }
 
 
+    public String createTransactionExchange(Billing bill,String billType, String storeId) {
+        Integer lastTransactionId = transactionRepo.findMaxransactionIdByStoreId(storeId);
+
+        // Start new transaction ID
+        int newTransactionId = (lastTransactionId == null) ? 1 : lastTransactionId + 1;
+
+
+        String paymentMode = bill.getPaymentMode();
+        int finalAmount = bill.getFinal_amount();
+
+
+
+        if (paymentMode.equals("Cash") || paymentMode.equals("Card") || paymentMode.equals("Upi")) {
+
+            if(finalAmount>=0)
+            {
+                String description="Balance amount recevied for exchange";
+                createAndSaveTransactionExchange(newTransactionId,description,bill,billType,paymentMode,"Paid",finalAmount);
+                return "Success";
+            }
+            else {
+                String description="Refund balance amount for exchange";
+                createAndSaveTransactionExchange(newTransactionId,description,bill,billType,"Cash","Paid",finalAmount);
+                return "Success";
+            }
+
+        }
+        else {
+            return "Invalid payment mode";
+        }
+    }
+
+
+
+
+    public String createTreansaction(Transactions transaction,String storeId)
+    {
+        try{
+            Integer lastTransactionId = transactionRepo.findMaxransactionIdByStoreId(storeId);
+            int newTransactionId = (lastTransactionId == null) ? 1 : lastTransactionId + 1;
+            transaction.setTransactionId(newTransactionId);
+            transactionRepo.save(transaction);
+            return "Success";
+
+
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            return "Failed";
+        }
+    }
+
+    private void createAndSaveTransactionExchange(int transactionId, String description ,Billing bill,String billType, String mode, String status, int amount) {
+        System.out.println(bill);
+        Transactions transaction = new Transactions();
+        transaction.setTransactionId(transactionId);
+        transaction.setDescription(description);
+        transaction.setDate(new Date());
+        transaction.setBillNo(bill.getBillNo());
+        transaction.setMode(mode);
+        transaction.setType(billType);
+        transaction.setStatus(status);
+        transaction.setAmount(amount);
+        transaction.setUserId(bill.getUserId());
+        transaction.setStoreId(bill.getStoreId());
+        transactionRepo.save(transaction);
+    }
 
     private void createAndSaveTransaction(int transactionId, Billing bill,String billType, String mode, String status, int amount) {
         Transactions transaction = new Transactions();

@@ -319,8 +319,8 @@ public class InventoryController {
     @PostMapping("/edit/upload")
     public ResponseEntity<byte[]> inventoryEditExcel(@RequestParam("file") MultipartFile file, @RequestParam("storeId") String storeId) {
 
-        List<ItemEditModel> itemEditModelList=inventoryService.updateInventory(file,storeId);
-        String status=inventoryService.inventoryEditModel(itemEditModelList,storeId);
+        ItemEditModelStatus itemEditModelList=inventoryService.updateInventory(file,storeId);
+        String status=inventoryService.inventoryEditModel(itemEditModelList.getItemEditModelList(),itemEditModelList.getStatus(),storeId);
 
         // Convert status to byte array with UTF-8 encoding
         byte[] content = status.getBytes(StandardCharsets.UTF_8);

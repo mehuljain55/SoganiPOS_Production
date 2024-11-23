@@ -150,10 +150,14 @@ public class UserController {
     @PostMapping("/exchange/billRequest")
     public ResponseEntity<byte[]> generate_bill_exchange(@RequestBody ItemExchangeModel itemModel) {
         try {
-            Billing bill = itemModel.getBill();
-            Billing createBill = itemService.saveBillExchange(bill, itemModel.getItemModel());
 
+            Billing bill = itemModel.getBill();
             String storeId=itemService.getStoreId(itemModel.getUser().getUserId());
+            Billing createBill = itemService.saveBillExchange(bill, itemModel.getItemModel());
+            String billType="Retail";
+            String transaction_status=transactionService.createTransactionExchange(createBill,billType,storeId);
+
+
             createBill.setBill(bill.getBill());
             String status=service.updateUserCashCollectionReport();
             byte[] pdfBytes = print_bill(createBill.getBillNo(),storeId);
@@ -180,9 +184,12 @@ public class UserController {
         try {
             Billing bill = itemModel.getBill();
             Billing createBill = itemService.saveIntercompanyillExchange(bill, itemModel.getItemModel());
+            String billType="WholeSale";
             String storeId=itemService.getStoreId(itemModel.getUser().getUserId());
+            String transaction_status=transactionService.createTransactionExchange(createBill,billType,storeId);
             createBill.setBill(bill.getBill());
-           String status=service.updateUserCashCollectionReport();
+
+            String status=service.updateUserCashCollectionReport();
             byte[] pdfBytes = print_bill(createBill.getBillNo(),storeId);
 
             if (pdfBytes != null) {
@@ -210,17 +217,11 @@ public class UserController {
 
             Billing createBill = itemService.saveInterCompanyBilling(bill);
             createBill.setBill(bill.getBill());
-
             String storeId=itemService.getStoreId(bill.getUserId());
             String billType="Wholesale";
-            TransactionModel transactionModel=new TransactionModel();
-
             String transaction_status=transactionService.createTransactionWholesale(createBill,billType,storeId);
-
-
             byte[] pdfBytes = print_bill(createBill.getBillNo(),storeId);
             String status=service.updateUserCashCollectionReport();
-
             if (pdfBytes != null) {
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_PDF);
