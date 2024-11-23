@@ -277,59 +277,61 @@ public class InventoryService {
         }
     }
 
-    public ItemEditModelStatus updateInventory(MultipartFile file, String storeId) {
-        List<ItemEditModel> items = new ArrayList<>();
-        ItemEditModelStatus itemEditModelStatus=new ItemEditModelStatus();
-         String status="";
-        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
-            Sheet sheet = workbook.getSheetAt(0);
+   public ItemEditModelStatus updateInventory(MultipartFile file, String storeId) {
+    List<ItemEditModel> items = new ArrayList<>();
+    ItemEditModelStatus itemEditModelStatus = new ItemEditModelStatus();
+    String status = "";
+    
+    try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+        Sheet sheet = workbook.getSheetAt(0);
 
-            for (Row row : sheet) {
-                // Skip the header row
-                if (row.getRowNum() == 0) {
-                    continue;
-                }
-
-                String barcodeId = getCellValue(row, 0);
-                String itemCode = getCellValue(row, 1);
-
-                // Skip rows with missing barcodeId or itemCode
-                if (barcodeId == null || itemCode == null) {
-                    continue;
-                }
-
-                ItemEditModel item = new ItemEditModel();
-                item.setItemBarcodeID(barcodeId);
-                item.setItemCode(itemCode);
-                item.setItemName(getCellValue(row, 2));
-                item.setDescription(getCellValue(row, 3));
-                item.setItemType(getCellValue(row, 4));
-                item.setItemColor(getCellValue(row, 5));
-                item.setItemSize(getCellValue(row, 6));
-                item.setItemCategory(getCellValue(row, 7));
-
-                // Handle potential number parsing exceptions
-                try {
-                    item.setPrice(Integer.parseInt(getCellValue(row, 8)));
-                    item.setWholeSalePrice(Integer.parseInt(getCellValue(row, 9)));
-                    item.setQuantity(Integer.parseInt(getCellValue(row, 10)));
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid numeric values on item code " + item.getItemCode() + ": " + e.getMessage());
-                    status=status+"unable to update item "+item.getItemCode()+" wrong or missing price"+"\n";
-                    continue; // Skip this row if there's a parsing error
-                }
-
-                item.setStoreId(storeId);
-                items.add(item);
+        for (Row row : sheet) {
+            // Skip the header row
+            if (row.getRowNum() == 0) {
+                continue;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+
+            String barcodeId = getCellValue(row, 0).trim();  // Trim trailing spaces
+            String itemCode = getCellValue(row, 1).trim();   // Trim trailing spaces
+
+            if (barcodeId == null || itemCode == null || barcodeId.isEmpty() || itemCode.isEmpty()) {
+                continue;
+            }
+
+            ItemEditModel item = new ItemEditModel();
+            item.setItemBarcodeID(barcodeId);
+            item.setItemCode(itemCode);
+            item.setItemName(getCellValue(row, 2).trim());         // Trim trailing spaces
+            item.setDescription(getCellValue(row, 3).trim());      // Trim trailing spaces
+            item.setItemType(getCellValue(row, 4).trim());         // Trim trailing spaces
+            item.setItemColor(getCellValue(row, 5).trim());        // Trim trailing spaces
+            item.setItemSize(getCellValue(row, 6).trim());         // Trim trailing spaces
+            item.setItemCategory(getCellValue(row, 7).trim());    // Trim trailing spaces
+
+            // Handle potential number parsing exceptions
+            try {
+                item.setPrice(Integer.parseInt(getCellValue(row, 8).trim()));   // Trim and parse price
+                item.setWholeSalePrice(Integer.parseInt(getCellValue(row, 9).trim()));  // Trim and parse wholesale price
+                item.setQuantity(Integer.parseInt(getCellValue(row, 10).trim()));  // Trim and parse quantity
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid numeric values on item code " + item.getItemCode() + ": " + e.getMessage());
+                status = status + "unable to update item " + item.getItemCode() + " wrong or missing price" + "\n";
+                continue; // Skip this row if there's a parsing error
+            }
+
+            item.setStoreId(storeId);
+            items.add(item);
         }
-        itemEditModelStatus.setItemEditModelList(items);
-        itemEditModelStatus.setStatus(status);
-        return itemEditModelStatus;
+    } catch (IOException e) {
+        e.printStackTrace();
+        return null;
     }
+
+    itemEditModelStatus.setItemEditModelList(items);
+    itemEditModelStatus.setStatus(status);
+    return itemEditModelStatus;
+}
+
 
     private String getCellValue(Row row, int cellIndex) {
         Cell cell = row.getCell(cellIndex);
