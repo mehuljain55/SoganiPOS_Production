@@ -7,7 +7,6 @@ import com.Soganis.Model.*;
 import com.Soganis.Service.InventoryService;
 import com.Soganis.Service.ItemService;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -15,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -322,15 +320,11 @@ public class InventoryController {
         ItemEditModelStatus itemEditModelList=inventoryService.updateInventory(file,storeId);
         String status=inventoryService.inventoryEditModel(itemEditModelList.getItemEditModelList(),itemEditModelList.getStatus(),storeId);
 
-        // Convert status to byte array with UTF-8 encoding
-        byte[] content = status.getBytes(StandardCharsets.UTF_8);
 
-        // Set headers to indicate it's a file download
+        byte[] content = status.getBytes(StandardCharsets.UTF_8);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
         headers.setContentDispositionFormData("attachment", "inventory_edit_status.txt");
-
-        // Return the response entity with the content and headers
         return new ResponseEntity<>(content, headers, HttpStatus.OK);
 
     }

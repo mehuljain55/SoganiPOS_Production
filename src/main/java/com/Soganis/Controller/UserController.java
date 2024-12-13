@@ -2,10 +2,8 @@ package com.Soganis.Controller;
 
 import com.Soganis.Entity.*;
 import com.Soganis.Model.*;
-import com.Soganis.Service.InventoryService;
-import com.Soganis.Service.ItemService;
-import com.Soganis.Service.TransactionService;
-import com.Soganis.Service.UserService;
+import com.Soganis.Service.*;
+
 import java.awt.image.BufferedImage;
 import java.awt.print.PrinterJob;
 import java.io.File;
@@ -52,6 +50,9 @@ public class UserController {
 
     @Autowired
     private TransactionService transactionService;
+
+    @Autowired
+    private BillModificationService billModifyService;
 
 
     @PostMapping("/login")
@@ -153,7 +154,7 @@ public class UserController {
 
             Billing bill = itemModel.getBill();
             String storeId=itemService.getStoreId(itemModel.getUser().getUserId());
-            Billing createBill = itemService.saveBillExchange(bill, itemModel.getItemModel());
+            Billing createBill = itemService.saveBillExchange(bill, itemModel.getItemModel(),itemModel.getBillNo());
             String billType="Retail";
             String transaction_status=transactionService.createTransactionExchange(createBill,billType,storeId);
 
@@ -179,11 +180,13 @@ public class UserController {
         }
     }
 
+
+
     @PostMapping("/intercompany/exchange/billRequest")
     public ResponseEntity<byte[]> generate_intercompany_bill_exchange(@RequestBody ItemExchangeModel itemModel) {
         try {
             Billing bill = itemModel.getBill();
-            Billing createBill = itemService.saveIntercompanyillExchange(bill, itemModel.getItemModel());
+            Billing createBill = itemService.saveIntercompanyillExchange(bill, itemModel.getItemModel(),itemModel.getBillNo());
             String billType="WholeSale";
             String storeId=itemService.getStoreId(itemModel.getUser().getUserId());
             String transaction_status=transactionService.createTransactionExchange(createBill,billType,storeId);
@@ -253,6 +256,19 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
+
+    @PostMapping("/cancelBill")
+    public ResponseEntity<String> cancelBill(@RequestParam("billNo") int billNo,
+                                                 @RequestParam("storeId") String storeId) {
+
+        System.out.println("Bill portal");
+        String status=billModifyService.cancelBillUser(billNo,storeId);
+        System.out.println(status);
+      return ResponseEntity.ok(status);
+
+    }
+
+
 
     @GetMapping("/getUserList")
     public ResponseEntity<List<User>> getUserList(@RequestParam("storeId") String storeId) {

@@ -7,7 +7,6 @@ import com.Soganis.Repository.ItemsRepository;
 import com.Soganis.Repository.PurchaseOrderBookRepo;
 import com.Soganis.Repository.SchoolRepository;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
@@ -16,17 +15,11 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.web.multipart.MultipartFile;
@@ -210,7 +203,7 @@ public class InventoryService {
                 }catch (Exception e)
                 {
                     e.printStackTrace();
-                    status=status+"Unable to update item(dupliate entry or invalid price format):"+itemEditModel.getItemCode()+ "\n";
+                    status=status+" Unable to update item (dupliate entry or invalid price format):"+itemEditModel.getItemCode()+ "\n";
                 }
             }
             status=status+"All item successfully updates"+"\n";

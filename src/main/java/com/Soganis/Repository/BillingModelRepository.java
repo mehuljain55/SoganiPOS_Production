@@ -17,6 +17,14 @@ public interface BillingModelRepository extends JpaRepository<BillingModel, Inte
             @Param("startDate") Date startDate,
             @Param("endDate") Date endDate);
 
+
+    @Query("SELECT b FROM BillingModel b WHERE b.billing.billNo = :billNo AND b.billing.storeId = :storeId")
+    List<BillingModel> findBillByStore(
+            @Param("billNo") int billNo,
+            @Param("storeId") String storeId);
+
+
+
     @Query("SELECT b FROM BillingModel b WHERE b.itemCategory = :itemCategory")
     List<BillingModel> findBySchool(@Param("itemCategory") String itemCategory);
 

@@ -7,7 +7,8 @@ import java.util.List;
 
 
 public class ItemExchangeModel {
-  
+
+    private int billNo;
     private Billing bill;
     private List<ItemReturnModel> itemModel;
     private User user;
@@ -34,5 +35,13 @@ public class ItemExchangeModel {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public int getBillNo() {
+        return billNo;
+    }
+
+    public void setBillNo(int billNo) {
+        this.billNo = billNo;
     }
 }

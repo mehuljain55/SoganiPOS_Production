@@ -32,8 +32,6 @@ public class BillingModel {
     private Billing billing;
     private int sellPrice;
     private int price;
-
-    
     private int quantity;
     private int total_amount;
     private int final_amount;

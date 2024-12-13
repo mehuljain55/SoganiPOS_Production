@@ -31,9 +31,9 @@ public class Items {
     private String schoolCode;
     private String itemTypeCode;
     private String group_id;
-    private  String storeId;
-    private  String super_group_id;
-    private  String discount;
+    private String storeId;
+    private String super_group_id;
+    private String discount;
 
     public Items() {
     }

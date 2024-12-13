@@ -91,7 +91,6 @@ public class ItemService {
 
     public Billing saveBilling(Billing billing) {
         try {
-            System.out.println("School Name-"+billing.getSchoolName());
             String storeId=getStoreId(billing.getUserId());
             int globalDiscount=billing.getDiscount();
             Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId);
@@ -109,7 +108,7 @@ public class ItemService {
             billing.setBillNo(maxBillNo);;
             Billing savedBilling = new Billing();
             savedBilling.setBillNo(maxBillNo);
-            System.out.println("Size:"+billing.getBill().size());
+            savedBilling.setStatus("Fresh");
             List<BillingModel> billingModelList=new ArrayList<>();
             if (billing.getBill() != null) {
                 int count=1;
@@ -239,7 +238,7 @@ public class ItemService {
         }
     }
 
-    public Billing saveBillExchange(Billing billing, List<ItemReturnModel> itemList) {
+    public Billing saveBillExchange(Billing billing, List<ItemReturnModel> itemList,int billNo) {
 
         try {
 
@@ -254,10 +253,15 @@ public class ItemService {
                 maxBillNo=maxBillNo+1;
             }
             int final_amount = 0;
+            System.out.println("Bill no:"+billNo);
+            Billing  billingUser=billRepo.getBillByNo(billNo,storeId);
+            billingUser.setStatus("Exchanged");
+            billRepo.save(billingUser);
 
             Billing savedBilling = new Billing();
             savedBilling.setBillNo(maxBillNo);
             savedBilling.setBillType("Exchange");
+            savedBilling.setStatus("Exchanged");
             savedBilling.setStoreId(storeId);
             savedBilling.setSchoolName(billing.getSchoolName());
             savedBilling.setUserId(billing.getUserId());
@@ -339,6 +343,7 @@ public class ItemService {
                 }
                 System.out.println(billing.getBalanceAmount());
                 savedBilling.setBill_date(new Date());
+                savedBilling.setStatus("Exchanged");
                 savedBilling.setFinal_amount(final_amount);
                 savedBilling.setBill(billingModelList);
                 savedBilling.setCustomerMobileNo(customerMobileNo);
@@ -355,7 +360,7 @@ public class ItemService {
     }
 
 
-    public Billing saveIntercompanyillExchange(Billing billing, List<ItemReturnModel> itemList) {
+    public Billing saveIntercompanyillExchange(Billing billing, List<ItemReturnModel> itemList,int billNo) {
 
         try {
 
@@ -370,6 +375,11 @@ public class ItemService {
                 maxBillNo=maxBillNo+1;
             }
             int final_amount = 0;
+
+            Billing  billingUser=billRepo.getBillByNo(billNo,storeId);
+            billingUser.setStatus("Exchanged");
+            billRepo.save(billingUser);
+
 
             Billing savedBilling = new Billing();
             savedBilling.setBillNo(maxBillNo);
@@ -487,6 +497,8 @@ public class ItemService {
             String storeContactNumber=storeRepo.getStoreContact(billing.getCustomerName());
             savedBilling.setBillNo(maxBillNo);
             savedBilling.setBillType("Wholesale");
+            savedBilling.setStatus("Fresh");
+
             savedBilling.setCustomerName(billing.getCustomerName());
             savedBilling.setCustomerMobileNo(storeContactNumber);
             List<BillingModel> billingModelList=new ArrayList<>();
@@ -634,6 +646,8 @@ public class ItemService {
                     if (opt.isPresent()) {
                         BillingModel billModel = opt.get();
                         Billing bill = billRepo.getBillByNo(billModel.getBilling().getBillNo(),storeId);
+                        bill.setStatus("Returned");
+                        billRepo.save(bill);
                         billType=billModel.getBillCategory();
                         bill_no = bill.getBillNo();
                         userId = itemModel.getUserId();
@@ -702,6 +716,7 @@ public class ItemService {
                 billing.setBill_date(new Date());
                 billing.setDescription("Return item from bill no " + bill_no);
                 billing.setBillType("Return");
+                billing.setStatus("Returned");
                 billing.setUserId(userId);
                 billing.setCustomerName(customerName);
                 billing.setCustomerMobileNo(customerMobileNo);
@@ -767,6 +782,9 @@ public class ItemService {
             if (opt.isPresent()) {
                 BillingModel billModel = opt.get();
                 Billing bill = billRepo.getBillByNo(billModel.getBilling().getBillNo(),storeId);
+                bill.setStatus("Defected");
+                billRepo.save(bill);
+
                 billType=billModel.getBillCategory();
                 bill_no = bill.getBillNo();
                 userId = itemModel.getUserId();
@@ -821,6 +839,7 @@ public class ItemService {
                 billing.setBill_date(new Date());
                 billing.setDescription("Defected item from bill no " + bill_no);
                 billing.setUserId(userId);
+                billing.setStatus("Defected");
                 billing.setCustomerName(customerName);
                 billing.setBillType("Defetcted Item");
                 billing.setCustomerMobileNo(customerMobileNo);

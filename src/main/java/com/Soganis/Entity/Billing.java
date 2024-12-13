@@ -31,6 +31,7 @@ public class Billing {
     String description;
     String schoolName;
     String billType;
+    String status;
     int discount;
     int discountAmount;
     
@@ -169,24 +170,11 @@ public class Billing {
         this.discountAmount = discountAmount;
     }
 
-    @Override
-    public String toString() {
-        return "Billing{" +
-                "billNo=" + billNo +
-                ", storeId='" + storeId + '\'' +
-                ", userId='" + userId + '\'' +
-                ", bill_date=" + bill_date +
-                ", customerName='" + customerName + '\'' +
-                ", customerMobileNo='" + customerMobileNo + '\'' +
-                ", paymentMode='" + paymentMode + '\'' +
-                ", description='" + description + '\'' +
-                ", schoolName='" + schoolName + '\'' +
-                ", billType='" + billType + '\'' +
-                ", discount=" + discount +
-                ", discountAmount=" + discountAmount +
-                ", balanceAmount=" + balanceAmount +
-                ", item_count=" + item_count +
-                ", final_amount=" + final_amount +
-                '}';
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

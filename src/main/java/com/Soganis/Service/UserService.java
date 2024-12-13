@@ -156,9 +156,6 @@ public class UserService {
         return stores;
     }
 
-
-
-
     public User validateUser(User user)
     {
         Optional<User> opt=userRepo.findById(user.getUserId());
