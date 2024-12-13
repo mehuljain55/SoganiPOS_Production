@@ -316,11 +316,8 @@ public class UserController {
                                                                           @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
 
         try {
-
             List<UserCashCollection> userCashList = service.userCashCollectionReportByDate(storeId,startDate,endDate);
-
             return ResponseEntity.ok(userCashList);
-
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
