@@ -11,7 +11,7 @@ public interface SchoolRepository extends JpaRepository<SchoolList, Integer> {
     @Query("SELECT s.schoolCode FROM SchoolList s WHERE s.schoolName = :schoolName and s.storeId=:storeId")
     String findSchoolCodeBySchoolName(@Param("schoolName") String schoolName,@Param("storeId") String storeId);
 
-    @Query("SELECT s.schoolName FROM SchoolList s where s.storeId=:storeId")
+    @Query("SELECT s.schoolName FROM SchoolList s where s.storeId=:storeId ORDER BY s.schoolName ASC")
     List<String> findSchoolList(@Param("storeId") String storeId);
 
 
