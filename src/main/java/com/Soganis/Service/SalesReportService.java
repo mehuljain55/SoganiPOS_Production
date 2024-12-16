@@ -250,6 +250,7 @@ public class SalesReportService {
 
         // Convert special items to SalesReportModel and add to final list without summarizing
         for (BillingModel specialItem : specialItems) {
+         String desc="Custom Item";
             SalesReportModel salesReport = new SalesReportModel(
                     specialItem.getItemBarcodeID(),
                     specialItem.getDescription(),
@@ -257,44 +258,70 @@ public class SalesReportService {
                     specialItem.getItemColor(),
                     specialItem.getSellPrice(),
                     specialItem.getQuantity(),
-                    specialItem.getFinal_amount()
+                    specialItem.getFinal_amount(),
+                    specialItem.getBillCategory(),
+                    desc
             );
             salesReportListFinal.add(salesReport);
         }
 
         // Process summarized items and add them to the final list with additional data from itemRepo
         for (SalesReportModel sales : summarizedItemsRetail) {
+            String desc="Regular Item";
             Items item = itemRepo.getItemByItemBarcodeID(sales.getItemBarcodeID(), storeId);
-            String description = item.getItemCategory() + " " + item.getItemType() + " " + item.getItemColor();
-            int quantity=sales.getTotalQuantity();
-            int totalAmount=sales.getTotalAmount();
-            int avg_sell_price=totalAmount/quantity;
-            int price=Integer.parseInt(item.getPrice());
-            sales.setPrice(price);
-            sales.setSellPrice(avg_sell_price);
-            sales.setDescription(item.getItemName());
-            sales.setItemCode(item.getItemCode());
-            sales.setBillType("Retail");
-            sales.setItemSize(item.getItemSize());
-            salesReportListFinal.add(sales);
+            int quantity=0;
+            int totalAmount=0;
+            int avg_sell_price=0;
+            int price=0;
+            if(item!=null)
+            {
+                sales.setDescription(item.getItemName());
+                sales.setItemCode(item.getItemCode());
+                sales.setItemSize(item.getItemSize());
+                price=Integer.parseInt(item.getPrice());
+            }else {
+                sales.setDescription("Unknown");
+                sales.setItemCode("Unknown");
+                sales.setItemSize("Unknown");
+            }
+           quantity=sales.getTotalQuantity();
+           totalAmount=sales.getTotalAmount();
+           avg_sell_price=totalAmount/quantity;
+           sales.setPrice(price);
+           sales.setBillType("Retail");
+           sales.setDesc(desc);
+           sales.setSellPrice(avg_sell_price);
+           salesReportListFinal.add(sales);
         }
 
         for (SalesReportModel sales : summarizedItemsWholesale) {
             Items item = itemRepo.getItemByItemBarcodeID(sales.getItemBarcodeID(), storeId);
-            String description = item.getItemCategory() + " " + item.getItemType() + " " + item.getItemColor();
-            int quantity=sales.getTotalQuantity();
-            int totalAmount=sales.getTotalAmount();
-            int avg_sell_price=totalAmount/quantity;
-            int price=Integer.parseInt(item.getWholeSalePrice());
+            String desc="Regular Item";
+            int quantity=0;
+            int totalAmount=0;
+            int avg_sell_price=0;
+            int price=0;
+            if(item!=null)
+            {
+                sales.setDescription(item.getItemName());
+                sales.setItemCode(item.getItemCode());
+                sales.setItemSize(item.getItemSize());
+
+                price=Integer.parseInt(item.getWholeSalePrice());
+            }else {
+                sales.setDescription("Unknown");
+                sales.setItemCode("Unknown");
+                sales.setItemSize("Unknown");
+            }
+            quantity=sales.getTotalQuantity();
+            totalAmount=sales.getTotalAmount();
+            avg_sell_price=totalAmount/quantity;
             sales.setPrice(price);
             sales.setSellPrice(avg_sell_price);
-            sales.setDescription(item.getItemName());
-            sales.setItemCode(item.getItemCode());
             sales.setBillType("Wholesale");
-            sales.setItemSize(item.getItemSize());
+            sales.setDesc(desc);
             salesReportListFinal.add(sales);
         }
-
         return salesReportListFinal;
     }
 

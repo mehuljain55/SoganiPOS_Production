@@ -1,14 +1,14 @@
 COnfiguration
 
-host password: #Ow4g@mjE^cs45;$x[8J
+host password: ]E2PfzH>DLDFm8zoE3Bm
 
-srv644943.hstgr.cloud
+srv670216.hstgr.cloud
 
 
 ssh-keygen -t ed25519 -C "your_email@example.com"
 
 
-ssh-keygen -t ed25519 -C "jaintechsolutions1@gmail.com"
+ssh-keygen -t ed25519 -C "soganiuniformsdec@gmail.com"
 
 MySQL
 Username: cloud@123

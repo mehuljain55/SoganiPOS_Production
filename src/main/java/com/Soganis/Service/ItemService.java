@@ -171,8 +171,6 @@ public class ItemService {
                     int finalAmount=billingModel.getSellPrice()*billingModel.getQuantity();
                     billingModel.setFinal_amount(finalAmount);
                     billingModel.setStoreName(storeId);
-
-
                     billingModelList.add(billingModel);
                  //   billModelRepository.save(billingModelList);
                 }

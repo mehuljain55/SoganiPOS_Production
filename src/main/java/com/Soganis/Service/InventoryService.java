@@ -1,6 +1,7 @@
 package com.Soganis.Service;
 
 import com.Soganis.Entity.*;
+import com.Soganis.Entity.BillingModel;
 import com.Soganis.Model.*;
 import com.Soganis.Repository.ItemListRepository;
 import com.Soganis.Repository.ItemsRepository;
@@ -92,7 +93,7 @@ public class InventoryService {
             return "Inventory Updated";
         } catch (Exception e) {
             e.printStackTrace();
-            return "Failed to update inventory duplicate entery or item not found";
+            return "Failed to update inventory duplicate entry or item not found";
         }
     }
 
@@ -203,7 +204,7 @@ public class InventoryService {
                 }catch (Exception e)
                 {
                     e.printStackTrace();
-                    status=status+" Unable to update item (dupliate entry or invalid price format):"+itemEditModel.getItemCode()+ "\n";
+                    status=status+" Unable to update item (duplicate entry or invalid price format):"+itemEditModel.getItemCode()+ "\n";
                 }
             }
             status=status+"All item successfully updates"+"\n";

@@ -14,6 +14,7 @@ public class SalesReportModel {
     private int totalQuantity;
     private int totalAmount;
     private  String billType;
+    private String desc;
 
     public SalesReportModel(String itemBarcodeID, String description, String itemType, String itemColor, int sellPrice, int totalQuantity, int totalAmount) {
         this.itemBarcodeID = itemBarcodeID;
@@ -23,6 +24,18 @@ public class SalesReportModel {
         this.sellPrice = sellPrice;
         this.totalQuantity = totalQuantity;
         this.totalAmount = totalAmount;
+    }
+
+    public SalesReportModel(String itemBarcodeID, String description, String itemType, String itemColor, int sellPrice, int totalQuantity, int totalAmount,String billType,String desc) {
+        this.itemBarcodeID = itemBarcodeID;
+        this.description = description;
+        this.itemType = itemType;
+        this.itemColor = itemColor;
+        this.sellPrice = sellPrice;
+        this.totalQuantity = totalQuantity;
+        this.totalAmount = totalAmount;
+        this.billType = billType;
+        this.desc=desc;
     }
 
     public SalesReportModel(String itemBarcodeID, String itemCode, String description, String itemType, String itemColor, String itemSize, int sellPrice, int totalQuantity, int totalAmount, String billType) {
@@ -128,4 +141,31 @@ public class SalesReportModel {
     public void setPrice(int price) {
         this.price = price;
     }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+    @Override
+    public String toString() {
+        return "SalesReportModel{" +
+                "itemBarcodeID='" + itemBarcodeID + '\'' +
+                ", itemCode='" + itemCode + '\'' +
+                ", description='" + description + '\'' +
+                ", itemType='" + itemType + '\'' +
+                ", itemColor='" + itemColor + '\'' +
+                ", itemSize='" + itemSize + '\'' +
+                ", price=" + price +
+                ", sellPrice=" + sellPrice +
+                ", totalQuantity=" + totalQuantity +
+                ", totalAmount=" + totalAmount +
+                ", billType='" + billType + '\'' +
+                '}';
+    }
+
+
 }

@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface BillingRepository extends JpaRepository<Billing, BillingId> {
     
-    @Query("SELECT b FROM Billing b WHERE b.userId = :userId AND b.bill_date = :billDate AND b.storeId=:storeId")
+    @Query("SELECT b FROM Billing b WHERE b.userId = :userId AND b.bill_date = :billDate AND b.paymentMode!='Due' AND b.storeId=:storeId")
     List<Billing> findByUserIdAndBillDate(@Param("userId") String userId, @Param("billDate") Date billDate,@Param("storeId") String storeId);
     
     @Query("SELECT b FROM Billing b WHERE b.billNo = :billNo and b.storeId=:storeId")

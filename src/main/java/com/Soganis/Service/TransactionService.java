@@ -1,10 +1,12 @@
 package com.Soganis.Service;
 
 import com.Soganis.Entity.Billing;
+import com.Soganis.Entity.TransactionDueListRetail;
 import com.Soganis.Entity.Transactions;
 import com.Soganis.Entity.InterCompanyPayments;
 import com.Soganis.Model.TransactionModel;
 import com.Soganis.Repository.InterompanyPaymentRepository;
+import com.Soganis.Repository.TransactionDueRepo;
 import com.Soganis.Repository.TransactionsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,9 @@ public class TransactionService {
 
     @Autowired
     private InterompanyPaymentRepository interCompanyPaymentRepo;
+
+    @Autowired
+    private TransactionDueRepo transactionDueRepo;
 
     public String createTransactionRetail(Billing bill,String billType, TransactionModel transactionModel, String storeId) {
         Integer lastTransactionId = transactionRepo.findMaxransactionIdByStoreId(storeId);
@@ -45,7 +50,15 @@ public class TransactionService {
             }
             return "Success";
         } else {
-            createAndSaveTransaction(newTransactionId, bill, billType,"Due", "Due", finalAmount);
+            TransactionDueListRetail record=new TransactionDueListRetail();
+            record.setBillNo(bill.getBillNo());
+            record.setCustomerName(bill.getCustomerName());
+            record.setCustomerMobileNo(bill.getCustomerMobileNo());
+            record.setAmount(finalAmount);
+            record.setDate(new Date());
+            record.setStoreId(bill.getStoreId());
+            record.setStatus("Due");
+            transactionDueRepo.save(record);
             return "Success";
         }
     }
@@ -88,12 +101,8 @@ public class TransactionService {
 
         // Start new transaction ID
         int newTransactionId = (lastTransactionId == null) ? 1 : lastTransactionId + 1;
-
-
         String paymentMode = bill.getPaymentMode();
         int finalAmount = bill.getFinal_amount();
-
-
 
         if (paymentMode.equals("Cash") || paymentMode.equals("Card") || paymentMode.equals("Upi")) {
 
@@ -164,6 +173,4 @@ public class TransactionService {
         transaction.setStoreId(bill.getStoreId());
         transactionRepo.save(transaction);
     }
-
-
 }

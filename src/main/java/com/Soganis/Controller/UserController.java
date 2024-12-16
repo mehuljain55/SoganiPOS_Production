@@ -26,7 +26,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -120,7 +119,6 @@ public class UserController {
             System.out.println(billTransactionModel.getTransactionModel());
             Billing bill=billTransactionModel.getBilling();
             TransactionModel transactionModel=billTransactionModel.getTransactionModel();
-            System.out.println(transactionModel);
             String storeId=itemService.getStoreId(bill.getUserId());
             String billType="Retail";
             bill.setStoreId(storeId);
@@ -458,9 +456,8 @@ public class UserController {
 
     @GetMapping("/filter/school/item_code")
     public ResponseEntity<List<String>> itemCodeBySchoolType(@RequestParam("schoolCode") String schoolCode,
-                                                                  @RequestParam("itemType") String itemType,
-                                                                  @RequestParam("itemColor") String itemColor,
-
+                                                             @RequestParam("itemType") String itemType,
+                                                             @RequestParam("itemColor") String itemColor,
                                                              @RequestParam("storeId") String storeId) {
 
         try {
@@ -684,7 +681,6 @@ public class UserController {
             {
             int total=bill.getFinal_amount()+bill.getDiscountAmount();
              summary="Total Amount:"+total+"\n"+"Discount:"+bill.getDiscountAmount()+"\n"+"Grand Total:"+bill.getFinal_amount()+"\n"+"Total Qty:"+total_qty;
-      
             }
             else{
                summary="Grand Total:"+bill.getFinal_amount()+"\n"+"Total Qty:"+total_qty;
@@ -695,13 +691,10 @@ public class UserController {
             parameters.put("mobile_no", bill.getCustomerMobileNo());
             parameters.put("date", bill_date);
             parameters.put("final_amount", bill.getFinal_amount());
-           
             parameters.put("total_qty", total_qty);
             parameters.put("item_summary", summary);
-
             JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(newBill);
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
-
             // Export the JasperPrint object to a byte array
             return JasperExportManager.exportReportToPdf(jasperPrint);
 
