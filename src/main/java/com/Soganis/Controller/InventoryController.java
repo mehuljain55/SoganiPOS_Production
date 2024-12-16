@@ -2,6 +2,7 @@ package com.Soganis.Controller;
 
 import com.Soganis.Entity.Items;
 import com.Soganis.Entity.PurchaseOrderBook;
+import com.Soganis.Entity.TransactionDueListRetail;
 import com.Soganis.Entity.User;
 import com.Soganis.Model.*;
 import com.Soganis.Service.InventoryService;
@@ -358,5 +359,7 @@ public class InventoryController {
         String status=inventoryService.checkItemCode(itemCode,storeId);
         return status;
     }
+
+
 }
 

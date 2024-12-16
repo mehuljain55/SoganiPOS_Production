@@ -53,6 +53,8 @@ public class UserController {
     @Autowired
     private BillModificationService billModifyService;
 
+    @Autowired
+    private PaymentService paymentService;
 
     @PostMapping("/login")
     public ResponseEntity<User> getUserInfo(@RequestBody User userRequest) {
@@ -307,6 +309,31 @@ public class UserController {
             return ResponseEntity.ok(status);
         }
     }
+
+    @GetMapping("/dueList")
+    public ResponseEntity<List<TransactionDueListRetail>> retailDueList(@RequestParam("storeId") String storeId) {
+
+        try {
+            List<TransactionDueListRetail> dueListRetails = paymentService.dueListRetail(storeId);
+            return new ResponseEntity<>(dueListRetails, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/due/payment")
+    public ResponseEntity<String> duesPayment(@RequestBody PaymentModel paymentModel) {
+
+        try {
+           String status  = paymentService.duesPayment(paymentModel);
+            return new ResponseEntity<>(status, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     @GetMapping("/getUserCashCollection")
     public ResponseEntity<List<UserCashCollection>> getUserCashCollection(@RequestParam("storeId") String storeId,

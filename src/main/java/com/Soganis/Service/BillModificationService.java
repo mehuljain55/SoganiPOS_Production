@@ -1,13 +1,7 @@
 package com.Soganis.Service;
 
-import com.Soganis.Entity.Billing;
-import com.Soganis.Entity.BillingModel;
-import com.Soganis.Entity.Items;
-import com.Soganis.Entity.Transactions;
-import com.Soganis.Repository.BillingModelRepository;
-import com.Soganis.Repository.BillingRepository;
-import com.Soganis.Repository.ItemsRepository;
-import com.Soganis.Repository.TransactionsRepository;
+import com.Soganis.Entity.*;
+import com.Soganis.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -27,6 +21,10 @@ public class BillModificationService {
     @Autowired
     private ItemsRepository itemRepo;
 
+    @Autowired
+    private TransactionDueRepo transactionDueRepo;
+
+
     public String cancelBillUser(int billNo,String storeId)
     {
         try {
@@ -34,6 +32,7 @@ public class BillModificationService {
 
                 List<BillingModel> billingModelList = billModelRepo.findBillByStore(billNo, storeId);
                 List<Transactions> transactionsList = transactionRepo.findTransactionByBill(billNo, storeId);
+                TransactionDueListRetail transactionDueRetail=transactionDueRepo.findDueListByBillNoStoreId(billNo,storeId);
 
                 for (BillingModel billingModel : billingModelList) {
                     Items items=itemRepo.getItemByItemBarcodeID(billingModel.getItemBarcodeID(),storeId);
@@ -49,6 +48,7 @@ public class BillModificationService {
                 for (Transactions record : transactionsList) {
                     transactionRepo.delete(record);
                 }
+                transactionDueRepo.delete(transactionDueRetail);
                 billRepository.delete(bill);
                 return "Success";
 

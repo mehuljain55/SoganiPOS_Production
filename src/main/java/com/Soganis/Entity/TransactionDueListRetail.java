@@ -16,6 +16,7 @@ public class TransactionDueListRetail {
     private int sno;
     private String customerName;
     private String customerMobileNo;
+    @Temporal(TemporalType.DATE)
     private Date date;
     private int billNo;
     private int amount;
