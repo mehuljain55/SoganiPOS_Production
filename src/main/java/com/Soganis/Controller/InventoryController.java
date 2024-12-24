@@ -1,10 +1,8 @@
 package com.Soganis.Controller;
 
-import com.Soganis.Entity.Items;
-import com.Soganis.Entity.PurchaseOrderBook;
-import com.Soganis.Entity.TransactionDueListRetail;
-import com.Soganis.Entity.User;
+import com.Soganis.Entity.*;
 import com.Soganis.Model.*;
+import com.Soganis.Repository.ItemFormatListRepo;
 import com.Soganis.Service.InventoryService;
 import com.Soganis.Service.ItemService;
 import org.apache.poi.ss.usermodel.*;
@@ -35,6 +33,9 @@ public class InventoryController {
 
       @Autowired
       private ItemService itemService;
+
+      @Autowired
+      private ItemFormatListRepo itemFormatListRepo;
 
     @GetMapping("/getAllItems")
     public ResponseEntity<List<Items>> getAllItems(@RequestParam(required = false) String searchTerm,
@@ -178,12 +179,27 @@ public class InventoryController {
 
 
 
-    @GetMapping("/format")
+    @PostMapping ("/format")
     public String inventoryFormat(@RequestBody User user) throws IOException
     {
     String status=inventoryService.generateInventoryExcel(user);
     return status;
     }
+
+
+    @GetMapping("/groupList")
+    public List<ItemFormatList> getItemFormatGroupList()
+    {
+        return inventoryService.itemFormatGroupList();
+    }
+
+    @PostMapping("/format/groupData")
+    public ResponseEntity<byte[]> inventoryFormatGroup(@RequestBody User user, @RequestParam("groupId") int groupId) throws IOException {
+        return inventoryService.generateInventoryExcelGroupWise(user, groupId);
+    }
+
+
+
 
     @GetMapping("/download/stock_add_list")
     public ResponseEntity<byte[]> inventoryFormat() throws IOException {

@@ -37,6 +37,10 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
     @Query("SELECT DISTINCT i.itemSize FROM Items i WHERE (i.itemType = :itemType and i.storeId=:storeId) ORDER BY i.itemSize ASC")
     List<String> findDistinctItemSizeByItemType(@Param("itemType") String itemType,@Param("storeId") String storeId);
 
+    @Query("SELECT DISTINCT i.itemSize FROM Items i WHERE (i.itemType IN :itemType AND i.storeId = :storeId) ORDER BY i.itemSize ASC")
+    List<String> findDistinctItemSizeByItemTypeInList(@Param("itemType") List<String> itemType, @Param("storeId") String storeId);
+
+
     @Query("SELECT DISTINCT i.itemTypeCode FROM Items i WHERE i.itemType = :itemType and i.storeId=:storeId")
     String findDistinctItemTypeCode(@Param("itemType") String itemType,@Param("storeId") String storeId);
 
@@ -49,9 +53,18 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
     @Query("SELECT DISTINCT i.itemCategory FROM Items i where i.itemType=:itemType and i.storeId=:storeId")
     List<String> findDistinctSchoolByType(@Param("itemType") String itemType,@Param("storeId") String storeId);
 
-    @Query("SELECT  DISTINCT i.itemColor  FROM Items i where i.itemCategory = :itemCategory and i.itemType=:itemType")
+    @Query("SELECT DISTINCT i.itemCategory FROM Items i WHERE i.itemType IN :itemType AND i.storeId = :storeId")
+    List<String> findDistinctSchoolByTypeInList(@Param("itemType") List<String> itemType, @Param("storeId") String storeId);
+
+
+    @Query("SELECT  DISTINCT i.itemColor  FROM Items i where i.itemCategory = :itemCategory and i.itemType=:itemType and i.storeId=:storeId")
     List<String> findDistinctItemColor(@Param("itemCategory") String itemCategory,
-            @Param("itemType") String itemType);
+            @Param("itemType") String itemType,
+            @Param("storeId") String storeId);
+
+    @Query("SELECT  DISTINCT i.itemColor  FROM Items i where i.itemCategory = :itemCategory and i.itemType=:itemType")
+    List<String> findDistinctItemColorInList(@Param("itemCategory") String itemCategory,
+                                       @Param("itemType") String itemType);
 
     @Query("SELECT i FROM Items i WHERE i.itemCategory = :itemCategory and i.storeId=:storeId ORDER BY i.itemType ASC,i.itemColor ASC, i.itemSize ASC")
     List<Items> findItemsBySchool(@Param("itemCategory") String itemCategory,@Param("storeId") String storeId);
@@ -59,8 +72,8 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
     @Query("SELECT i FROM Items i WHERE i.itemType = :itemType and i.storeId=:storeId ORDER BY i.itemCategory ASC,i.itemColor ASC, i.itemSize ASC")
     List<Items> findItemsByItemType(@Param("itemType") String itemType,@Param("storeId") String storeId);
 
-    @Query("SELECT DISTINCT i.schoolCode FROM Items i where i.itemCategory=:itemCategory")
-    String findDistinctSchoolCode(@Param("itemCategory") String itemCategory);
+    @Query("SELECT DISTINCT i.schoolCode FROM Items i where i.itemCategory=:itemCategory and i.storeId=:storeId")
+    String findDistinctSchoolCode(@Param("itemCategory") String itemCategory,@Param("storeId") String storeId);
 
     @Query("SELECT i FROM Items i WHERE i.itemCategory = :itemCategory and i.itemType=:itemType and i.storeId=:storeId")
     List<Items> findItemsBySchoolAndType(@Param("itemCategory") String itemCategory,

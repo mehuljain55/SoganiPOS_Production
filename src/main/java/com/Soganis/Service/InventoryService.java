@@ -3,10 +3,9 @@ package com.Soganis.Service;
 import com.Soganis.Entity.*;
 import com.Soganis.Entity.BillingModel;
 import com.Soganis.Model.*;
-import com.Soganis.Repository.ItemListRepository;
-import com.Soganis.Repository.ItemsRepository;
-import com.Soganis.Repository.PurchaseOrderBookRepo;
-import com.Soganis.Repository.SchoolRepository;
+import com.Soganis.Repository.*;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -15,6 +14,9 @@ import java.util.List;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -39,6 +41,9 @@ public class InventoryService {
 
     @Autowired
     private ItemListRepository itemListRepo;
+
+    @Autowired
+    private ItemFormatListRepo itemFormatListRepo;
 
     public String updateInventory(BillingModel billing, String storeId) {
 
@@ -83,6 +88,8 @@ public class InventoryService {
             return "Failed";
         }
     }
+
+
 
     public String updateStock(String itemCode, int qty, String storeId) {
         try {
@@ -139,6 +146,11 @@ public class InventoryService {
             e.printStackTrace();
             return "Failed";
         }
+    }
+
+    public List<ItemFormatList> itemFormatGroupList()
+    {
+        return itemFormatListRepo.findAll();
     }
 
     public String generate_order(String barcodedId, String storeId) {
@@ -490,36 +502,209 @@ public class InventoryService {
     }
 
     public String generateInventoryExcel(User user) throws IOException {
-
+    try {
         List<String> itemList = itemRepo.findDistinctItemTypes(user.getStoreId());
+        List<ItemFormatList> itemFormatList = itemFormatListRepo.findAll();
+        List<String> itemGroupList = new ArrayList<>();
 
-        for (String item : itemList) {
-
-            if (item.equals("CUSTOM")) {
-                continue;
+        for (ItemFormatList formatList : itemFormatList) {
+            if (!formatList.getItem1().equals("")) {
+                itemGroupList.add(formatList.getItem1());
+                itemList.remove(formatList.getItem1());
+            }
+            if (!formatList.getItem2().equals("")) {
+                itemGroupList.add(formatList.getItem2());
+                itemList.remove(formatList.getItem2());
+            }
+            if (!formatList.getItem3().equals("")) {
+                itemGroupList.add(formatList.getItem3());
+                itemList.remove(formatList.getItem3());
+            }
+            if (!formatList.getItem4().equals("")) {
+                itemGroupList.add(formatList.getItem4());
+                itemList.remove(formatList.getItem4());
+            }
+            if (!formatList.getItem5().equals("")) {
+                itemGroupList.add(formatList.getItem5());
+                itemList.remove(formatList.getItem5());
             }
 
-            String item_code = itemRepo.findDistinctItemTypeCode(item, user.getStoreId());
+            if (!formatList.getItem6().equals("")) {
+                itemGroupList.add(formatList.getItem6());
+                itemList.remove(formatList.getItem6());
+            }
 
-            List<String> itemSizes = getSortedItemSizes(itemRepo.findDistinctItemSizeByItemType(item, user.getStoreId()));
-            List<String> itemCategory = getSortedItemCategory(itemRepo.findDistinctSchoolByType(item, user.getStoreId()));
+
+            List<String> itemSizes = getSortedItemSizes(itemRepo.findDistinctItemSizeByItemTypeInList(itemGroupList, user.getStoreId()));
+            List<String> itemCategory = getSortedItemCategory(itemRepo.findDistinctSchoolByTypeInList(itemGroupList, user.getStoreId()));
             List<ItemAddInventoryModel> itemAddList = new ArrayList<>();
 
-            for (String school : itemCategory) {
-                List<String> itemColorList = itemRepo.findDistinctItemColor(school, item);
-                for (String itemColor : itemColorList) {
-                    String schoolCode = itemRepo.findDistinctSchoolCode(school);
-                    ItemAddInventoryModel itemModel = new ItemAddInventoryModel(schoolCode, item, itemColor);
-                    itemAddList.add(itemModel);
-                }
+            String itemName = itemGroupList.get(0) + "and other";
+            for (String item : itemGroupList) {
+                for (String school : itemCategory) {
+                    List<String> itemColorList = itemRepo.findDistinctItemColor(school, item,user.getStoreId());
+                    for (String itemColor : itemColorList) {
+                        String schoolCode = itemRepo.findDistinctSchoolCode(school,user.getStoreId());
+                        ItemAddInventoryModel itemModel = new ItemAddInventoryModel(schoolCode, item, itemColor);
+                        itemAddList.add(itemModel);
+                    }
 
+                }
             }
 
-            exportExcelInventoryFormat(item, itemAddList, itemSizes);
+            exportExcelInventoryFormat(itemName, itemAddList, itemSizes);
+            itemGroupList=new ArrayList<>();
 
         }
+
+
+        if (itemList != null && itemList.size() > 0) {
+            for (String item : itemList) {
+
+                if (item.equals("CUSTOM")) {
+                    continue;
+                }
+
+                List<String> itemSizes = getSortedItemSizes(itemRepo.findDistinctItemSizeByItemType(item, user.getStoreId()));
+                List<String> itemCategory = getSortedItemCategory(itemRepo.findDistinctSchoolByType(item, user.getStoreId()));
+                List<ItemAddInventoryModel> itemAddList = new ArrayList<>();
+
+                for (String school : itemCategory) {
+                    List<String> itemColorList = itemRepo.findDistinctItemColor(school, item,user.getStoreId());
+                    for (String itemColor : itemColorList) {
+                        String schoolCode = itemRepo.findDistinctSchoolCode(school,user.getStoreId());
+                        ItemAddInventoryModel itemModel = new ItemAddInventoryModel(schoolCode, item, itemColor);
+                        itemAddList.add(itemModel);
+                    }
+
+                }
+
+                exportExcelInventoryFormat(item, itemAddList, itemSizes);
+
+            }
+        }
+    }catch (Exception e)
+    {
+        e.printStackTrace();
+    }
         return "Success";
     }
+
+
+    public ResponseEntity<byte[]> generateInventoryExcelGroupWise(User user, int groupId) {
+        try {
+            // Fetch item list and group data
+            List<String> itemList = itemRepo.findDistinctItemTypes(user.getStoreId());
+            Optional<ItemFormatList> opt = itemFormatListRepo.findById(groupId);
+
+            if (opt.isEmpty()) {
+                return ResponseEntity.badRequest().body(null); // Handle invalid groupId
+            }
+
+            ItemFormatList formatList = opt.get();
+            List<String> itemGroupList = new ArrayList<>();
+
+            // Collect items from the format list
+            if (!formatList.getItem1().isEmpty()) {
+                itemGroupList.add(formatList.getItem1());
+                itemList.remove(formatList.getItem1());
+            }
+            if (!formatList.getItem2().isEmpty()) {
+                itemGroupList.add(formatList.getItem2());
+                itemList.remove(formatList.getItem2());
+            }
+            if (!formatList.getItem3().isEmpty()) {
+                itemGroupList.add(formatList.getItem3());
+                itemList.remove(formatList.getItem3());
+            }
+            if (!formatList.getItem4().isEmpty()) {
+                itemGroupList.add(formatList.getItem4());
+                itemList.remove(formatList.getItem4());
+            }
+            if (!formatList.getItem5().isEmpty()) {
+                itemGroupList.add(formatList.getItem5());
+                itemList.remove(formatList.getItem5());
+            }
+            if (!formatList.getItem6().isEmpty()) {
+                itemGroupList.add(formatList.getItem6());
+                itemList.remove(formatList.getItem6());
+            }
+
+            // Fetch sorted sizes and categories
+            List<String> itemSizes = getSortedItemSizes(itemRepo.findDistinctItemSizeByItemTypeInList(itemGroupList, user.getStoreId()));
+            List<String> itemCategory = getSortedItemCategory(itemRepo.findDistinctSchoolByTypeInList(itemGroupList, user.getStoreId()));
+
+            // Build inventory data
+            List<ItemAddInventoryModel> itemAddList = new ArrayList<>();
+            for (String item : itemGroupList) {
+                for (String school : itemCategory) {
+                    List<String> itemColorList = itemRepo.findDistinctItemColor(school, item, user.getStoreId());
+                    for (String itemColor : itemColorList) {
+                        String schoolCode = itemRepo.findDistinctSchoolCode(school, user.getStoreId());
+                        itemAddList.add(new ItemAddInventoryModel(schoolCode, item, itemColor));
+                    }
+                }
+            }
+
+            // Generate and return Excel as ResponseEntity
+            String itemName = itemGroupList.get(0) + " and other";
+            return exportExcelInventoryFormatDownload(itemName, itemAddList, itemSizes);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+
+
+    public ResponseEntity<byte[]> exportExcelInventoryFormatDownload(String itemType, List<ItemAddInventoryModel> itemList, List<String> itemSize) {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Inventory");
+            Row schoolRow = sheet.createRow(0);
+            Row itemCodeRow = sheet.createRow(1);
+            Row colorRow = sheet.createRow(2);
+
+            schoolRow.createCell(0).setCellValue("School");
+            itemCodeRow.createCell(0).setCellValue("Item Code");
+            colorRow.createCell(0).setCellValue("Color");
+
+            for (int i = 0; i < itemList.size(); i++) {
+                ItemAddInventoryModel item = itemList.get(i);
+                schoolRow.createCell(i + 1).setCellValue(item.getSchoolCode());
+                itemCodeRow.createCell(i + 1).setCellValue(item.getItemCode());
+                colorRow.createCell(i + 1).setCellValue(item.getItemColor());
+            }
+            for (int i = 0; i < itemSize.size(); i++) {
+                Row sizeRow = sheet.createRow(i + 3);  // Start from row 4 (0-indexed, so i+3)
+                sizeRow.createCell(0).setCellValue(itemSize.get(i)); // Sizes in A4, A5, A6...
+            }
+
+            for (int i = 0; i <= itemList.size(); i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            // Write workbook to byte array
+            try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                workbook.write(out);
+                byte[] excelBytes = out.toByteArray();
+
+                // Return as ResponseEntity
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+                headers.setContentDispositionFormData("attachment", itemType + ".xlsx");
+
+                return ResponseEntity.ok()
+                        .headers(headers)
+                        .body(excelBytes);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+
 
     public String exportExcelInventoryFormat(String itemType, List<ItemAddInventoryModel> itemList, List<String> itemSize) {
         String filePath = "C:\\Users\\mehul\\Desktop\\New folder\\" + itemType + ".xlsx";
