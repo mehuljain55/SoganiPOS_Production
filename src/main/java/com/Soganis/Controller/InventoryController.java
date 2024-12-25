@@ -193,9 +193,23 @@ public class InventoryController {
         return inventoryService.itemFormatGroupList();
     }
 
+    @GetMapping("/groupDataList")
+    public List<String> groupDataList()
+    {
+        return inventoryService.groupDataList();
+    }
+
+
+
+
     @PostMapping("/format/groupData")
     public ResponseEntity<byte[]> inventoryFormatGroup(@RequestBody User user, @RequestParam("groupId") int groupId) throws IOException {
         return inventoryService.generateInventoryExcelGroupWise(user, groupId);
+    }
+
+    @PostMapping("/format/group/groupData")
+    public ResponseEntity<byte[]> inventoryFormatGroupData(@RequestBody User user, @RequestParam("itemType") String itemType) throws IOException {
+        return inventoryService.generateInventoryExcelGroupData(user, itemType);
     }
 
 

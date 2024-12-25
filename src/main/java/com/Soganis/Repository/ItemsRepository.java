@@ -40,6 +40,17 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
     @Query("SELECT DISTINCT i.itemSize FROM Items i WHERE (i.itemType IN :itemType AND i.storeId = :storeId) ORDER BY i.itemSize ASC")
     List<String> findDistinctItemSizeByItemTypeInList(@Param("itemType") List<String> itemType, @Param("storeId") String storeId);
 
+    @Query("SELECT DISTINCT i.itemSize FROM Items i WHERE (i.itemType IN :itemType AND i.storeId = :storeId AND i.generalGroupId='') ORDER BY i.itemSize ASC")
+    List<String> findDistinctItemSizeByItemTypeInListNonGroup(@Param("itemType") List<String> itemType, @Param("storeId") String storeId);
+
+
+    @Query("SELECT DISTINCT i.generalGroupId FROM Items i WHERE (i.itemType=:itemType AND i.storeId = :storeId AND i.generalGroupId!='') ORDER BY i.generalGroupId ASC")
+    List<String> findDistinctGroupId(@Param("itemType") String itemType, @Param("storeId") String storeId);
+
+
+    @Query("SELECT DISTINCT i.itemSize FROM Items i WHERE (i.itemType=:itemType AND i.storeId = :storeId AND i.generalGroupId!='') ORDER BY i.itemSize ASC")
+    List<String> findDistinctItemSizeByItemTypeInListGroupData(@Param("itemType") String itemType, @Param("storeId") String storeId);
+
 
     @Query("SELECT DISTINCT i.itemTypeCode FROM Items i WHERE i.itemType = :itemType and i.storeId=:storeId")
     String findDistinctItemTypeCode(@Param("itemType") String itemType,@Param("storeId") String storeId);
@@ -56,11 +67,29 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
     @Query("SELECT DISTINCT i.itemCategory FROM Items i WHERE i.itemType IN :itemType AND i.storeId = :storeId")
     List<String> findDistinctSchoolByTypeInList(@Param("itemType") List<String> itemType, @Param("storeId") String storeId);
 
+    @Query("SELECT DISTINCT i.itemCategory FROM Items i WHERE i.itemType IN :itemType AND i.storeId = :storeId AND i.generalGroupId=''")
+    List<String> findDistinctSchoolByTypeInListNonGroup(@Param("itemType") List<String> itemType, @Param("storeId") String storeId);
+
+    @Query("SELECT DISTINCT i.itemCategory FROM Items i WHERE i.storeId = :storeId AND i.generalGroupId=:groupId")
+    List<String> findDistinctSchoolByTypeInListGroupData(@Param("groupId") String groupId, @Param("storeId") String storeId);
+
 
     @Query("SELECT  DISTINCT i.itemColor  FROM Items i where i.itemCategory = :itemCategory and i.itemType=:itemType and i.storeId=:storeId")
     List<String> findDistinctItemColor(@Param("itemCategory") String itemCategory,
             @Param("itemType") String itemType,
             @Param("storeId") String storeId);
+
+    @Query("SELECT  DISTINCT i.itemColor  FROM Items i where i.itemCategory = :itemCategory and i.itemType=:itemType and i.storeId=:storeId and i.generalGroupId=''")
+    List<String> findDistinctItemColorNonGroup(@Param("itemCategory") String itemCategory,
+                                       @Param("itemType") String itemType,
+                                       @Param("storeId") String storeId);
+
+    @Query("SELECT  DISTINCT i.itemColor  FROM Items i where i.itemCategory = :itemCategory and i.itemType=:itemType and i.storeId=:storeId and i.generalGroupId!=''")
+    List<String> findDistinctItemColorGroupData(@Param("itemCategory") String itemCategory,
+                                               @Param("itemType") String itemType,
+                                               @Param("storeId") String storeId);
+
+
 
     @Query("SELECT  DISTINCT i.itemColor  FROM Items i where i.itemCategory = :itemCategory and i.itemType=:itemType")
     List<String> findDistinctItemColorInList(@Param("itemCategory") String itemCategory,
@@ -74,6 +103,18 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
 
     @Query("SELECT DISTINCT i.schoolCode FROM Items i where i.itemCategory=:itemCategory and i.storeId=:storeId")
     String findDistinctSchoolCode(@Param("itemCategory") String itemCategory,@Param("storeId") String storeId);
+
+    @Query("SELECT DISTINCT i.schoolCode FROM Items i where i.itemCategory=:itemCategory and i.storeId=:storeId AND i.generalGroupId=''")
+    String findDistinctSchoolCodeNonGroup(@Param("itemCategory") String itemCategory,@Param("storeId") String storeId);
+
+    @Query("SELECT DISTINCT i.schoolCode FROM Items i where i.itemCategory=:itemCategory and i.storeId=:storeId AND i.generalGroupId!=''")
+    String findDistinctSchoolCodeGroupData(@Param("itemCategory") String itemCategory,@Param("storeId") String storeId);
+
+
+    @Query("SELECT DISTINCT i.itemType FROM Items i where i.generalGroupId!=''")
+    List<String> findDistinctItemTypeListGroupData();
+
+
 
     @Query("SELECT i FROM Items i WHERE i.itemCategory = :itemCategory and i.itemType=:itemType and i.storeId=:storeId")
     List<Items> findItemsBySchoolAndType(@Param("itemCategory") String itemCategory,

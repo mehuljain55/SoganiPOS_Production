@@ -104,6 +104,12 @@ public class InventoryService {
         }
     }
 
+    public List<String> groupDataList() {
+       return  itemRepo.findDistinctItemTypeListGroupData();
+    }
+
+
+
     public String updateInterCompanyInventory(BillingModel billing, String storeId) {
 
         if (billing.getItemBarcodeID().equals("SG9999999")) {
@@ -604,7 +610,6 @@ public class InventoryService {
             ItemFormatList formatList = opt.get();
             List<String> itemGroupList = new ArrayList<>();
 
-            // Collect items from the format list
             if (!formatList.getItem1().isEmpty()) {
                 itemGroupList.add(formatList.getItem1());
                 itemList.remove(formatList.getItem1());
@@ -631,16 +636,16 @@ public class InventoryService {
             }
 
             // Fetch sorted sizes and categories
-            List<String> itemSizes = getSortedItemSizes(itemRepo.findDistinctItemSizeByItemTypeInList(itemGroupList, user.getStoreId()));
-            List<String> itemCategory = getSortedItemCategory(itemRepo.findDistinctSchoolByTypeInList(itemGroupList, user.getStoreId()));
+            List<String> itemSizes = getSortedItemSizes(itemRepo.findDistinctItemSizeByItemTypeInListNonGroup(itemGroupList, user.getStoreId()));
+            List<String> itemCategory = getSortedItemCategory(itemRepo.findDistinctSchoolByTypeInListNonGroup(itemGroupList, user.getStoreId()));
 
             // Build inventory data
             List<ItemAddInventoryModel> itemAddList = new ArrayList<>();
             for (String item : itemGroupList) {
                 for (String school : itemCategory) {
-                    List<String> itemColorList = itemRepo.findDistinctItemColor(school, item, user.getStoreId());
+                    List<String> itemColorList = itemRepo.findDistinctItemColorNonGroup(school, item, user.getStoreId());
                     for (String itemColor : itemColorList) {
-                        String schoolCode = itemRepo.findDistinctSchoolCode(school, user.getStoreId());
+                        String schoolCode = itemRepo.findDistinctSchoolCodeNonGroup(school, user.getStoreId());
                         itemAddList.add(new ItemAddInventoryModel(schoolCode, item, itemColor));
                     }
                 }
@@ -649,6 +654,33 @@ public class InventoryService {
             // Generate and return Excel as ResponseEntity
             String itemName = itemGroupList.get(0) + " and other";
             return exportExcelInventoryFormatDownload(itemName, itemAddList, itemSizes);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+
+    public ResponseEntity<byte[]> generateInventoryExcelGroupData(User user,String itemType) {
+        try {
+
+            List<String> groupData=itemRepo.findDistinctGroupId(itemType,user.getStoreId());
+            List<String> itemSizes = getSortedItemSizes(itemRepo.findDistinctItemSizeByItemTypeInListGroupData(itemType, user.getStoreId()));
+            List<ItemAddInventoryModel> itemAddList=new ArrayList<>();
+
+            for(String groupId: groupData) {
+                List<String> itemCategory = getSortedItemCategory(itemRepo.findDistinctSchoolByTypeInListGroupData(groupId, user.getStoreId()));
+                String school=itemCategory.get(0);
+                List<String> itemColorList = itemRepo.findDistinctItemColorGroupData(school, itemType, user.getStoreId());
+                for (String itemColor : itemColorList) {
+                    String schoolCode = itemRepo.findDistinctSchoolCodeGroupData(school, user.getStoreId());
+                    itemAddList.add(new ItemAddInventoryModel(schoolCode, itemType, itemColor));
+                }
+
+
+            }
+            return exportExcelInventoryFormatDownload(itemType, itemAddList, itemSizes);
 
         } catch (Exception e) {
             e.printStackTrace();

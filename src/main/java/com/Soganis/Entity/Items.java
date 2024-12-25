@@ -33,6 +33,7 @@ public class Items {
     private String group_id;
     private String storeId;
     private String super_group_id;
+    private String generalGroupId;
     private String discount;
 
     public Items() {
@@ -188,6 +189,14 @@ public class Items {
 
     public void setDiscount(String discount) {
         this.discount = discount;
+    }
+
+    public String getGeneralGroupId() {
+        return generalGroupId;
+    }
+
+    public void setGeneralGroupId(String generalGroupId) {
+        this.generalGroupId = generalGroupId;
     }
 
     @Override
