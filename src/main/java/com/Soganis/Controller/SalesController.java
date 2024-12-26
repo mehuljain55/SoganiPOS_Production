@@ -178,6 +178,25 @@ public class SalesController {
         }
     }
 
+    @GetMapping("/report/schoolSalesSummary")
+    public ResponseEntity<List<SalesReportModel>> saleReportBySchoolWiseSummary(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate,
+            @RequestParam("schoolName") String schoolName,
+            @RequestParam("storeId") String storeId) {
+        {
+
+            List<SalesReportModel> billing = service.schoolBillingSummary(schoolName,startDate,endDate,storeId);
+
+            if (billing.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            } else {
+                return new ResponseEntity<>(billing, HttpStatus.OK);
+            }
+        }
+    }
+
+
     @GetMapping("/report/salesByDate")
     public ResponseEntity<List<SalesDateModel>> salesReportByDate(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,

@@ -12,9 +12,24 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
     List<Items> findAllFiltered(@Param("searchTerm") String searchTerm,@Param("storeId") String storeId);
 
 
+    @Query("SELECT i FROM Items i WHERE i.itemSize = :itemSize " +
+                                        "and i.itemColor=:itemColor " +
+                                        "and i.schoolCode=:schoolCode " +
+                                        "and i.storeId = :storeId")
+    Items getItemBySchoolCodeTypeSizeColor(@Param("schoolCode") String schoolCode,
+                                           @Param("itemSize") String itemSize,
+                                           @Param("itemColor") String itemColor,
+                                           @Param("storeId") String storeId);
+
+
+
     @Query("SELECT i FROM Items i WHERE i.itemBarcodeID = :itemBarcodeID and i.storeId = :storeId")
     Items getItemByItemBarcodeID(@Param("itemBarcodeID") String itemBarcodeID,@Param("storeId") String storeId);
-    
+
+    @Query("SELECT i FROM Items i WHERE i.group_id = :groupId and i.storeId = :storeId")
+    List<Items> getItemByGroupID(@Param("groupId") String groupId,@Param("storeId") String storeId);
+
+
     @Query("SELECT i FROM Items i WHERE i.group_id = :groupId")
     List<Items> findItemsByGroupId(@Param("groupId") String groupId);
 
@@ -84,10 +99,11 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
                                        @Param("itemType") String itemType,
                                        @Param("storeId") String storeId);
 
-    @Query("SELECT  DISTINCT i.itemColor  FROM Items i where i.itemCategory = :itemCategory and i.itemType=:itemType and i.storeId=:storeId and i.generalGroupId!=''")
+    @Query("SELECT  DISTINCT i.itemColor  FROM Items i where i.itemCategory = :itemCategory and i.itemType=:itemType and i.generalGroupId=:groupId and i.storeId=:storeId and i.generalGroupId!=''")
     List<String> findDistinctItemColorGroupData(@Param("itemCategory") String itemCategory,
                                                @Param("itemType") String itemType,
-                                               @Param("storeId") String storeId);
+                                                @Param("groupId") String groupId,
+                                                @Param("storeId") String storeId);
 
 
 

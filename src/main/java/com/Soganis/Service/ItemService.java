@@ -89,6 +89,10 @@ public class ItemService {
         return status;
     }
 
+
+
+
+
     public Billing saveBilling(Billing billing) {
         try {
             String storeId=getStoreId(billing.getUserId());
@@ -115,6 +119,7 @@ public class ItemService {
                 for (BillingModel billingModel : billing.getBill()) {
                     billingModel.setBilling(savedBilling);
                     billingModel.setBillCategory("Retail");
+                    billingModel.setSchoolName(billing.getSchoolName());
                     billingModel.setDiscount(billing.getDiscount());
                     int sellPrice=billingModel.getSellPrice();
                     billingModel.setPrice(sellPrice);
@@ -251,7 +256,6 @@ public class ItemService {
                 maxBillNo=maxBillNo+1;
             }
             int final_amount = 0;
-            System.out.println("Bill no:"+billNo);
             Billing  billingUser=billRepo.getBillByNo(billNo,storeId);
             billingUser.setStatus("Exchanged");
             billRepo.save(billingUser);
@@ -274,6 +278,7 @@ public class ItemService {
                 billingModel.setItemBarcodeID(itemModel.getBarcodedId());
                 billingModel.setBill_date(new Date());
                 billingModel.setBillCategory("Retail");
+                billingModel.setSchoolName(billingUser.getSchoolName());
                 billingModel.setSellPrice(itemModel.getPrice());
                 billingModel.setItemSize(item.getItemSize());
                 billingModel.setItemColor(item.getItemColor());
@@ -316,6 +321,7 @@ public class ItemService {
             if (billing.getBill() != null) {
                 for (BillingModel billingModel : bill) {
                     billingModel.setBilling(savedBilling);
+                    billingModel.setSchoolName(billing.getSchoolName());
                     billingModel.setStoreName(storeId);
                     billingModel.setBillCategory("Retail");
                     final_amount = final_amount + billingModel.getTotal_amount();
@@ -672,6 +678,7 @@ public class ItemService {
                         billingModel.setItemBarcodeID(billModel.getItemBarcodeID());
                         billingModel.setItemCategory(billModel.getItemCategory());
                         billingModel.setDescription(description);
+                        billingModel.setSchoolName(school);
                         billingModel.setItemColor(billModel.getItemColor());
                         billingModel.setItemSize(billModel.getItemSize());
                         billingModel.setItemType(billModel.getItemType());
@@ -806,6 +813,8 @@ public class ItemService {
                 billingModel.setItemCategory(billModel.getItemCategory());
                 billingModel.setDescription(description);
                 billingModel.setBillCategory(billType);
+                billingModel.setSchoolName(school);
+
                 billingModel.setItemColor(billModel.getItemColor());
                 billingModel.setItemSize(billModel.getItemSize());
                 billingModel.setItemType(billModel.getItemType());

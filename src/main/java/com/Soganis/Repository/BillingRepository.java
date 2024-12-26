@@ -29,5 +29,11 @@ public interface BillingRepository extends JpaRepository<Billing, BillingId> {
     List<Billing> findByBillDateBetweenAndStoreId(@Param("startDate") Date startDate,
                                                   @Param("endDate") Date endDate,
                                                   @Param("storeId") String storeId);
-    
+
+    @Query("SELECT b.schoolName FROM Billing b WHERE b.billNo = :billNo and b.storeId = :storeId")
+    String getSchoolName(@Param("billNo") int billNo, @Param("storeId") String storeId);
+
+
+
+
 }

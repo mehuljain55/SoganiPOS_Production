@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 
+import org.apache.poi.util.LocaleID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -44,6 +45,14 @@ public class InventoryService {
 
     @Autowired
     private ItemFormatListRepo itemFormatListRepo;
+
+    @Autowired
+    private BillingRepository billingRepository;
+
+    @Autowired
+    private BillingModelRepository billingModelRepository;
+
+
 
     public String updateInventory(BillingModel billing, String storeId) {
 
@@ -88,6 +97,8 @@ public class InventoryService {
             return "Failed";
         }
     }
+
+
 
 
 
@@ -455,11 +466,12 @@ public class InventoryService {
                 item.setItemTypeCode(itemTypeCode);
                 if (itemModel.getGroupId() == null) {
                     item.setGroup_id("NA");
-                } else if (itemModel.getGroupId().equals("")) {
-                    System.out.println("Group Id");
+                } else if (itemModel.getGroupId().trim().equals("")) {
                     item.setGroup_id("NA");
                 } else {
-                    String groupId = itemModel.getGroupId() + item.getItemSize();
+                    String groupId = itemModel.getGroupId();
+                    item.setGeneralGroupId(groupId);
+                    groupId = groupId+"/"+itemModel.getItemSize();
                     item.setGroup_id(groupId);
                 }
 
@@ -672,13 +684,11 @@ public class InventoryService {
             for(String groupId: groupData) {
                 List<String> itemCategory = getSortedItemCategory(itemRepo.findDistinctSchoolByTypeInListGroupData(groupId, user.getStoreId()));
                 String school=itemCategory.get(0);
-                List<String> itemColorList = itemRepo.findDistinctItemColorGroupData(school, itemType, user.getStoreId());
+                List<String> itemColorList = itemRepo.findDistinctItemColorGroupData(school, itemType,groupId, user.getStoreId());
                 for (String itemColor : itemColorList) {
                     String schoolCode = itemRepo.findDistinctSchoolCodeGroupData(school, user.getStoreId());
                     itemAddList.add(new ItemAddInventoryModel(schoolCode, itemType, itemColor));
                 }
-
-
             }
             return exportExcelInventoryFormatDownload(itemType, itemAddList, itemSizes);
 
@@ -803,7 +813,7 @@ public class InventoryService {
             // Loop through columns starting from the second column (B, C, D...)
             for (int col = 1; col < totalColumns; col++) {
                 String schoolCode = schoolCodeRow.getCell(col).getStringCellValue();
-                String itemCode = itemCodeRow.getCell(col).getStringCellValue();
+                String itemType = itemCodeRow.getCell(col).getStringCellValue();
                 String color = colorRow.getCell(col).getStringCellValue();
 
                 // Loop through each row from Row 4 onwards (A4...An for sizes, B4...Bn for quantities)
@@ -825,8 +835,15 @@ public class InventoryService {
                     if (quantityCell != null && quantityCell.getCellType() == CellType.NUMERIC) {
                         int quantity = (int) quantityCell.getNumericCellValue();
 
+
+                        Items items=itemRepo.getItemBySchoolCodeTypeSizeColor(schoolCode,size,color,storeId);
+
+                        if(items==null)
+                        {
+                            continue;
+                        }
                         // Create ItemModel and map the data
-                        ItemModel item = new ItemModel(schoolCode, itemCode, size, color);
+                        ItemModel item = new ItemModel(schoolCode, items.getItemCode(), size, color);
                         item.setQuantity(quantity);
                         itemList.add(item);
                     }
@@ -910,7 +927,8 @@ public class InventoryService {
         return itemCategory;
     }
 
-// Helper method to check if a string is numeric
+
+    // Helper method to check if a string is numeric
     private boolean isNumeric(String str) {
         return str != null && str.matches("\\d+");
     }
@@ -922,22 +940,42 @@ public class InventoryService {
         for (ItemModel itemModel : itemModelList) {
             System.out.println(itemModel);
             try {
-                Items item = itemRepo.findItemInventoryUpdate(
-                        itemModel.getSchoolCode(),
+                Items item = itemRepo.findItemsByItemCode(
                         itemModel.getItemCode(),
-                        itemModel.getSize(),
-                        itemModel.getItemColor(),
                         itemModel.getStoreId()
                 );
 
-                if (item != null) {
-                    int qty = item.getQuantity();
-                    int stock = qty + itemModel.getQuantity();
-                    item.setQuantity(stock);
-                    itemRepo.save(item);
-                } else {
-                    status = status + itemModel.getItemCode() + " " + itemModel.getSchoolCode() + " " + itemModel.getSize() + " " + itemModel.getItemColor() + " not found" + "\n";
+
+
+                String groupId=item.getGeneralGroupId();
+                String storeId=item.getStoreId();
+
+                if(!groupId.equals(""))
+                {
+                    List<Items> itemsList=itemRepo.getItemByGroupID(groupId,storeId);
+                    for(Items inventory:itemsList) {
+                        if (inventory != null) {
+                            int qty = item.getQuantity();
+                            int stock = qty + inventory.getQuantity();
+                            item.setQuantity(stock);
+                            status = status + inventory.getItemCode() + " updated \n";
+                            itemRepo.save(item);
+                        } else {
+                            status = status + itemModel.getItemCode() + " " + itemModel.getSchoolCode() + " " + itemModel.getSize() + " " + itemModel.getItemColor() + " not found" + "\n";
+                        }
+                    }
+                }else{
+                    if (item != null) {
+                        int qty = item.getQuantity();
+                        int stock = qty + itemModel.getQuantity();
+                        item.setQuantity(stock);
+                        status=status+item.getItemCode()+" updated \n";
+                        itemRepo.save(item);
+                    } else {
+                        status = status + itemModel.getItemCode() + " " + itemModel.getSchoolCode() + " " + itemModel.getSize() + " " + itemModel.getItemColor() + " not found" + "\n";
+                    }
                 }
+
             } catch (Exception e) {
                 status = status + itemModel.getItemCode() + " " + itemModel.getSchoolCode() + " " + itemModel.getSize() + " " + itemModel.getItemColor() + "exception duplicate entry or item not present" + "\n";
             }

@@ -33,11 +33,13 @@ public class BillingModel {
     private int sellPrice;
     private int price;
     private int quantity;
+    private String schoolName;
     private int total_amount;
     private int final_amount;
     private String status;
     private int discount;
     private String storeName;
+
 
     public BillingModel() {
     }
@@ -199,12 +201,14 @@ public class BillingModel {
     public void setFinal_amount(int final_amount) {
         this.final_amount = final_amount;
     }
-    
-    
-    
 
-    
+    public String getSchoolName() {
+        return schoolName;
+    }
 
+    public void setSchoolName(String schoolName) {
+        this.schoolName = schoolName;
+    }
 
     @Override
     public String toString() {

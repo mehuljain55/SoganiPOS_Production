@@ -59,8 +59,10 @@ public class InventoryController {
             return ResponseEntity.notFound().build();
         }
     }
+
     
-      @PostMapping("/stock_update")
+
+     @PostMapping("/stock_update")
     public ResponseEntity<String> stockUpdate(@RequestBody StockUpdateModel stockUpdateModel) {
       
       String status=inventoryService.updateStock(stockUpdateModel.getItemCode(), stockUpdateModel.getQty(), stockUpdateModel.getStoreId());
@@ -142,7 +144,9 @@ public class InventoryController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-    
+
+
+
     
     @PostMapping("/order/delete_order")
     public String deletePurchaseOrder(@RequestParam("orderId")int orderId)
