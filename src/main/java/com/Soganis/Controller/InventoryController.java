@@ -316,17 +316,15 @@ public class InventoryController {
 
 
     @PostMapping("/add")
-    public ResponseEntity<List<ItemModel>> uploadExcelFile(@RequestParam("file") MultipartFile file, @RequestParam("storeId") String storeId) {
+    public ResponseEntity<ItemApiResponseModel> uploadExcelFile(@RequestParam("file") MultipartFile file, @RequestParam("storeId") String storeId) {
         if (file.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         try {
-
             // Call service to read the Excel file and return list of ItemModel
-            List<ItemModel> items = inventoryService.inventory_quantity_update(file,storeId );
-
-            return new ResponseEntity<>(items, HttpStatus.OK);
+           ItemApiResponseModel itemApiResponseModel = inventoryService.inventory_quantity_update(file,storeId );
+            return new ResponseEntity<>(itemApiResponseModel, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

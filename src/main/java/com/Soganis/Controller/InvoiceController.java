@@ -137,7 +137,6 @@ public class InvoiceController {
          parameters.put("mobile_no", bill.getCustomerMobileNo());
          parameters.put("date", bill_date);
          parameters.put("final_amount", bill.getFinal_amount());
-
          parameters.put("total_qty", total_qty);
          parameters.put("item_summary", summary);
 

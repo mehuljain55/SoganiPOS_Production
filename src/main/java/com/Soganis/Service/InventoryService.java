@@ -794,8 +794,10 @@ public class InventoryService {
         return "Excel exported successfully to " + filePath;
     }
 
-    public List<ItemModel> inventory_quantity_update(MultipartFile file, String storeId) throws IOException {
+    public ItemApiResponseModel inventory_quantity_update(MultipartFile file, String storeId) throws IOException {
         List<ItemModel> itemList = new ArrayList<>();
+        String status="";
+        int sno=1;
 
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0); // Assuming the first sheet
@@ -834,24 +836,37 @@ public class InventoryService {
                     Cell quantityCell = currentRow.getCell(col);
                     if (quantityCell != null && quantityCell.getCellType() == CellType.NUMERIC) {
                         int quantity = (int) quantityCell.getNumericCellValue();
+                        List<Items> itemsListInventory=itemRepo.getItemBySchoolCodeTypeSizeColor(schoolCode, itemType,size, color, storeId);
 
-
-                        Items items=itemRepo.getItemBySchoolCodeTypeSizeColor(schoolCode,size,color,storeId);
-
-                        if(items==null)
+                        if(itemsListInventory.size()>1)
                         {
-                            continue;
+                            status=status+sno+"-"+schoolCode+" "+itemType+" "+color+" "+size+" duplicates enteries possible. \n";
+                            sno=sno+1;
+                            System.out.println("Duplicates entry found");
                         }
-                        // Create ItemModel and map the data
-                        ItemModel item = new ItemModel(schoolCode, items.getItemCode(), size, color);
-                        item.setQuantity(quantity);
-                        itemList.add(item);
+
+                        if(itemsListInventory.size()>0) {
+                            Items items = itemsListInventory.get(0);
+
+                            if (items == null) {
+                                status = status +sno+"-"+ schoolCode + " " + itemType + " " + color + " " + size + " data not available. \n";
+                                sno=sno+1;
+                                continue;
+                            }
+                            // Create ItemModel and map the data
+                            ItemModel item = new ItemModel(schoolCode, items.getItemCode(), size, color);
+                            item.setQuantity(quantity);
+                            itemList.add(item);
+                        }else {
+                            status = status +sno+"-"+ schoolCode + " " + itemType + " " + color + " " + size + " data not available \n";
+                            sno=sno+1;
+                        }
                     }
                 }
             }
         }
-
-        return itemList;
+        System.out.println(itemList.size());
+        return new ItemApiResponseModel(itemList,status);
     }
 
     public String findMatchingItemTypeCode(List<ItemList> itemList, String descriptionSearch) {

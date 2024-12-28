@@ -15,11 +15,13 @@ public interface ItemsRepository extends JpaRepository<Items, Integer> {
     @Query("SELECT i FROM Items i WHERE i.itemSize = :itemSize " +
                                         "and i.itemColor=:itemColor " +
                                         "and i.schoolCode=:schoolCode " +
+                                        "and i.itemType=:itemType "+
                                         "and i.storeId = :storeId")
-    Items getItemBySchoolCodeTypeSizeColor(@Param("schoolCode") String schoolCode,
-                                           @Param("itemSize") String itemSize,
-                                           @Param("itemColor") String itemColor,
-                                           @Param("storeId") String storeId);
+    List<Items> getItemBySchoolCodeTypeSizeColor(@Param("schoolCode") String schoolCode,
+                                                 @Param("itemType") String itemType,
+                                                 @Param("itemSize") String itemSize,
+                                                 @Param("itemColor") String itemColor,
+                                                 @Param("storeId") String storeId);
 
 
 
