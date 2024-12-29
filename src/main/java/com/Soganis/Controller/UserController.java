@@ -339,7 +339,6 @@ public class UserController {
     public ResponseEntity<List<UserCashCollection>> getUserCashCollection(@RequestParam("storeId") String storeId,
                                                                           @RequestParam("startDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
                                                                           @RequestParam("endDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
-
         try {
             List<UserCashCollection> userCashList = service.userCashCollectionReportByDate(storeId,startDate,endDate);
             return ResponseEntity.ok(userCashList);
@@ -351,9 +350,7 @@ public class UserController {
 
     @GetMapping("/salary/generate")
     public ResponseEntity<List<UserMonthlySalary>> generateUserMonthlySalary(@RequestParam("month_fy") String month_fy,@RequestParam("storeId") String storeId) {
-
         try {
-
             List<UserMonthlySalary> userMonthlySalary = service.generateUserMonthlySalaries(month_fy,storeId);
             return ResponseEntity.ok(userMonthlySalary);
 
@@ -368,10 +365,8 @@ public class UserController {
 
         String status = "";
         try {
-
             status = service.userMonthlySalaryChangeStatus(usermonthlySalary);
             return ResponseEntity.ok(status);
-
         } catch (Exception e) {
             e.printStackTrace();
             status = "Failed";
@@ -382,12 +377,9 @@ public class UserController {
     @GetMapping("/salary/user_salary_statement")
     public ResponseEntity<List<User_Salary>> generateUserSalaryStatement(@RequestParam("userId") String userId,
             @RequestParam("month_fy") String month_fy) {
-
         try {
-
             List<User_Salary> userSalaryStatement = service.getUserSalaryStatement(userId, month_fy);
             return ResponseEntity.ok(userSalaryStatement);
-
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -396,12 +388,9 @@ public class UserController {
 
     @GetMapping("/filter/getSchool")
     public ResponseEntity<List<String>> getSchoolName(@RequestParam("storeId") String storeId) {
-
         try {
-
             List<String> schoolList = service.getSchoolList(storeId);
             return ResponseEntity.ok(schoolList);
-
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

@@ -22,7 +22,6 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
-
 @CrossOrigin(origins = "https://www.soganiuniforms.shop")
 @RestController
 @RequestMapping("/api/inventory")
@@ -49,7 +48,7 @@ public class InventoryController {
         }
     }
     
-     @GetMapping("/getAllItemCode")
+    @GetMapping("/getAllItemCode")
     public ResponseEntity<List<BarcodeModel>> getAllItemsCode(@RequestParam(required = false) String searchTerm,
                                                    @RequestParam("storeId") String storeId) {
         List<BarcodeModel> barcodeModel = itemService.getAllItemCode(searchTerm, 20, storeId);
@@ -60,9 +59,7 @@ public class InventoryController {
         }
     }
 
-    
-
-     @PostMapping("/stock_update")
+    @PostMapping("/stock_update")
     public ResponseEntity<String> stockUpdate(@RequestBody StockUpdateModel stockUpdateModel) {
       
       String status=inventoryService.updateStock(stockUpdateModel.getItemCode(), stockUpdateModel.getQty(), stockUpdateModel.getStoreId());
@@ -74,10 +71,8 @@ public class InventoryController {
               return new ResponseEntity<>(status, HttpStatus.BAD_REQUEST);
         }
     }
-    
-    
-    
-      @PostMapping("/generate_order")
+
+    @PostMapping("/generate_order")
     public ResponseEntity<InputStreamResource> generateOrder(@RequestBody PurchaseOrderModel orders) {
         try {
             String status = inventoryService.updateOrder(orders.getPurchaseOrderBookList(),orders.getUser().getStoreId());
@@ -136,7 +131,6 @@ public class InventoryController {
             headers1.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename);
             headers1.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
             headers1.setContentLength(baos.size());
-
             return new ResponseEntity<>(resource, headers1, HttpStatus.OK);
 
         } catch (IOException e) {
@@ -146,14 +140,11 @@ public class InventoryController {
     }
 
 
-
-    
     @PostMapping("/order/delete_order")
     public String deletePurchaseOrder(@RequestParam("orderId")int orderId)
     {
         String status=inventoryService.deletePurchaseOrder(orderId);
         return "Success";
-    
     }
     
     @PostMapping("/update_inventory")
@@ -161,14 +152,12 @@ public class InventoryController {
     {
     String status=inventoryService.addItemsInventory(inventoryUpdateModel.getItemAddModel(),inventoryUpdateModel.getUser().getStoreId());
     return status;
-        
     }
 
     @PostMapping("/edit")
     public ResponseEntity<byte[]>  updateInventoryList(@RequestBody List<Items> itemsList )
     {
         String status=inventoryService.editInventoryItems(itemsList);
-
         byte[] content = status.getBytes(StandardCharsets.UTF_8);
 
         // Set headers to indicate it's a file download
@@ -181,15 +170,12 @@ public class InventoryController {
 
     }
 
-
-
     @PostMapping ("/format")
     public String inventoryFormat(@RequestBody User user) throws IOException
     {
     String status=inventoryService.generateInventoryExcel(user);
     return status;
     }
-
 
     @GetMapping("/groupList")
     public List<ItemFormatList> getItemFormatGroupList()
@@ -203,9 +189,6 @@ public class InventoryController {
         return inventoryService.groupDataList();
     }
 
-
-
-
     @PostMapping("/format/groupData")
     public ResponseEntity<byte[]> inventoryFormatGroup(@RequestBody User user, @RequestParam("groupId") int groupId) throws IOException {
         return inventoryService.generateInventoryExcelGroupWise(user, groupId);
@@ -215,9 +198,6 @@ public class InventoryController {
     public ResponseEntity<byte[]> inventoryFormatGroupData(@RequestBody User user, @RequestParam("itemType") String itemType) throws IOException {
         return inventoryService.generateInventoryExcelGroupData(user, itemType);
     }
-
-
-
 
     @GetMapping("/download/stock_add_list")
     public ResponseEntity<byte[]> inventoryFormat() throws IOException {
@@ -232,12 +212,10 @@ public class InventoryController {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
         }
-
         // Auto-size the columns based on the header content
         for (int i = 0; i < headers.length; i++) {
             sheet.autoSizeColumn(i);
         }
-
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         workbook.write(bos);
         workbook.close();
@@ -290,7 +268,6 @@ public class InventoryController {
             row.createCell(9).setCellValue(item.getWholeSalePrice());
             row.createCell(10).setCellValue(item.getQuantity());
             row.createCell(11).setCellValue(item.getStoreId());
-
         }
 
         // Resize columns to fit content
@@ -316,7 +293,6 @@ public class InventoryController {
         if (file.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
         try {
             // Call service to read the Excel file and return list of ItemModel
            ItemApiResponseModel itemApiResponseModel = inventoryService.inventory_quantity_update(file,storeId );
@@ -330,7 +306,6 @@ public class InventoryController {
     @PostMapping("/upload")
     public ResponseEntity<byte[]> updateInventory(@RequestBody List<ItemModel> itemModelList) {
         String status = inventoryService.inventoryUpdate(itemModelList);
-
         // Convert status to byte array with UTF-8 encoding
         byte[] content = status.getBytes(StandardCharsets.UTF_8);
 
@@ -357,15 +332,13 @@ public class InventoryController {
 
     }
 
-
     @PostMapping("/stock/add")
     public String addItemStock(@RequestBody List<ItemAddStockModel> itemModel,@RequestParam("storeId") String storeId)
     {
       String status=inventoryService.addItemStock(itemModel,storeId);
       return status;
     }
-    
-    
+
     @GetMapping("/search/school_list")
     public List<String> school_list(@RequestParam("storeId") String storeId)
     {
@@ -393,8 +366,5 @@ public class InventoryController {
         List<InventoryUpdateHistory> inventoryUpdateHistory=inventoryService.getInventoryUpdateHistory(storeId);
         return inventoryUpdateHistory;
     }
-
-
-
 }
 

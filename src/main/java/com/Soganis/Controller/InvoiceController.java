@@ -145,7 +145,6 @@ public class InvoiceController {
 
          // Export the JasperPrint object to a byte array
          return JasperExportManager.exportReportToPdf(jasperPrint);
-
       } catch (Exception e) {
          e.printStackTrace();
          return null;
