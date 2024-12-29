@@ -9,8 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 import org.apache.poi.util.LocaleID;
@@ -21,10 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Optional;
+
 import java.util.stream.Collectors;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -52,6 +48,8 @@ public class InventoryService {
     @Autowired
     private BillingModelRepository billingModelRepository;
 
+    @Autowired
+    private InventoryUpdateHistoryRepo inventoryUpdateHistoryRepo;
 
 
     public String updateInventory(BillingModel billing, String storeId) {
@@ -99,9 +97,6 @@ public class InventoryService {
     }
 
 
-
-
-
     public String updateStock(String itemCode, int qty, String storeId) {
         try {
             Items item = itemRepo.findItemsByItemCode(itemCode, storeId);
@@ -116,9 +111,8 @@ public class InventoryService {
     }
 
     public List<String> groupDataList() {
-       return  itemRepo.findDistinctItemTypeListGroupData();
+        return itemRepo.findDistinctItemTypeListGroupData();
     }
-
 
 
     public String updateInterCompanyInventory(BillingModel billing, String storeId) {
@@ -165,8 +159,7 @@ public class InventoryService {
         }
     }
 
-    public List<ItemFormatList> itemFormatGroupList()
-    {
+    public List<ItemFormatList> itemFormatGroupList() {
         return itemFormatListRepo.findAll();
     }
 
@@ -195,14 +188,13 @@ public class InventoryService {
         }
     }
 
-    public String inventoryEditModel(List<ItemEditModel> itemEditModelList,String status,String storeId)
-    {
-       status=status+"\n";  
-        List<SchoolList> schoolList=schoolRepo.findSchoolNameCode(storeId);
-        List<ItemList> itemList=itemListRepo.findItemListByStoreId(storeId);
+    public String inventoryEditModel(List<ItemEditModel> itemEditModelList, String status, String storeId) {
+        status = status + "\n";
+        List<SchoolList> schoolList = schoolRepo.findSchoolNameCode(storeId);
+        List<ItemList> itemList = itemListRepo.findItemListByStoreId(storeId);
 
-        try{
-            for(ItemEditModel itemEditModel:itemEditModelList) {
+        try {
+            for (ItemEditModel itemEditModel : itemEditModelList) {
                 try {
                     Items item = itemRepo.getItemByItemBarcodeID(itemEditModel.getItemBarcodeID(), storeId);
                     if (item == null) {
@@ -225,24 +217,22 @@ public class InventoryService {
                     String schoolCode = findMatchingSchoolCode(schoolList, itemEditModel.getItemCategory());
                     item.setSchoolCode(schoolCode);
                     String itemTypeCode = findMatchingItemTypeCode(itemList, itemEditModel.getItemType());
-                    String itemType=findMatchingItemType(itemList, itemEditModel.getItemType());
+                    String itemType = findMatchingItemType(itemList, itemEditModel.getItemType());
                     item.setItemTypeCode(itemTypeCode);
                     item.setItemType(itemType);
                     itemRepo.save(item);
-                    status=status+" item updates success itemcode:"+item.getItemCode()+"\n";
-                }catch (Exception e)
-                {
+                    status = status + " item updates success itemcode:" + item.getItemCode() + "\n";
+                } catch (Exception e) {
                     e.printStackTrace();
-                    status=status+" Unable to update item (duplicate entry or invalid price format):"+itemEditModel.getItemCode()+ "\n";
+                    status = status + " Unable to update item (duplicate entry or invalid price format):" + itemEditModel.getItemCode() + "\n";
                 }
             }
-            status=status+"All item successfully updates"+"\n";
-            return  status;
+            status = status + "All item successfully updates" + "\n";
+            return status;
 
-        }catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
-            return status=status+" Exception "+"\n";
+            return status = status + " Exception " + "\n";
         }
 
     }
@@ -276,84 +266,80 @@ public class InventoryService {
         return (bestMatch != null) ? bestMatch.getSchoolCode() : null;
     }
 
-    public String editInventoryItems(List<Items> itemsList )
-    {
-        String status="";
-        try{
-          for(Items item:itemsList)
-          {
-              try{
-                  itemRepo.save(item);
-              }catch (Exception e)
-              {
-                  e.printStackTrace();
-                  status=status+ "Item not updated: "+item.getItemCode()+"\n";
-              }
-          }
+    public String editInventoryItems(List<Items> itemsList) {
+        String status = "";
+        try {
+            for (Items item : itemsList) {
+                try {
+                    itemRepo.save(item);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    status = status + "Item not updated: " + item.getItemCode() + "\n";
+                }
+            }
 
-            status=status+" item updated"+"\n";
-          return status;
-        }catch (Exception e)
-        {
+            status = status + " item updated" + "\n";
+            return status;
+        } catch (Exception e) {
             e.printStackTrace();
-            return status=status+" Exception"+"\n";
+            return status = status + " Exception" + "\n";
         }
     }
 
-   public ItemEditModelStatus updateInventory(MultipartFile file, String storeId) {
-    List<ItemEditModel> items = new ArrayList<>();
-    ItemEditModelStatus itemEditModelStatus = new ItemEditModelStatus();
-    String status = "";
-    
-    try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
-        Sheet sheet = workbook.getSheetAt(0);
+    public ItemEditModelStatus updateInventory(MultipartFile file, String storeId) {
+        List<ItemEditModel> items = new ArrayList<>();
+        ItemEditModelStatus itemEditModelStatus = new ItemEditModelStatus();
+        String status = "";
 
-        for (Row row : sheet) {
-            // Skip the header row
-            if (row.getRowNum() == 0) {
-                continue;
+        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0);
+
+            for (Row row : sheet) {
+                // Skip the header row
+                if (row.getRowNum() == 0) {
+                    continue;
+                }
+
+                String barcodeId = getCellValue(row, 0).trim();  // Trim trailing spaces
+                String itemCode = getCellValue(row, 1).trim();   // Trim trailing spaces
+
+                if (barcodeId == null || itemCode == null || barcodeId.isEmpty() || itemCode.isEmpty()) {
+                    continue;
+                }
+
+                ItemEditModel item = new ItemEditModel();
+                item.setItemBarcodeID(barcodeId);
+                item.setItemCode(itemCode);
+                item.setItemName(getCellValue(row, 2).trim());         // Trim trailing spaces
+                item.setDescription(getCellValue(row, 3).trim());      // Trim trailing spaces
+                item.setItemType(getCellValue(row, 4).trim());         // Trim trailing spaces
+                item.setItemColor(getCellValue(row, 5).trim());        // Trim trailing spaces
+                item.setItemSize(getCellValue(row, 6).trim());         // Trim trailing spaces
+                item.setItemCategory(getCellValue(row, 7).trim());    // Trim trailing spaces
+
+                // Handle potential number parsing exceptions
+                try {
+                    item.setPrice(Integer.parseInt(getCellValue(row, 8).trim()));   // Trim and parse price
+                    item.setWholeSalePrice(Integer.parseInt(getCellValue(row, 9).trim()));  // Trim and parse wholesale price
+                    item.setQuantity(Integer.parseInt(getCellValue(row, 10).trim()));  // Trim and parse quantity
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid numeric values on item code " + item.getItemCode() + ": " + e.getMessage());
+                    status = status + "unable to update item " + item.getItemCode() + " wrong or missing price" + "\n";
+                    continue; // Skip this row if there's a parsing error
+                }
+
+                item.setStoreId(storeId);
+                items.add(item);
             }
-
-            String barcodeId = getCellValue(row, 0).trim();  // Trim trailing spaces
-            String itemCode = getCellValue(row, 1).trim();   // Trim trailing spaces
-
-            if (barcodeId == null || itemCode == null || barcodeId.isEmpty() || itemCode.isEmpty()) {
-                continue;
-            }
-
-            ItemEditModel item = new ItemEditModel();
-            item.setItemBarcodeID(barcodeId);
-            item.setItemCode(itemCode);
-            item.setItemName(getCellValue(row, 2).trim());         // Trim trailing spaces
-            item.setDescription(getCellValue(row, 3).trim());      // Trim trailing spaces
-            item.setItemType(getCellValue(row, 4).trim());         // Trim trailing spaces
-            item.setItemColor(getCellValue(row, 5).trim());        // Trim trailing spaces
-            item.setItemSize(getCellValue(row, 6).trim());         // Trim trailing spaces
-            item.setItemCategory(getCellValue(row, 7).trim());    // Trim trailing spaces
-
-            // Handle potential number parsing exceptions
-            try {
-                item.setPrice(Integer.parseInt(getCellValue(row, 8).trim()));   // Trim and parse price
-                item.setWholeSalePrice(Integer.parseInt(getCellValue(row, 9).trim()));  // Trim and parse wholesale price
-                item.setQuantity(Integer.parseInt(getCellValue(row, 10).trim()));  // Trim and parse quantity
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid numeric values on item code " + item.getItemCode() + ": " + e.getMessage());
-                status = status + "unable to update item " + item.getItemCode() + " wrong or missing price" + "\n";
-                continue; // Skip this row if there's a parsing error
-            }
-
-            item.setStoreId(storeId);
-            items.add(item);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
-    } catch (IOException e) {
-        e.printStackTrace();
-        return null;
-    }
 
-    itemEditModelStatus.setItemEditModelList(items);
-    itemEditModelStatus.setStatus(status);
-    return itemEditModelStatus;
-}
+        itemEditModelStatus.setItemEditModelList(items);
+        itemEditModelStatus.setStatus(status);
+        return itemEditModelStatus;
+    }
 
 
     private String getCellValue(Row row, int cellIndex) {
@@ -389,12 +375,10 @@ public class InventoryService {
     }
 
 
-
     public List<PurchaseOrderBook> view_order(String storeId) {
         List<PurchaseOrderBook> lst = purchaseOrderRepo.findItemsWithStatusNotGenerated(storeId);
         return lst;
     }
-
 
 
     public String deletePurchaseOrder(int orderId) {
@@ -427,13 +411,18 @@ public class InventoryService {
             Items item = itemRepo.getItemByItemBarcodeID(itemAddModel.getBarcodedId(), storeId);
             int total_quantity = item.getQuantity() + itemAddModel.getQuantity();
             item.setQuantity(total_quantity);
-            String price=itemAddModel.getPrice()+"";
-            String wholeSalePrice=itemAddModel.getWholeSalePrice()+"";
+            String price = itemAddModel.getPrice() + "";
+            String wholeSalePrice = itemAddModel.getWholeSalePrice() + "";
             item.setPrice(price);
             item.setWholeSalePrice(wholeSalePrice);
             itemRepo.save(item);
         }
         return "Success";
+    }
+
+    public List<InventoryUpdateHistory> getInventoryUpdateHistory(String storeId)
+    {
+        return inventoryUpdateHistoryRepo.findLatestRecord(storeId);
     }
 
     public String addItemStock(List<ItemAddStockModel> itemList, String storeId) {
@@ -454,11 +443,9 @@ public class InventoryService {
                 item.setWholeSalePrice(itemModel.getWholeSalePrice());
                 String schoolCode = schoolRepo.findSchoolCodeBySchoolName(item.getItemCategory(), storeId);
                 String itemTypeCode = itemListRepo.findItemTypeCodeByDescription(item.getItemType(), storeId);
-                if(itemModel.getQuantity()==0)
-                {
+                if (itemModel.getQuantity() == 0) {
                     item.setQuantity(0);
-                }
-               else{
+                } else {
                     item.setQuantity(itemModel.getQuantity());
                 }
                 item.setDescription(itemModel.getDescription());
@@ -471,7 +458,7 @@ public class InventoryService {
                 } else {
                     String groupId = itemModel.getGroupId();
                     item.setGeneralGroupId(groupId);
-                    groupId = groupId+"/"+itemModel.getItemSize();
+                    groupId = groupId + "/" + itemModel.getItemSize();
                     item.setGroup_id(groupId);
                 }
 
@@ -520,91 +507,90 @@ public class InventoryService {
     }
 
     public String generateInventoryExcel(User user) throws IOException {
-    try {
-        List<String> itemList = itemRepo.findDistinctItemTypes(user.getStoreId());
-        List<ItemFormatList> itemFormatList = itemFormatListRepo.findAll();
-        List<String> itemGroupList = new ArrayList<>();
+        try {
+            List<String> itemList = itemRepo.findDistinctItemTypes(user.getStoreId());
+            List<ItemFormatList> itemFormatList = itemFormatListRepo.findAll();
+            List<String> itemGroupList = new ArrayList<>();
 
-        for (ItemFormatList formatList : itemFormatList) {
-            if (!formatList.getItem1().equals("")) {
-                itemGroupList.add(formatList.getItem1());
-                itemList.remove(formatList.getItem1());
-            }
-            if (!formatList.getItem2().equals("")) {
-                itemGroupList.add(formatList.getItem2());
-                itemList.remove(formatList.getItem2());
-            }
-            if (!formatList.getItem3().equals("")) {
-                itemGroupList.add(formatList.getItem3());
-                itemList.remove(formatList.getItem3());
-            }
-            if (!formatList.getItem4().equals("")) {
-                itemGroupList.add(formatList.getItem4());
-                itemList.remove(formatList.getItem4());
-            }
-            if (!formatList.getItem5().equals("")) {
-                itemGroupList.add(formatList.getItem5());
-                itemList.remove(formatList.getItem5());
-            }
-
-            if (!formatList.getItem6().equals("")) {
-                itemGroupList.add(formatList.getItem6());
-                itemList.remove(formatList.getItem6());
-            }
-
-
-            List<String> itemSizes = getSortedItemSizes(itemRepo.findDistinctItemSizeByItemTypeInList(itemGroupList, user.getStoreId()));
-            List<String> itemCategory = getSortedItemCategory(itemRepo.findDistinctSchoolByTypeInList(itemGroupList, user.getStoreId()));
-            List<ItemAddInventoryModel> itemAddList = new ArrayList<>();
-
-            String itemName = itemGroupList.get(0) + "and other";
-            for (String item : itemGroupList) {
-                for (String school : itemCategory) {
-                    List<String> itemColorList = itemRepo.findDistinctItemColor(school, item,user.getStoreId());
-                    for (String itemColor : itemColorList) {
-                        String schoolCode = itemRepo.findDistinctSchoolCode(school,user.getStoreId());
-                        ItemAddInventoryModel itemModel = new ItemAddInventoryModel(schoolCode, item, itemColor);
-                        itemAddList.add(itemModel);
-                    }
-
+            for (ItemFormatList formatList : itemFormatList) {
+                if (!formatList.getItem1().equals("")) {
+                    itemGroupList.add(formatList.getItem1());
+                    itemList.remove(formatList.getItem1());
                 }
-            }
-
-            exportExcelInventoryFormat(itemName, itemAddList, itemSizes);
-            itemGroupList=new ArrayList<>();
-
-        }
-
-
-        if (itemList != null && itemList.size() > 0) {
-            for (String item : itemList) {
-
-                if (item.equals("CUSTOM")) {
-                    continue;
+                if (!formatList.getItem2().equals("")) {
+                    itemGroupList.add(formatList.getItem2());
+                    itemList.remove(formatList.getItem2());
+                }
+                if (!formatList.getItem3().equals("")) {
+                    itemGroupList.add(formatList.getItem3());
+                    itemList.remove(formatList.getItem3());
+                }
+                if (!formatList.getItem4().equals("")) {
+                    itemGroupList.add(formatList.getItem4());
+                    itemList.remove(formatList.getItem4());
+                }
+                if (!formatList.getItem5().equals("")) {
+                    itemGroupList.add(formatList.getItem5());
+                    itemList.remove(formatList.getItem5());
                 }
 
-                List<String> itemSizes = getSortedItemSizes(itemRepo.findDistinctItemSizeByItemType(item, user.getStoreId()));
-                List<String> itemCategory = getSortedItemCategory(itemRepo.findDistinctSchoolByType(item, user.getStoreId()));
+                if (!formatList.getItem6().equals("")) {
+                    itemGroupList.add(formatList.getItem6());
+                    itemList.remove(formatList.getItem6());
+                }
+
+
+                List<String> itemSizes = getSortedItemSizes(itemRepo.findDistinctItemSizeByItemTypeInList(itemGroupList, user.getStoreId()));
+                List<String> itemCategory = getSortedItemCategory(itemRepo.findDistinctSchoolByTypeInList(itemGroupList, user.getStoreId()));
                 List<ItemAddInventoryModel> itemAddList = new ArrayList<>();
 
-                for (String school : itemCategory) {
-                    List<String> itemColorList = itemRepo.findDistinctItemColor(school, item,user.getStoreId());
-                    for (String itemColor : itemColorList) {
-                        String schoolCode = itemRepo.findDistinctSchoolCode(school,user.getStoreId());
-                        ItemAddInventoryModel itemModel = new ItemAddInventoryModel(schoolCode, item, itemColor);
-                        itemAddList.add(itemModel);
-                    }
+                String itemName = itemGroupList.get(0) + "and other";
+                for (String item : itemGroupList) {
+                    for (String school : itemCategory) {
+                        List<String> itemColorList = itemRepo.findDistinctItemColor(school, item, user.getStoreId());
+                        for (String itemColor : itemColorList) {
+                            String schoolCode = itemRepo.findDistinctSchoolCode(school, user.getStoreId());
+                            ItemAddInventoryModel itemModel = new ItemAddInventoryModel(schoolCode, item, itemColor);
+                            itemAddList.add(itemModel);
+                        }
 
+                    }
                 }
 
-                exportExcelInventoryFormat(item, itemAddList, itemSizes);
+                exportExcelInventoryFormat(itemName, itemAddList, itemSizes);
+                itemGroupList = new ArrayList<>();
 
             }
+
+
+            if (itemList != null && itemList.size() > 0) {
+                for (String item : itemList) {
+
+                    if (item.equals("CUSTOM")) {
+                        continue;
+                    }
+
+                    List<String> itemSizes = getSortedItemSizes(itemRepo.findDistinctItemSizeByItemType(item, user.getStoreId()));
+                    List<String> itemCategory = getSortedItemCategory(itemRepo.findDistinctSchoolByType(item, user.getStoreId()));
+                    List<ItemAddInventoryModel> itemAddList = new ArrayList<>();
+
+                    for (String school : itemCategory) {
+                        List<String> itemColorList = itemRepo.findDistinctItemColor(school, item, user.getStoreId());
+                        for (String itemColor : itemColorList) {
+                            String schoolCode = itemRepo.findDistinctSchoolCode(school, user.getStoreId());
+                            ItemAddInventoryModel itemModel = new ItemAddInventoryModel(schoolCode, item, itemColor);
+                            itemAddList.add(itemModel);
+                        }
+
+                    }
+
+                    exportExcelInventoryFormat(item, itemAddList, itemSizes);
+
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    }catch (Exception e)
-    {
-        e.printStackTrace();
-    }
         return "Success";
     }
 
@@ -674,17 +660,17 @@ public class InventoryService {
     }
 
 
-    public ResponseEntity<byte[]> generateInventoryExcelGroupData(User user,String itemType) {
+    public ResponseEntity<byte[]> generateInventoryExcelGroupData(User user, String itemType) {
         try {
 
-            List<String> groupData=itemRepo.findDistinctGroupId(itemType,user.getStoreId());
+            List<String> groupData = itemRepo.findDistinctGroupId(itemType, user.getStoreId());
             List<String> itemSizes = getSortedItemSizes(itemRepo.findDistinctItemSizeByItemTypeInListGroupData(itemType, user.getStoreId()));
-            List<ItemAddInventoryModel> itemAddList=new ArrayList<>();
+            List<ItemAddInventoryModel> itemAddList = new ArrayList<>();
 
-            for(String groupId: groupData) {
+            for (String groupId : groupData) {
                 List<String> itemCategory = getSortedItemCategory(itemRepo.findDistinctSchoolByTypeInListGroupData(groupId, user.getStoreId()));
-                String school=itemCategory.get(0);
-                List<String> itemColorList = itemRepo.findDistinctItemColorGroupData(school, itemType,groupId, user.getStoreId());
+                String school = itemCategory.get(0);
+                List<String> itemColorList = itemRepo.findDistinctItemColorGroupData(school, itemType, groupId, user.getStoreId());
                 for (String itemColor : itemColorList) {
                     String schoolCode = itemRepo.findDistinctSchoolCodeGroupData(school, user.getStoreId());
                     itemAddList.add(new ItemAddInventoryModel(schoolCode, itemType, itemColor));
@@ -697,7 +683,6 @@ public class InventoryService {
             return ResponseEntity.status(500).body(null);
         }
     }
-
 
 
     public ResponseEntity<byte[]> exportExcelInventoryFormatDownload(String itemType, List<ItemAddInventoryModel> itemList, List<String> itemSize) {
@@ -745,7 +730,6 @@ public class InventoryService {
             return ResponseEntity.status(500).body(null);
         }
     }
-
 
 
     public String exportExcelInventoryFormat(String itemType, List<ItemAddInventoryModel> itemList, List<String> itemSize) {
@@ -796,8 +780,8 @@ public class InventoryService {
 
     public ItemApiResponseModel inventory_quantity_update(MultipartFile file, String storeId) throws IOException {
         List<ItemModel> itemList = new ArrayList<>();
-        String status="";
-        int sno=1;
+        String status = "";
+        int sno = 1;
 
         try (Workbook workbook = new XSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0); // Assuming the first sheet
@@ -836,37 +820,36 @@ public class InventoryService {
                     Cell quantityCell = currentRow.getCell(col);
                     if (quantityCell != null && quantityCell.getCellType() == CellType.NUMERIC) {
                         int quantity = (int) quantityCell.getNumericCellValue();
-                        List<Items> itemsListInventory=itemRepo.getItemBySchoolCodeTypeSizeColor(schoolCode, itemType,size, color, storeId);
+                        List<Items> itemsListInventory = itemRepo.getItemBySchoolCodeTypeSizeColor(schoolCode, itemType, size, color, storeId);
 
-                        if(itemsListInventory.size()>1)
-                        {
-                            status=status+sno+"-"+schoolCode+" "+itemType+" "+color+" "+size+" duplicates enteries possible. \n";
-                            sno=sno+1;
-                            System.out.println("Duplicates entry found");
+                        if (itemsListInventory.size() > 1) {
+                            status = status + sno + "-" + schoolCode + " " + itemType + " " + color + " " + size + " duplicates enteries possible. \n";
+                            sno = sno + 1;
                         }
 
-                        if(itemsListInventory.size()>0) {
+                        if (itemsListInventory.size() > 0) {
                             Items items = itemsListInventory.get(0);
 
                             if (items == null) {
-                                status = status +sno+"-"+ schoolCode + " " + itemType + " " + color + " " + size + " data not available. \n";
-                                sno=sno+1;
+                                status = status + sno + "-" + schoolCode + " " + itemType + " " + color + " " + size + " data not available. \n";
+                                sno = sno + 1;
                                 continue;
                             }
                             // Create ItemModel and map the data
                             ItemModel item = new ItemModel(schoolCode, items.getItemCode(), size, color);
                             item.setQuantity(quantity);
+                            item.setCurrentQuantity(items.getQuantity());
                             itemList.add(item);
-                        }else {
-                            status = status +sno+"-"+ schoolCode + " " + itemType + " " + color + " " + size + " data not available \n";
-                            sno=sno+1;
+                        } else {
+                            status = status + sno + "-" + schoolCode + " " + itemType + " " + color + " " + size + " data not available \n";
+                            sno = sno + 1;
                         }
                     }
                 }
             }
         }
         System.out.println(itemList.size());
-        return new ItemApiResponseModel(itemList,status);
+        return new ItemApiResponseModel(itemList, status);
     }
 
     public String findMatchingItemTypeCode(List<ItemList> itemList, String descriptionSearch) {
@@ -951,52 +934,96 @@ public class InventoryService {
     public String inventoryUpdate(List<ItemModel> itemModelList) {
         String status = "";
 
+        // Create InventoryUpdateHistory instance and save it initially
+        InventoryUpdateHistory inventoryUpdateHistory = inventoryUpdateHistoryRepo.save(new InventoryUpdateHistory());
+        List<InventoryUpdateList> inventoryUpdateList = new ArrayList<>();
+
+        String storeId = "";
+        Set<String> schoolList = new HashSet<>();
+        Set<String> itemList = new HashSet<>();
 
         for (ItemModel itemModel : itemModelList) {
-            System.out.println(itemModel);
             try {
+                // Find the item by item code and store ID
                 Items item = itemRepo.findItemsByItemCode(
                         itemModel.getItemCode(),
                         itemModel.getStoreId()
                 );
 
+                int stock = item.getQuantity() + itemModel.getQuantity();
+                if (item != null) {
+                    String groupId = item.getGeneralGroupId();
+                    storeId = item.getStoreId();
 
+                    if (!groupId.isEmpty()) {
+                        // Process grouped items
+                        List<Items> itemsList = itemRepo.getItemByGroupID(item.getGroup_id(), storeId);
+                        System.out.println(itemsList.size());
+                        for (Items inventory : itemsList) {
+                            if (inventory != null) {
+                                inventory.setQuantity(stock);
 
-                String groupId=item.getGeneralGroupId();
-                String storeId=item.getStoreId();
+                                schoolList.add(inventory.getItemCategory());
+                                itemList.add(inventory.getItemType());
 
-                if(!groupId.equals(""))
-                {
-                    List<Items> itemsList=itemRepo.getItemByGroupID(groupId,storeId);
-                    for(Items inventory:itemsList) {
-                        if (inventory != null) {
-                            int qty = item.getQuantity();
-                            int stock = qty + inventory.getQuantity();
-                            item.setQuantity(stock);
-                            status = status + inventory.getItemCode() + " updated \n";
-                            itemRepo.save(item);
-                        } else {
-                            status = status + itemModel.getItemCode() + " " + itemModel.getSchoolCode() + " " + itemModel.getSize() + " " + itemModel.getItemColor() + " not found" + "\n";
+                                // Create InventoryUpdateList object
+                                InventoryUpdateList inventoryUpdate = new InventoryUpdateList(
+                                        inventory.getItemCode(),
+                                        inventory.getDescription(),
+                                        inventory.getQuantity(),
+                                        inventory.getStoreId()
+                                );
+                                inventoryUpdate.setInventoryUpdateHistory(inventoryUpdateHistory);
+                                inventoryUpdateList.add(inventoryUpdate);
+
+                                // Save the updated item
+                                itemRepo.save(inventory);
+                                status += inventory.getItemCode() + "(grouped item) updated \n";
+                            }
                         }
-                    }
-                }else{
-                    if (item != null) {
-                        int qty = item.getQuantity();
-                        int stock = qty + itemModel.getQuantity();
-                        item.setQuantity(stock);
-                        status=status+item.getItemCode()+" updated \n";
-                        itemRepo.save(item);
                     } else {
-                        status = status + itemModel.getItemCode() + " " + itemModel.getSchoolCode() + " " + itemModel.getSize() + " " + itemModel.getItemColor() + " not found" + "\n";
+                        // Process individual items
+                        item.setQuantity(stock);
+
+                        schoolList.add(item.getItemCategory());
+                        itemList.add(item.getItemType());
+
+                        // Create InventoryUpdateList object
+                        InventoryUpdateList inventoryUpdate = new InventoryUpdateList(
+                                item.getItemCode(),
+                                item.getDescription(),
+                                item.getQuantity(),
+                                item.getStoreId()
+                        );
+                        inventoryUpdate.setInventoryUpdateHistory(inventoryUpdateHistory);
+                        inventoryUpdateList.add(inventoryUpdate);
+
+                        // Save the updated item
+                        itemRepo.save(item);
+                        status += item.getItemCode() + " updated \n";
                     }
+                } else {
+                    status += itemModel.getItemCode() + " " + itemModel.getSchoolCode() + " " +
+                            itemModel.getSize() + " " + itemModel.getItemColor() + " not found \n";
                 }
-
             } catch (Exception e) {
-                status = status + itemModel.getItemCode() + " " + itemModel.getSchoolCode() + " " + itemModel.getSize() + " " + itemModel.getItemColor() + "exception duplicate entry or item not present" + "\n";
+                status += itemModel.getItemCode() + " " + itemModel.getSchoolCode() + " " +
+                        itemModel.getSize() + " " + itemModel.getItemColor() +
+                        " exception: duplicate entry or item not present \n";
             }
-
         }
-        System.out.println(status);
+
+        // After processing all items, save InventoryUpdateHistory with its associated list
+        if (!inventoryUpdateList.isEmpty()) {
+            inventoryUpdateHistory.setSchool(schoolList.stream().collect(Collectors.joining(" / ")));
+            inventoryUpdateHistory.setItemList(itemList.stream().collect(Collectors.joining(" / ")));
+            inventoryUpdateHistory.setDate(new Date());
+            inventoryUpdateHistory.setStoreId(storeId);
+            inventoryUpdateHistory.setInventoryUpdateLists(inventoryUpdateList);
+
+            inventoryUpdateHistoryRepo.save(inventoryUpdateHistory);
+        }
+
         return status;
     }
 }

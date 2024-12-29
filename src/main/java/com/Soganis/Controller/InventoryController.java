@@ -311,10 +311,6 @@ public class InventoryController {
         return new ResponseEntity<>(outputStream.toByteArray(), headersResponse, HttpStatus.OK);
     }
 
-
-
-
-
     @PostMapping("/add")
     public ResponseEntity<ItemApiResponseModel> uploadExcelFile(@RequestParam("file") MultipartFile file, @RequestParam("storeId") String storeId) {
         if (file.isEmpty()) {
@@ -353,7 +349,6 @@ public class InventoryController {
         ItemEditModelStatus itemEditModelList=inventoryService.updateInventory(file,storeId);
         String status=inventoryService.inventoryEditModel(itemEditModelList.getItemEditModelList(),itemEditModelList.getStatus(),storeId);
 
-
         byte[] content = status.getBytes(StandardCharsets.UTF_8);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
@@ -391,6 +386,14 @@ public class InventoryController {
         String status=inventoryService.checkItemCode(itemCode,storeId);
         return status;
     }
+
+    @GetMapping("/updateHistory")
+    public List<InventoryUpdateHistory> inventoryUpdateHistory(@RequestParam("storeId") String storeId)
+    {
+        List<InventoryUpdateHistory> inventoryUpdateHistory=inventoryService.getInventoryUpdateHistory(storeId);
+        return inventoryUpdateHistory;
+    }
+
 
 
 }

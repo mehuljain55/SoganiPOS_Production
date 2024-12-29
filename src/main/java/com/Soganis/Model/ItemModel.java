@@ -8,6 +8,7 @@ public class ItemModel {
   private String itemCode;
   private String size;
   private String itemColor;
+  private int currentQuantity;
   private int quantity;
   private  String storeId;
 
@@ -20,9 +21,6 @@ public class ItemModel {
         this.size = size;
         this.itemColor = itemColor;
     }
-  
-   
-  
 
     public String getSchoolCode() {
         return schoolCode;
@@ -56,6 +54,14 @@ public class ItemModel {
         this.itemColor = itemColor;
     }
 
+    public int getCurrentQuantity() {
+        return currentQuantity;
+    }
+
+    public void setCurrentQuantity(int currentQuantity) {
+        this.currentQuantity = currentQuantity;
+    }
+
     public int getQuantity() {
         return quantity;
     }
@@ -71,12 +77,4 @@ public class ItemModel {
     public void setStoreId(String storeId) {
         this.storeId = storeId;
     }
-
-    @Override
-    public String toString() {
-        return "ItemModel{" + "schoolCode=" + schoolCode + ", itemCode=" + itemCode + ", size=" + size + ", itemColor=" + itemColor + '}';
-    }
-  
-  
-    
 }
