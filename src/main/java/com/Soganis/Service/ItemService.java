@@ -89,10 +89,6 @@ public class ItemService {
         return status;
     }
 
-
-
-
-
     public Billing saveBilling(Billing billing) {
         try {
             String storeId=getStoreId(billing.getUserId());
@@ -136,9 +132,9 @@ public class ItemService {
                         else{
                          item=itemRepo.getItemByItemBarcodeID(billingModel.getItemBarcodeID(),storeId);
                          }
-                        int price=Integer.parseInt(item.getPrice());
 
-                        int discount=billing.getDiscount();
+                      int price=Integer.parseInt(item.getPrice());
+                      int discount=billing.getDiscount();
                       int discount_price=(sellPrice*discount)/100;
                       sellPrice=sellPrice-discount_price;
                       billingModel.setSellPrice(sellPrice);
@@ -488,7 +484,6 @@ public class ItemService {
         try {
 
             String storeId=getStoreId(billing.getUserId());
-
             Integer maxBillNo = billRepo.findMaxBillNoByStoreId(storeId);
             if (maxBillNo == null) {
                 maxBillNo = 1;
@@ -508,14 +503,12 @@ public class ItemService {
             List<BillingModel> billingModelList=new ArrayList<>();
             if (billing.getBill() != null) {
                 for (BillingModel billingModel : billing.getBill()) {
-                    System.out.println("BillModel:"+billingModel);
                     billingModel.setBilling(savedBilling);
                     final_amount = final_amount + billingModel.getTotal_amount();
                     billingModel.setBill_date(new Date());
                     billingModel.setBillCategory("Wholesale");
                     billingModel.setStoreName(storeId);
                     String status = inventoryService.updateInterCompanyInventory(billingModel,storeId);
-                    System.out.println(status);
                     billingModel.setStoreName(storeId);
                     billingModel.setFinal_amount(final_amount);
 

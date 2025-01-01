@@ -59,7 +59,6 @@ public class InventoryService {
         }
 
         try {
-
             Items item = itemRepo.getItemByItemBarcodeID(billing.getItemBarcodeID(), storeId);
 
             if (item.getGroup_id().equals("NA")) {
@@ -74,7 +73,7 @@ public class InventoryService {
                 return "Success";
             } else {
 
-                List<Items> groupList = itemRepo.findItemsByGroupId(item.getGroup_id());
+                List<Items> groupList = itemRepo.findItemsByGroupId(item.getGroup_id(),storeId);
                 for (Items sale : groupList) {
                     int item_sold = billing.getQuantity();
                     int updatedInventoryQuantity = item.getQuantity() - item_sold;
@@ -137,7 +136,7 @@ public class InventoryService {
                 return "Success";
             } else {
 
-                List<Items> groupList = itemRepo.findItemsByGroupId(item.getGroup_id());
+                List<Items> groupList = itemRepo.findItemsByGroupId(item.getGroup_id(),storeId);
                 for (Items sale : groupList) {
                     int item_sold = billing.getQuantity();
                     int updatedInventoryQuantity = item.getQuantity() - item_sold;
@@ -147,12 +146,9 @@ public class InventoryService {
                     }
                     sale.setQuantity(updatedInventoryQuantity);
                     itemRepo.save(sale);
-
                 }
                 return "Success";
-
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             return "Failed";

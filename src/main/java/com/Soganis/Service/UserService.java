@@ -289,11 +289,6 @@ public class UserService {
                         .mapToInt(Transactions::getAmount)
                         .sum();
 
-
-
-
-
-
                 user_cash_returned = user_cash_returned * -1;
                 int total = user_cash_collected+user_upi_collection+user_card_collection - user_cash_returned;
                 user_cash_collection.setUserId(user.getUserId());
@@ -352,9 +347,6 @@ public class UserService {
                 List<Billing> bills = billRepo.findByUserIdAndBillDate(user.getUserId(), new Date(),storeId);
 
                 List<Transactions> transactionsList=transactionRepo.findByUserIdAndBillDate(user.getUserId(),new Date(),storeId);
-
-
-
                 int user_cash_collected = transactionsList.stream()
                         .filter(transaction -> "Cash".equalsIgnoreCase(transaction.getMode()) && transaction.getAmount() > 0)
                         .mapToInt(Transactions::getAmount)
@@ -376,9 +368,6 @@ public class UserService {
                         .filter(transaction -> transaction.getAmount() < 0) // Include all modes with negative amounts
                         .mapToInt(Transactions::getAmount)
                         .sum();
-
-
-
 
                 user_cash_returned = user_cash_returned * -1;
                 int total = user_cash_collected+user_upi_collection+user_card_collection - user_cash_returned;
