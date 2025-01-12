@@ -23,6 +23,14 @@ public interface TransactionsRepository extends JpaRepository<Transactions, Tran
             @Param("endDate") Date endDate,
             @Param("storeId") String storeId);
 
+
+
+    @Query("SELECT t FROM Transactions t WHERE t.date=:date AND t.mode=:mode AND t.storeId = :storeId")
+    List<Transactions> findTransactionByModeDateAndStoreId(@Param("date") Date date,
+                                                       @Param("mode") String mode,
+                                                       @Param("storeId") String storeId);
+
+
     @Query("SELECT t FROM Transactions t WHERE t.billNo=:billNo AND t.storeId = :storeId")
     List<Transactions> findTransactionByBill(
             @Param("billNo") int billNo,

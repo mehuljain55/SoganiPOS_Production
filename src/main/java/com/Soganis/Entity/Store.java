@@ -7,15 +7,12 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name="store")
 public class Store {
-
-
     @Id
     private String storeId;
     private String storeName;
-    private  String mobileNo;
-    private  String address;
-
-
+    private String mobileNo;
+    private String address;
+    private int openingCash;
 
     public Store(String storeId, String storeName, String address) {
         this.storeId = storeId;
@@ -57,4 +54,14 @@ public class Store {
     public void setMobileNo(String mobileNo) {
         this.mobileNo = mobileNo;
     }
+
+    public int getOpeningCash() {
+        return openingCash;
+    }
+
+    public void setOpeningCash(int openingCash) {
+        this.openingCash = openingCash;
+    }
+
+
 }

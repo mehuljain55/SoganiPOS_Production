@@ -2,6 +2,7 @@ package com.Soganis.Controller;
 
 import com.Soganis.Entity.Store;
 import com.Soganis.Entity.User;
+import com.Soganis.Service.StoreService;
 import com.Soganis.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "https://www.soganiuniforms.shop")
 @RestController
@@ -18,12 +20,22 @@ public class StoreController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private StoreService storeService;
+
     @PostMapping("/createStore")
     public String addStore(@RequestBody Store store)
     {
         String status=userService.createStore(store);
         return  status;
     }
+
+    @GetMapping("/storeInfo")
+    public Map<String, Integer> getStoreInfo(@RequestParam("storeId") String storeId)
+    {
+      return storeService.getStoreInfo(storeId);
+    }
+
 
     @GetMapping("/validate")
     public String validateStoreId(@RequestParam("storeId") String storeId)
@@ -42,6 +54,8 @@ public class StoreController {
             return new ResponseEntity<>(stores, HttpStatus.OK);
         }
     }
+
+
 
     @PostMapping("/getStoreList")
     public ResponseEntity<List<Store>> getStores(@RequestParam("storeId") String storeId) {
@@ -103,4 +117,6 @@ public class StoreController {
             return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
     }
+
+
 }
